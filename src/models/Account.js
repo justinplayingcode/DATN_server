@@ -19,7 +19,10 @@ const accountSchema = new Schema({
         unique: true, 
         trim: true,
         validate: {
-            validator: value => validateEmail(value),
+            validator: value => {
+                if(!value) return true;
+                validateEmail(value);
+            },
             message: props => invalidEmail(props.value)
         },
     },
@@ -35,7 +38,7 @@ const accountSchema = new Schema({
         required: [true, 'role must be required'],
         enum: {
             values: ['admin', 'doctor', 'patient'],
-            message: '{VALUE} is not supported, just only "admin, doctor, patient'
+            message: "{VALUE} is not supported, just only 'admin', 'doctor' or 'patient' plz!"
         }
     }
 }, {timestamps: true});
