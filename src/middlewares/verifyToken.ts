@@ -7,14 +7,14 @@ export const verifyToken = (req, res, next) => {
     const authorization = req.header('authorization');
     if(!authorization) {
         // error: unauthorized
-        const err = new Error('Unauthorized!');
+        const err: any = new Error('Unauthorized!');
         err.statusCode = 401;
         return next(err)
     } else {
         // get token: Bearer sdgkjfhsjkgfdsjkdbasdhgasiodh => xóa 'Bearer '
         const token = authorization.replace('Bearer ', '');
         // verify token
-        const { userId } = jwt.verify(token, process.env.APP_SECRET);
+        const { userId } = jwt.verify(token, process.env.APP_SECRET) as any;
         // assign to req
         req.user = { userId };
         next(); // vì là middlewares => dùng next để đi tiếp vào controller

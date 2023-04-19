@@ -1,17 +1,17 @@
 import connectDB from "./config/db.config";
-import express, { json } from 'express';
+import express, { json, Express  } from 'express';
 import cors from 'cors';
 import routes from "./routes";
 import helmet from "helmet";
-import { errorHandler } from './middlewares/errorHandle.js';
+import { errorHandler } from './middlewares/errorHandle';
 connectDB();
-const app = express();
+const app: Express  = express();
 app.use(cors());
 app.use(helmet())
 app.use(json());
 app.use('/api', routes);
 app.all('*', (req,res,next) => {
-    const err = new Error('The route can not be found');
+    const err: any = new Error('The route can not be found');
     err.statusCode = 404;
     next(err)
 })
