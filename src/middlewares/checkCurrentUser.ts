@@ -12,7 +12,7 @@ export const checkCurrentUser = (req, res, next) => {
 
         // verify token
         try {
-            const { userId } = jwt.verify(token, process.env.APP_SECRET);
+            const { userId } = jwt.verify(token, process.env.APP_SECRET) as any;
             req.user = { userId };
             next();
         } catch (err) {

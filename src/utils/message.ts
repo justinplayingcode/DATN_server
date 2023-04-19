@@ -5,3 +5,11 @@ export const invalidUserName = (value) => {
 export const invalidEmail = (value) => {
     return `${value} is not a valid email!`
 }
+
+export const invalidPhoneNumber = (value) => {
+    return `${value} is not a valid phone number!`
+}
+
+export const invalidFullname = (value) => {
+    return `${value} is not a valid name!`
+}

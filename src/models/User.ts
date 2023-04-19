@@ -3,10 +3,10 @@ import bcrypt from 'bcryptjs';
 import { validateUserName, validateEmail } from '../utils/validate';
 import { invalidUserName, invalidEmail } from '../utils/message';
 
-const accountSchema = new Schema({
+const userSchema = new Schema({
     username: {
         type: String, 
-        unique: true, 
+        unique: true,
         trim: true,
         validate: {
             validator: value => validateUserName(value),
@@ -15,9 +15,11 @@ const accountSchema = new Schema({
         required: [true, 'username must be required']
     },
     email: {
-        type: String, 
-        unique: true, 
+        type: String,
         trim: true,
+        unique: true,
+        sparse: true,
+        lowercase: true,
         validate: {
             validator: value => {
                 if(!value) return true;
@@ -37,13 +39,13 @@ const accountSchema = new Schema({
         trim: true, 
         required: [true, 'role must be required'],
         enum: {
-            values: ['admin', 'doctor', 'patient'],
+            values: ['admin','doctor', 'patient'],
             message: "{VALUE} is not supported, just only 'admin', 'doctor' or 'patient' plz!"
         }
     }
 }, {timestamps: true});
 
-accountSchema.pre('save', function(next) {
+userSchema.pre('save', function(next) {
     let user = this;
     bcrypt.hash(user.password, 10, (error, hashPassword) => {
         if (error) {
@@ -55,6 +57,6 @@ accountSchema.pre('save', function(next) {
     })
 });
 
-const Account = mongoose.model('User', accountSchema);
+const User = mongoose.model('User', userSchema);
 
-export default Account;
+export default User;

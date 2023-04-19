@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "useDefineForClassFields": true,
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": false,
+        "noImplicitAny": false,
+        "forceConsistentCasingInFileNames": true,
+        "outDir": "dist",
+        "noUnusedLocals": true,
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}
