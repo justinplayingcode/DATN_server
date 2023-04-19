@@ -10,7 +10,7 @@
         "strict": false,
         "noImplicitAny": false,
         "forceConsistentCasingInFileNames": true,
-        "outDir": "dist",
+        "outDir": "build",
         "noUnusedLocals": true,
     },
     "include": [
