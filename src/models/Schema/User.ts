@@ -1,7 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { validateUserName, validateEmail } from '../utils/validate';
-import { invalidUserName, invalidEmail } from '../utils/message';
+import { validateUserName, validateEmail } from '../../utils/validate';
+import { invalidUserName, invalidEmail } from '../../utils/message';
+import { findOneUser } from '../../services/authService';
+import { Role, collectionName } from '../Data/schema';
+import { convertEnumToArray } from '../../utils/convert';
 
 const userSchema = new Schema({
     username: {
@@ -17,16 +20,21 @@ const userSchema = new Schema({
     email: {
         type: String,
         trim: true,
-        unique: true,
-        sparse: true,
         lowercase: true,
-        validate: {
-            validator: value => {
-                if(!value) return true;
-                validateEmail(value);
+        validate: [
+            {
+                validator: value => validateEmail(value),
+                message: props => invalidEmail(props.value)
             },
-            message: props => invalidEmail(props.value)
-        },
+            {
+                validator: async (value) => {
+                    if (value === "") return true;
+                    const user = await findOneUser('email', value);
+                    return !user;
+                },
+                message: props => `${props.value}: email already exists`
+            }
+        ]
     },
     password: {
         type: String, 
@@ -35,15 +43,19 @@ const userSchema = new Schema({
         minlength: [6, 'password must be at least 6 characters']
     },
     role: {
-        type: String,
+        type: Number,
         trim: true, 
         required: [true, 'role must be required'],
         enum: {
-            values: ['admin','doctor', 'patient'],
-            message: "{VALUE} is not supported, just only 'admin', 'doctor' or 'patient' plz!"
+            values: convertEnumToArray(Role),
+            message: "{VALUE} is not supported in role"
         }
+    },
+    avatar: {
+        type: String,
+        trim: true,
     }
-}, {timestamps: true});
+});
 
 userSchema.pre('save', function(next) {
     let user = this;
@@ -57,6 +69,6 @@ userSchema.pre('save', function(next) {
     })
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model(collectionName.User, userSchema);
 
 export default User;

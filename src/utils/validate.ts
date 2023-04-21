@@ -5,7 +5,7 @@ export const validateUserName = (value) => {
 
 export const validateEmail = (value) => {
     const regex = new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-    return regex.test(value);
+    return regex.test(value) || value === "";
 }
 
 export const validatePhoneNumber = (value) => {

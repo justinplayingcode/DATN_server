@@ -1,11 +1,13 @@
 import mongoose, { Schema } from 'mongoose';
-import { validateFullName, validatePhoneNumber } from "../utils/validate";
-import { invalidPhoneNumber, invalidFullname } from '../utils/message';
+import { validateFullName, validatePhoneNumber } from "../../utils/validate";
+import { invalidPhoneNumber, invalidFullname } from '../../utils/message';
+import { Gender, collectionName } from '../Data/schema';
+import { convertEnumToArray } from '../../utils/convert';
 
 const adminSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: collectionName.User,
         required: true
     },
     fullname: {
@@ -21,25 +23,23 @@ const adminSchema = new Schema({
         type: String,
         trim: true,
         unique: true,
+        required: [true, 'phonenumber must be required'],
         validate: {
-            validator: value => {
-                if(!value) return true;
-                validatePhoneNumber(value);
-            },
+            validator: value => validatePhoneNumber(value),
             message: props => invalidPhoneNumber(props.value)
         },
     },
     gender: {
-        type: String,
+        type: Number,
         trim: true,
         required: [true, 'gender must be required'],
         enum: {
-            values: ['male','female'],
-            message: "{VALUE} is not supported, just only 'male' or 'female' plz!"
+            values: convertEnumToArray(Gender),
+            message: "{VALUE} is not supported in gender"
         }
     }
 })
 
-const Admin = mongoose.model('Admin', adminSchema)
+const Admin = mongoose.model(collectionName.Admin, adminSchema)
 
 export default Admin;

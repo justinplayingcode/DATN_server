@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/Schema/User";
 
 export const createUser = async (bodyReq) => {
     return await User.create(bodyReq);
