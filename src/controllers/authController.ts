@@ -1,18 +1,25 @@
 import bcrypt from 'bcryptjs';
 import { createUser,findOneUser } from "../services/authService";
-import { createAccessToken } from '../utils/jwt';
+import jwToken from '../utils/jwt';
 import { ApiStatus, ApiStatusCode } from '../models/Data/apiStatus';
+import { ICreateAdmin, ILogin } from '../models/Data/reqbody';
 
 export const register = async (req, res, next) => {
-    try { // neu email la 1 chuoi trong thi bo email trong req.body di
-        //req.body: name, email, password
-        const user = await createUser(req.body);
+    try {
+        let newUser: ICreateAdmin = {
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+            role: req.body.role,
+            avatar: req.body.avatar
+        }
+        const user = await createUser(newUser);
         const param = {
             userId: user._id,
             username: user.username,
             role: user.role
         }; 
-        const token = createAccessToken(param);
+        const token = jwToken.createAccessToken(param);
         res.status(ApiStatusCode.OK).json({
             status: ApiStatus.succes,
             data: { token, userName: user.username, role: user.role}
@@ -24,7 +31,11 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
     try {
-        const user = await findOneUser('username', req.body.username);
+        let reqbody: ILogin = {
+            username: req.body.username,
+            password: req.body.password
+        }
+        const user = await findOneUser('username', reqbody.username);
         if(!user) {
             const err: any = new Error('username is not correct');
             err.statusCode = ApiStatusCode.BadRequest;
@@ -37,7 +48,7 @@ export const login = async (req, res, next) => {
                 username: user.username,
                 role: user.role
             }; 
-            const token = createAccessToken(param);
+            const token = jwToken.createAccessToken(param);
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
                 data: { token, username: user.username, role: user.role }

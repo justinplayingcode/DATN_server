@@ -1,6 +1,8 @@
 import  jwt from "jsonwebtoken";
 
-export const createAccessToken = (obj) => {
-    return jwt.sign(obj, process.env.APP_SECRET)
+export default class jwToken {
+    public static createAccessToken = (obj) => {
+        return jwt.sign(obj, process.env.APP_SECRET)
+    }
 }
 

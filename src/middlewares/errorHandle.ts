@@ -17,15 +17,15 @@ export const errorHandler = (err, req, res, next) => {
         err.message = `The ${req.originalUrl} is not found because of wrong ID`;
     }
 
-    // Validation
-    if(err.errors && err.name === "ValidationError") {
+    // Validation0
+    if(err.errors) {
         err.statusCode = ApiStatusCode.BadRequest;
-    } else {
-        err.statusCode = ApiStatusCode.BadRequest;
-        err.message = [];
-        for (let p in err.errors) {
-            err.message.push(err.errors[p].properties?.message);
-        }
+        if (err.name !== "ValidationError") {
+            err.message = [];
+            for (let p in err.errors) {
+                err.message.push(err.errors[p].properties?.message);
+            }
+        } 
     }
 
     //response ra error

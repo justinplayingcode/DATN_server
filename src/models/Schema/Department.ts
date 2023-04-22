@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { DepartmentType, collectionName } from '../Data/schema';
-import { convertEnumToArray } from '../../utils/convert';
+import Convert from '../../utils/convert';
 
 const departmentSchema = new Schema({
     name: {
@@ -12,7 +12,7 @@ const departmentSchema = new Schema({
         type: Number,
         required: true,
         enum: {
-            values: convertEnumToArray(DepartmentType),
+            values: Convert.enumToArray(DepartmentType),
             message: "{VALUE} is not supported"
         }
     }

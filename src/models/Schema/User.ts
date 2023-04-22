@@ -1,10 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { validateUserName, validateEmail } from '../../utils/validate';
-import { invalidUserName, invalidEmail } from '../../utils/message';
+import Validate from '../../utils/validate';
+import Message from '../../utils/message';
 import { findOneUser } from '../../services/authService';
 import { Role, collectionName } from '../Data/schema';
-import { convertEnumToArray } from '../../utils/convert';
+import Convert from '../../utils/convert';
 
 const userSchema = new Schema({
     username: {
@@ -12,8 +12,8 @@ const userSchema = new Schema({
         unique: true,
         trim: true,
         validate: {
-            validator: value => validateUserName(value),
-            message: props => invalidUserName(props.value)
+            validator: value => Validate.userName(value),
+            message: props => Message.invalidUserName(props.value)
         },
         required: [true, 'username must be required']
     },
@@ -23,8 +23,8 @@ const userSchema = new Schema({
         lowercase: true,
         validate: [
             {
-                validator: value => validateEmail(value),
-                message: props => invalidEmail(props.value)
+                validator: value => Validate.email(value),
+                message: props => Message.invalidEmail(props.value)
             },
             {
                 validator: async (value) => {
@@ -47,7 +47,7 @@ const userSchema = new Schema({
         trim: true, 
         required: [true, 'role must be required'],
         enum: {
-            values: convertEnumToArray(Role),
+            values: Convert.enumToArray(Role),
             message: "{VALUE} is not supported in role"
         }
     },

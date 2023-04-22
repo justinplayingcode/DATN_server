@@ -1,8 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
-import { validateFullName, validatePhoneNumber } from "../../utils/validate";
-import { invalidPhoneNumber, invalidFullname } from '../../utils/message';
+import Validate from "../../utils/validate";
+import Message from '../../utils/message';
 import { DepartmentType, Gender, collectionName } from '../Data/schema';
-import { convertEnumToArray } from '../../utils/convert';
+import Convert from '../../utils/convert';
 
 const doctorSchema = new Schema({
     userId: {
@@ -15,8 +15,8 @@ const doctorSchema = new Schema({
         trim: true,
         required: [true, 'fullname must be required'],
         validate: {
-            validator: value => validateFullName(value),
-            message: props => invalidFullname(props.value)
+            validator: value => Validate.fullName(value),
+            message: props => Message.invalidFullname(props.value)
         },
     },
     phonenumber: {
@@ -25,15 +25,15 @@ const doctorSchema = new Schema({
         unique: true,
         required: [true, 'phonenumber must be required'],
         validate: {
-            validator: value => validatePhoneNumber(value),
-            message: props => invalidPhoneNumber(props.value)
+            validator: value => Validate.phoneNumber(value),
+            message: props => Message.invalidPhoneNumber(props.value)
         },
     },
     gender: {
         type: Number,
         required: [true, 'gender must be required'],
         enum: {
-            values: convertEnumToArray(Gender),
+            values: Convert.enumToArray(Gender),
             message: "{VALUE} is not supported in gender"
         }
     },
@@ -41,7 +41,7 @@ const doctorSchema = new Schema({
         type: Number,
         required: [true, 'speciality must be required'],
         enum: {
-            values: convertEnumToArray(DepartmentType),
+            values: Convert.enumToArray(DepartmentType),
             message: "{VALUE} is not supported"
         }
     }
