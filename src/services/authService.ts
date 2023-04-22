@@ -1,6 +1,7 @@
-import User from "../models/User";
+import { ICreateAdmin } from "../models/Data/reqbody";
+import User from "../models/Schema/User";
 
-export const createUser = async (bodyReq) => {
+export const createUser = async (bodyReq: ICreateAdmin) => {
     return await User.create(bodyReq);
 }
 
