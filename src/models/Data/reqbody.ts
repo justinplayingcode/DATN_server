@@ -1,15 +1,9 @@
-import { Role } from "./schema";
+import { schemaFields } from "./schema";
 
-export interface ICreateAdmin {
-    username: string,
-    email: string,
-    password: string,
-    role: Role,
-    avatar: string
+export default class ReqBody {
+    public static registerAdmin = [schemaFields.username, schemaFields.email, schemaFields.password, schemaFields.role, schemaFields.avatar];
+
+    public static login = [schemaFields.username, schemaFields.password];
+    
+    public static newAccessToken = [schemaFields.refreshToken, schemaFields.username]
 }
-
-export interface ILogin {
-    username: string,
-    password: string
-}
-

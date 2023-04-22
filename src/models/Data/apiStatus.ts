@@ -10,6 +10,9 @@ export enum ApiStatusCode {
     BadRequest = 400,
     Unauthorized = 401,
     NotFound = 404,
+    Forbidden = 403,
 
-    ServerError = 500
+    ServerError = 500,
+    
+    TokenExpiredError = 20230101
 }

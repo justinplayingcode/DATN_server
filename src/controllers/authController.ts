@@ -1,29 +1,32 @@
 import bcrypt from 'bcryptjs';
-import { createUser,findOneUser } from "../services/authService";
-import jwToken from '../utils/jwt';
+import { createSecurity, createUser,findAndUpdateSercurityByUserId,findOneUser, findRefreshTokenByUserId } from "../services/authService";
+import jwToken from '../helpers/jwt';
 import { ApiStatus, ApiStatusCode } from '../models/Data/apiStatus';
-import { ICreateAdmin, ILogin } from '../models/Data/reqbody';
+import { validateReqBody } from '../utils/validateReqBody';
+import ReqBody from '../models/Data/reqBody';
+import { schemaFields } from '../models/Data/schema';
 
 export const register = async (req, res, next) => {
     try {
-        let newUser: ICreateAdmin = {
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password,
-            role: req.body.role,
-            avatar: req.body.avatar
+        const verifyReqBody = validateReqBody(req, ReqBody.registerAdmin)
+        if(!verifyReqBody.pass) {
+            const err: any = new Error(verifyReqBody.message);
+            err.statusCode = ApiStatusCode.BadRequest;
+            return next(err)
         }
-        const user = await createUser(newUser);
-        const param = {
-            userId: user._id,
-            username: user.username,
-            role: user.role
-        }; 
-        const token = jwToken.createAccessToken(param);
+        const user = await createUser(req.body);
+        const accessToken = jwToken.createAccessToken({ username: user.username});
+        const refreshToken = jwToken.createRefreshToken({ username: user.username});
+        await createSecurity({ userId: user._id, refreshToken});
         res.status(ApiStatusCode.OK).json({
             status: ApiStatus.succes,
-            data: { token, userName: user.username, role: user.role}
-        }) // phan hoi
+            data: { 
+                accessToken, 
+                refreshToken, 
+                userName: user.username, 
+                role: user.role
+            }
+        })
     } catch (e) {
         next(e);
     }
@@ -31,27 +34,30 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
     try {
-        let reqbody: ILogin = {
-            username: req.body.username,
-            password: req.body.password
+        const verifyReqBody = validateReqBody(req, ReqBody.login)
+        if(!verifyReqBody.pass) {
+            const err: any = new Error(verifyReqBody.message);
+            err.statusCode = ApiStatusCode.BadRequest;
+            return next(err)
         }
-        const user = await findOneUser('username', reqbody.username);
+        const user = await findOneUser(schemaFields.username, req.body.username);
         if(!user) {
             const err: any = new Error('username is not correct');
             err.statusCode = ApiStatusCode.BadRequest;
             return next(err)
         }
-        // neu co email => kiem tra password
         if (bcrypt.compareSync(req.body.password, user.password)) {
-            const param = {
-                userId: user._id,
-                username: user.username,
-                role: user.role
-            }; 
-            const token = jwToken.createAccessToken(param);
+            const accessToken = jwToken.createAccessToken({ username: user.username});
+            const refreshToken = jwToken.createRefreshToken({ username: user.username});
+            await findAndUpdateSercurityByUserId(user._id, refreshToken);
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
-                data: { token, username: user.username, role: user.role }
+                data: {
+                    accessToken, 
+                    refreshToken, 
+                    username: user.username, 
+                    role: user.role 
+                }
             })
         } else {
             // ERROR: password is not correct
@@ -80,3 +86,31 @@ export const login = async (req, res, next) => {
 //         res.json(err)
 //     }
 // }
+
+// request new accessToken
+export const newAccessToken = async (req, res, next) => {
+    try {
+        const verifyReqBody = validateReqBody(req, ReqBody.newAccessToken)
+        if(!verifyReqBody.pass) {
+            const err: any = new Error(verifyReqBody.message);
+            err.statusCode = ApiStatusCode.BadRequest;
+            return next(err)
+        }
+        const { _id } = await findOneUser(schemaFields.username, req.body.username)
+        const rfToken = await findRefreshTokenByUserId(_id);
+        if (req.body.refreshToken && req.body.refreshToken === rfToken) {
+            const payload = jwToken.getPayloadInRefreshToken(req.body.refreshToken);
+            const accessToken = jwToken.createAccessToken({username: payload});
+            res.status(ApiStatusCode.OK).json({
+                status: ApiStatus.succes,
+                data: { accessToken }
+            })
+        } else {
+            const err: any = new Error('Invalid refresh token');
+            err.statusCode = ApiStatusCode.Forbidden;
+            return next(err)
+        }
+    } catch (err) {
+        next(err)
+    }
+}
