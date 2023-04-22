@@ -44,6 +44,7 @@ const patientSchema = new Schema({
     },
     dateOfBirth: {
         type: Date,
+        required: [true, 'date Of Birth must be required']
     },
     boarding: {
         type: Boolean,
@@ -64,6 +65,7 @@ const patientSchema = new Schema({
         type: String,
         trim: true,
         uppercase: true,
+        required: [true, 'insurance must be required'],
         validate: [
             {
                 validator: value => Validate.insurance(value),
@@ -84,7 +86,8 @@ const patientSchema = new Schema({
         required: true
     },
     hospitalization: {
-        type: Number
+        type: Number,
+        required: true
     }
 })
 

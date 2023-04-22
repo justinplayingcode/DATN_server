@@ -1,4 +1,6 @@
-export const validateReqBody = (req, requiredFields: string[]): string => {
+import { IValidateReqBody } from "../models/Data/typeReqBody";
+
+export const validateReqBody = (req, requiredFields: string[]): IValidateReqBody => {
     const missingFields = [];
 
     requiredFields.forEach((field) => {
@@ -7,9 +9,14 @@ export const validateReqBody = (req, requiredFields: string[]): string => {
         }
     });
 
-    if (missingFields.length > 0) {
-        return `Missing required field(s): ${missingFields.join(', ')}`;
-    } else {
-        return "";
+    const result: IValidateReqBody = {
+        pass: true
     }
+
+    if (missingFields.length > 0) {
+        result.pass = false;
+        result.message = `Missing required field(s): ${missingFields.join(', ')}`;
+    }
+
+    return result
 };

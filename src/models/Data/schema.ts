@@ -1,3 +1,5 @@
+export const defaultPassword = "1234567";
+
 export const collectionName = {
     User: 'User',
     Admin: 'Admin',
@@ -7,15 +9,19 @@ export const collectionName = {
     History: 'History',
     Diseases: 'Diseases',
     Medications: 'Medications',
-
+    Security: 'Security',
+    Health: 'Health',
     // 
-    Tests: "Tests",
-    Posts: "Posts"
+    Test: "Test",
+    Post: "Post"
 }
 
 export const schemaFields = {
     username: 'username',
+    userId: 'userId',
+    user: 'user',
     password: 'password',
+    email: 'email',
     _id: '_id',
     role: 'role',
     avatar: 'avatar',
@@ -26,7 +32,25 @@ export const schemaFields = {
     dateOfBirth: 'dateOfBirth',
     insurance: 'insurance',
     identification: 'identification',
-    hospitalization: 'hospitalization'
+    hospitalization: 'hospitalization',
+    doctorId: 'doctorId',
+    patientId: 'patientId',
+    date: 'date',
+    diagnosis: 'diagnosis',
+    hospitalizationCount: "hospitalizationCount",
+    indications: 'indications',
+    usage: 'usage',
+    price: 'price',
+    prescription: 'prescription',
+    testsId: 'testsId',
+    refreshToken: 'refreshToken',
+    heartRate: 'heartRate',
+    temperature: 'temperature',
+    bloodPressure: 'bloodPressure',
+    glucose: 'glucose',
+    weight: 'weight',
+    height: 'height',
+    medicalHistory: 'medicalHistory'
 }
 
 export enum Role {

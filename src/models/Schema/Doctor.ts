@@ -44,7 +44,15 @@ const doctorSchema = new Schema({
             values: Convert.enumToArray(DepartmentType),
             message: "{VALUE} is not supported"
         }
-    }
+    },
+    address: {
+        type: String,
+        trim: true,
+    },
+    dateOfBirth: {
+        type: Date,
+        required: [true, 'date Of Birth must be required']
+    },
 })
 
 const Doctor = mongoose.model(collectionName.Doctor, doctorSchema);
