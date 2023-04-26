@@ -9,7 +9,7 @@ export default class jwToken {
     }
     public static createRefreshToken = (payload) => {
         return jwt.sign(payload, process.env.APP_REFRESH, {
-            algorithm: "RS256",
+            algorithm: "HS512",
             expiresIn: "7d",
         })
     }
@@ -18,7 +18,7 @@ export default class jwToken {
         if (typeof payload === 'string') {
             return payload;
         }
-        return payload.username;
+        return payload.userId;
     }
 }
 

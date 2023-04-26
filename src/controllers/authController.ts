@@ -1,12 +1,13 @@
 import bcrypt from 'bcryptjs';
-import { createSecurity, createUser,findAndUpdateSercurityByUserId,findOneUser, findRefreshTokenByUserId } from "../services/authService";
+import { createUser, findOneUser } from "../services/userService";
 import jwToken from '../helpers/jwt';
 import { ApiStatus, ApiStatusCode } from '../models/Data/apiStatus';
 import { validateReqBody } from '../utils/validateReqBody';
 import ReqBody from '../models/Data/reqBody';
 import { schemaFields } from '../models/Data/schema';
+import { createSecurity, findAndUpdateSercurityByUserId, findRefreshTokenByUserId } from '../services/securityService';
 
-export const register = async (req, res, next) => {
+export const registerAdmin = async (req, res, next) => { // admin
     try {
         const verifyReqBody = validateReqBody(req, ReqBody.registerAdmin)
         if(!verifyReqBody.pass) {
@@ -15,15 +16,15 @@ export const register = async (req, res, next) => {
             return next(err)
         }
         const user = await createUser(req.body);
-        const accessToken = jwToken.createAccessToken({ username: user.username});
-        const refreshToken = jwToken.createRefreshToken({ username: user.username});
+        const accessToken = jwToken.createAccessToken({ userId: user._id});
+        const refreshToken = jwToken.createRefreshToken({ userId: user._id});
         await createSecurity({ userId: user._id, refreshToken});
         res.status(ApiStatusCode.OK).json({
             status: ApiStatus.succes,
             data: { 
                 accessToken, 
                 refreshToken, 
-                userName: user.username, 
+                userId: user._id, 
                 role: user.role
             }
         })
@@ -47,20 +48,19 @@ export const login = async (req, res, next) => {
             return next(err)
         }
         if (bcrypt.compareSync(req.body.password, user.password)) {
-            const accessToken = jwToken.createAccessToken({ username: user.username});
-            const refreshToken = jwToken.createRefreshToken({ username: user.username});
+            const accessToken = jwToken.createAccessToken({ userId: user._id});
+            const refreshToken = jwToken.createRefreshToken({ userId: user._id});
             await findAndUpdateSercurityByUserId(user._id, refreshToken);
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
                 data: {
                     accessToken, 
                     refreshToken, 
-                    username: user.username, 
+                    userId: user._id, 
                     role: user.role 
                 }
             })
         } else {
-            // ERROR: password is not correct
             const err: any = new Error('Password is not correct');
             err.statusCode = ApiStatusCode.BadRequest;
             return next(err)
@@ -71,21 +71,21 @@ export const login = async (req, res, next) => {
 }
 
 // get current user
-// export const getCurrentUser = async (req, res, next) => {
-//     try {
-//         const data = { account: null}
-//         if (req.user) {
-//             const account = await Account.findOne({ _id: req.account.accountId});
-//             data.user = { userName: account.name }
-//         }
-//         res.status(ApiStatusCode.OK).json({
-//             status: "success",
-//             data: data
-//         })
-//     } catch (err) {
-//         res.json(err)
-//     }
-// }
+export const getCurrentUser = async (req, res, next) => {
+    try {
+        const data = { user: null }
+        if (req.user) {
+            const user = await findOneUser(schemaFields._id, req.user.userId);
+            data.user = { userName: user.username }
+        }
+        res.status(ApiStatusCode.OK).json({
+            status: ApiStatus.succes,
+            data: data
+        })
+    } catch (err) {
+        res.json(err)
+    }
+}
 
 // request new accessToken
 export const newAccessToken = async (req, res, next) => {
@@ -100,7 +100,7 @@ export const newAccessToken = async (req, res, next) => {
         const rfToken = await findRefreshTokenByUserId(_id);
         if (req.body.refreshToken && req.body.refreshToken === rfToken) {
             const payload = jwToken.getPayloadInRefreshToken(req.body.refreshToken);
-            const accessToken = jwToken.createAccessToken({username: payload});
+            const accessToken = jwToken.createAccessToken({userId: payload});
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
                 data: { accessToken }

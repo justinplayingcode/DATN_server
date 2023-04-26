@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Validate from '../../utils/validate';
 import Message from '../../utils/message';
-import { findOneUser } from '../../services/authService';
+import { findOneUser } from '../../services/userService';
 import { Role, collectionName } from '../Data/schema';
 import Convert from '../../utils/convert';
 
