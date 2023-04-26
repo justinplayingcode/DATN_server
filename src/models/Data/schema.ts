@@ -72,6 +72,7 @@ export enum statusAppointment {
 }
 
 export enum DepartmentType {
+    tiepDon = "BV00kkB00",
     khamBenh = "BV00KKB01",
     noiTongHop = "BV00KTH02",
     ngoai = "BV00KN03",

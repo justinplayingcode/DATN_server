@@ -15,7 +15,7 @@ export const checkCurrentUser = (req, res, next) => {
         } catch (err) {
             req.user = null;
             next();
-        }
+        } 
     }
 
 
