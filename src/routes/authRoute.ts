@@ -6,6 +6,6 @@ const Router = _Router();
 Router.route('/registeradmin').post(registerAdmin);
 Router.route('/login').post(login);
 Router.route('/').get(getCurrentUser);2
-Router.route('/newtoken').get(newAccessToken);
+Router.route('/newtoken').post(newAccessToken);
 
 export default Router;
