@@ -75,7 +75,7 @@ export const login = async (req, res, next) => {
 // get current user
 // GET
 export const getCurrentUser = async (req, res, next) => {
-    const Authorization = req.header('authorization');
+    const Authorization = req.header('Authorization');
     if (!Authorization) {
         const err: any = new Error('Unauthorized!');
         err.statusCode = ApiStatusCode.Unauthorized;

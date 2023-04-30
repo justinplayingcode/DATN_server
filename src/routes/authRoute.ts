@@ -1,10 +1,11 @@
 import { Router as _Router } from 'express';
-import { registerAdmin, login, getCurrentUser } from "../controllers/authController";
+import { registerAdmin, login, getCurrentUser, newAccessToken } from "../controllers/authController";
 
 const Router = _Router();
 
 Router.route('/registeradmin').post(registerAdmin);
 Router.route('/login').post(login);
-Router.route('/').get(getCurrentUser);
+Router.route('/').get(getCurrentUser);2
+Router.route('/newtoken').get(newAccessToken);
 
 export default Router;
