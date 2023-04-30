@@ -7,6 +7,7 @@ import ReqBody from '../models/Data/reqBody';
 import { schemaFields } from '../models/Data/schema';
 import { createSecurity, findAndUpdateSercurityByUserId, findRefreshTokenByUserId } from '../services/securityService';
 
+// POST
 export const registerAdmin = async (req, res, next) => { // admin
     try {
         const verifyReqBody = validateReqBody(req, ReqBody.registerAdmin)
@@ -24,7 +25,7 @@ export const registerAdmin = async (req, res, next) => { // admin
             data: { 
                 accessToken, 
                 refreshToken, 
-                userId: user._id, 
+                username: user.username, 
                 role: user.role
             }
         })
@@ -33,6 +34,7 @@ export const registerAdmin = async (req, res, next) => { // admin
     }
 }
 
+// POST
 export const login = async (req, res, next) => {
     try {
         const verifyReqBody = validateReqBody(req, ReqBody.login)
@@ -56,7 +58,7 @@ export const login = async (req, res, next) => {
                 data: {
                     accessToken, 
                     refreshToken, 
-                    userId: user._id, 
+                    username: user.username, 
                     role: user.role 
                 }
             })
@@ -71,23 +73,39 @@ export const login = async (req, res, next) => {
 }
 
 // get current user
+// GET
 export const getCurrentUser = async (req, res, next) => {
-    try {
-        const data = { user: null }
-        if (req.user) {
-            const user = await findOneUser(schemaFields._id, req.user.userId);
-            data.user = { userName: user.username }
+    const Authorization = req.header('authorization');
+    if (!Authorization) {
+        const err: any = new Error('Unauthorized!');
+        err.statusCode = ApiStatusCode.Unauthorized;
+        return next(err);
+    } else {
+        const token = Authorization.replace('Bearer ', "");
+        try {
+            const payload = jwToken.getPayLoadInAccessToken(token);
+            const user = await findOneUser(schemaFields._id, payload);
+            let data: { username: any; role: any; };
+            if(!user) {
+                data = { username: null, role: null }
+            }
+            data = { username: user.username, role: user.role }
+            res.status(ApiStatusCode.OK).json({
+                status: ApiStatus.succes,
+                data: data
+            })
+        } catch (err) {
+            if(err.name === 'TokenExpiredError') {
+                err.message = 'TokenExpiredError';
+                err.statusCode = ApiStatusCode.TokenExpiredError;
+            }
+            next(err)
         }
-        res.status(ApiStatusCode.OK).json({
-            status: ApiStatus.succes,
-            data: data
-        })
-    } catch (err) {
-        res.json(err)
     }
 }
 
 // request new accessToken
+// POST
 export const newAccessToken = async (req, res, next) => {
     try {
         const verifyReqBody = validateReqBody(req, ReqBody.newAccessToken)
