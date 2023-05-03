@@ -2,9 +2,12 @@ import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import Validate from '../../utils/validate';
 import Message from '../../utils/message';
-import { findOneUser } from '../../services/userService';
-import { Role, collectionName } from '../Data/schema';
+import UserService from '../../services/userService';
+import { Gender, Role, collectionName } from '../Data/schema';
 import Convert from '../../utils/convert';
+import Doctor from './Doctor';
+import Patient from './Patient';
+import Security from './Security';
 
 const userSchema = new Schema({
     username: {
@@ -29,7 +32,7 @@ const userSchema = new Schema({
             {
                 validator: async (value) => {
                     if (value === "") return true;
-                    const user = await findOneUser('email', value);
+                    const user = await UserService.findOneUser('email', value);
                     return !user;
                 },
                 message: props => `${props.value}: email already exists`
@@ -54,7 +57,44 @@ const userSchema = new Schema({
     avatar: {
         type: String,
         trim: true,
-    }
+        default: 'https://res.cloudinary.com/dipiauw0v/image/upload/v1682100699/DATN/unisex_avatar.jpg?fbclid=IwAR0rfobILbtfTZlNoWFiWmHYPH7bPMKFP0ztGnT8CVEXtvgTOEPEBgYtxY8'
+    },
+    fullname: {
+        type: String,
+        trim: true,
+        required: [true, 'fullname must be required'],
+        validate: {
+            validator: value => Validate.fullName(value),
+            message: props => Message.invalidFullname(props.value)
+        },
+    },
+    phonenumber: {
+        type: String,
+        trim: true,
+        unique: true,
+        required: [true, 'phonenumber must be required'],
+        validate: {
+            validator: value => Validate.phoneNumber(value),
+            message: props => Message.invalidPhoneNumber(props.value)
+        },
+    },
+    gender: {
+        type: Number,
+        trim: true,
+        required: [true, 'gender must be required'],
+        enum: {
+            values: Convert.enumToArray(Gender),
+            message: "{VALUE} is not supported in gender"
+        }
+    },
+    address: {
+        type: String,
+        trim: true,
+    },
+    dateOfBirth: {
+        type: Date,
+        required: [true, 'date Of Birth must be required']
+    },
 });
 
 userSchema.pre('save', function(next) {
@@ -68,6 +108,13 @@ userSchema.pre('save', function(next) {
         }
     })
 });
+
+userSchema.pre('remove', function(this: mongoose.Document ,next) {
+    Doctor.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+    Patient.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+    Security.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+    next();
+})
 
 const User = mongoose.model(collectionName.User, userSchema);
 

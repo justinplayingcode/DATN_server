@@ -1,6 +1,6 @@
 export default class Validate {
     public static userName = (value) => {
-        const regex = new RegExp('^[a-zA-Z0-9]+$');
+        const regex = new RegExp('^[a-zA-Z0-9.]+$');
         return regex.test(value);
     }
     public static email = (value) => {
@@ -12,7 +12,7 @@ export default class Validate {
         return regex.test(value);
     }
     public static fullName = (value) => {
-        const regex = new RegExp('/^[\p{L}\s\']+$/u');
+        const regex = new RegExp('^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$');
         return regex.test(value);
     }
     public static identification = (value) => {

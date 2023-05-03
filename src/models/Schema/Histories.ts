@@ -2,12 +2,12 @@ import mongoose, { Schema } from 'mongoose';
 import { collectionName } from '../Data/schema';
 
 const historySchema = new Schema({
-    doctorId: {
+    doctor: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Doctor,
         required: [true, 'doctorId must be required']
     },
-    patientId: {
+    patient: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Patient,
         required: [true, 'patientId must be required']
@@ -19,7 +19,7 @@ const historySchema = new Schema({
     },
     hospitalizationCount: {
         type: Number,
-        rrequired: [true, 'hospitalizationCount must be required']
+        required: [true, 'hospitalizationCount must be required']
     },
     prescription: [{
         type: Schema.Types.ObjectId,
@@ -31,6 +31,6 @@ const historySchema = new Schema({
     }]
 }, { timestamps: true })
 
-const History = mongoose.model(collectionName.History, historySchema);
+const Histories = mongoose.model(collectionName.Histories, historySchema);
 
-export default History
+export default Histories

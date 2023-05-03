@@ -17,5 +17,8 @@ export default class Message {
     public static invalidInsurance = (value) => {
         return `${value} is not a medical insurance!`
     };
+    public static NoPermission = () => {
+        return "Your account don't have permission"
+    }
 }
 

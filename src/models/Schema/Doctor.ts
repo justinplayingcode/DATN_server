@@ -1,58 +1,25 @@
 import mongoose, { Schema } from 'mongoose';
-import Validate from "../../utils/validate";
-import Message from '../../utils/message';
-import { DepartmentType, Gender, collectionName } from '../Data/schema';
-import Convert from '../../utils/convert';
+import { collectionName } from '../Data/schema';
+import Post from './Post';
+import Histories from './Histories';
 
 const doctorSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: collectionName.User,
         required: true
     },
-    fullname: {
-        type: String,
-        trim: true,
-        required: [true, 'fullname must be required'],
-        validate: {
-            validator: value => Validate.fullName(value),
-            message: props => Message.invalidFullname(props.value)
-        },
-    },
-    phonenumber: {
-        type: String,
-        trim: true,
-        unique: true,
-        required: [true, 'phonenumber must be required'],
-        validate: {
-            validator: value => Validate.phoneNumber(value),
-            message: props => Message.invalidPhoneNumber(props.value)
-        },
-    },
-    gender: {
-        type: Number,
-        required: [true, 'gender must be required'],
-        enum: {
-            values: Convert.enumToArray(Gender),
-            message: "{VALUE} is not supported in gender"
-        }
-    },
-    speciality: {
-        type: Number,
+    department: {
+        type: Schema.Types.ObjectId,
         required: [true, 'speciality must be required'],
-        enum: {
-            values: Convert.enumToArray(DepartmentType),
-            message: "{VALUE} is not supported"
-        }
-    },
-    address: {
-        type: String,
-        trim: true,
-    },
-    dateOfBirth: {
-        type: Date,
-        required: [true, 'date Of Birth must be required']
-    },
+        ref: collectionName.Department
+    }
+})
+
+doctorSchema.pre('remove', function(this: mongoose.Document ,next) {
+    Histories.updateMany({doctor: this._id},{$unset:{ doctor: ''}}).exec();
+    Post.updateMany({author: this._id},{$unset:{ author: ''}}).exec();
+    next();
 })
 
 const Doctor = mongoose.model(collectionName.Doctor, doctorSchema);

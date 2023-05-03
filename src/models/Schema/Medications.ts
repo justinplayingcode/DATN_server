@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { collectionName } from '../Data/schema';
+import Histories from './Histories';
 
 const medicationsSchema = new Schema({
     name: {
@@ -21,6 +22,11 @@ const medicationsSchema = new Schema({
         type: Number,
         required: true
     }
+})
+
+medicationsSchema.pre('remove', function(this: mongoose.Document ,next) {
+    Histories.updateMany({prescription: { $in: [this._id]}},{ $pull: { prescription: this._id}}).exec();
+    next();
 })
 
 const Medications = mongoose.model(collectionName.Medications, medicationsSchema);

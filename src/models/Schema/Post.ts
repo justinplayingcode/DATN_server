@@ -17,7 +17,7 @@ const postSchema = new Schema({
         trim: true,
         required: [true, 'content must be required']
     },
-    departmentId: {
+    department: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Department,
         required: [true, 'departmentId must be required']

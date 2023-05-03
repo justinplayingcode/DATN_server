@@ -1,50 +1,16 @@
 import mongoose, { Schema } from 'mongoose';
-import { Gender, collectionName, statusAppointment } from '../Data/schema';
+import { collectionName, statusAppointment } from '../Data/schema';
 import Message from '../../utils/message';
 import Validate from '../../utils/validate';
 import Convert from '../../utils/convert';
+import Histories from './Histories';
+import Health from './Health';
 
 const patientSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         ref: collectionName.User,
         required: true
-    },
-    fullname: {
-        type: String,
-        trim: true,
-        required: [true, 'fullname must be required'],
-        validate: {
-            validator: value => Validate.fullName(value),
-            message: props => Message.invalidFullname(props.value)
-        },
-    },
-    phonenumber: {
-        type: String,
-        trim: true,
-        unique: true,
-        required: [true, 'phonenumber must be required'],
-        validate: {
-            validator: value => Validate.phoneNumber(value),
-            message: props => Message.invalidPhoneNumber(props.value)
-        },
-    },
-    gender: {
-        type: Number,
-        trim: true,
-        required: [true, 'gender must be required'],
-        enum: {
-            values: Convert.enumToArray(Gender),
-            message: "{VALUE} is not supported in gender"
-        }
-    },
-    address: {
-        type: String,
-        trim: true,
-    },
-    dateOfBirth: {
-        type: Date,
-        required: [true, 'date Of Birth must be required']
     },
     boarding: {
         type: Boolean,
@@ -78,17 +44,24 @@ const patientSchema = new Schema({
         enum: {
             values: Convert.enumToArray(statusAppointment),
             message: "{VALUE} is not supported"
-        }
+        },
+        required: true
     },
     department: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Department,
-        required: true
+        required: [true, 'speciality must be required'],
     },
     hospitalization: {
         type: Number,
         required: true
     }
+})
+
+patientSchema.pre('remove', function(this: mongoose.Document ,next) {
+    Histories.updateMany({patient: this._id},{$unset:{ patient: ''}}).exec();
+    Health.updateMany({patient: this._id},{$unset:{ patient: ''}}).exec();
+    next();
 })
 
 const Patient = mongoose.model(collectionName.Patient, patientSchema);

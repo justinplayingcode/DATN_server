@@ -3,7 +3,7 @@ import express, { json, Express  } from 'express';
 import cors from 'cors';
 import routes from "./routes";
 import helmet from "helmet";
-import { errorHandler } from './middlewares/errorHandle';
+import Middlewares from './middlewares';
 connectDB();
 const app: Express  = express();
 app.use(cors());
@@ -15,5 +15,5 @@ app.all('*', (req,res,next) => {
     err.statusCode = 404;
     next(err)
 })
-app.use(errorHandler);
+app.use(Middlewares.errorHandler);
 export default app;

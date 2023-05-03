@@ -13,6 +13,4 @@ export enum ApiStatusCode {
     Forbidden = 403,
 
     ServerError = 500,
-    
-    TokenExpiredError = 20230101
 }
