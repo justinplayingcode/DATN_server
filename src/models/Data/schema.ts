@@ -6,7 +6,7 @@ export const collectionName = {
     Doctor: 'Doctor',
     Patient: 'Patient',
     Department: 'Department',
-    History: 'History',
+    Histories: 'Histories',
     Diseases: 'Diseases',
     Medications: 'Medications',
     Security: 'Security',
@@ -50,7 +50,11 @@ export const schemaFields = {
     glucose: 'glucose',
     weight: 'weight',
     height: 'height',
-    medicalHistory: 'medicalHistory'
+    medicalHistory: 'medicalHistory',
+    fullname: 'fullname',
+    department: 'department',
+    name: 'name',
+    code: 'code'
 }
 
 export enum Role {

@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { collectionName } from '../Data/schema';
 
 const healthSchema = new Schema({
-    userId: {
+    patient: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Patient,
         required: true
@@ -31,10 +31,13 @@ const healthSchema = new Schema({
         type: Number,
         required: true
     },
-    medicalHistory: [{
-        type: Schema.Types.ObjectId,
-        ref: collectionName.Diseases
-    }]
+    medicalHistory: {
+        type: [{
+            type: Schema.Types.ObjectId,
+            ref: collectionName.Diseases
+        }],
+        default: []
+    }
 })
 
 const Health = mongoose.model(collectionName.Health, healthSchema);
