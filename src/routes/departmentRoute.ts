@@ -1,10 +1,10 @@
-import { Router as _Router } from 'express';
+import { Router } from 'express';
 import Middlewares from '../middlewares';
 import DepartmentController from '../controllers/departmentController';
 
-const Router = _Router();
+const departmentRoute = Router();
 
-Router.route('/create').post(Middlewares.verifyToken, DepartmentController.createDepartment);
-Router.route('/getall').get(Middlewares.verifyToken, DepartmentController.getAllDepartment);
+departmentRoute.route('/create').post(Middlewares.verifyToken, DepartmentController.createDepartment);
+departmentRoute.route('/getall').get(Middlewares.verifyToken, DepartmentController.getAllDepartment);
 
-export default Router;
+export default departmentRoute;

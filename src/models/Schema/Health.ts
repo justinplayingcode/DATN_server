@@ -15,7 +15,11 @@ const healthSchema = new Schema({
         type: Number,
         required: true
     },
-    bloodPressure: {
+    bloodPressureSystolic: {
+        type: Number,
+        required: true
+    },
+    bloodPressureDiastolic: {
         type: Number,
         required: true
     },

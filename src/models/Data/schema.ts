@@ -1,8 +1,5 @@
-export const defaultPassword = "1234567";
-
 export const collectionName = {
     User: 'User',
-    Admin: 'Admin',
     Doctor: 'Doctor',
     Patient: 'Patient',
     Department: 'Department',
@@ -11,7 +8,6 @@ export const collectionName = {
     Medications: 'Medications',
     Security: 'Security',
     Health: 'Health',
-    // 
     Test: "Test",
     Post: "Post"
 }
@@ -46,7 +42,8 @@ export const schemaFields = {
     refreshToken: 'refreshToken',
     heartRate: 'heartRate',
     temperature: 'temperature',
-    bloodPressure: 'bloodPressure',
+    bloodPressureSystolic: 'bloodPressureSystolic',
+    bloodPressureDiastolic: 'bloodPressureDiastolic',
     glucose: 'glucose',
     weight: 'weight',
     height: 'height',

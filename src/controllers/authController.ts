@@ -17,7 +17,6 @@ export default class AuthController {
     // POST
     public static registerAdmin = async (req, res, next) => {
         try {
-            validateReqBody(req, ReqBody.registerAdmin, next)
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
             if (role !== Role.admin) {
@@ -25,6 +24,7 @@ export default class AuthController {
                 err.statusCode = ApiStatusCode.Forbidden;
                 return next(err)
             }
+            validateReqBody(req, ReqBody.registerAdmin, next);
             const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {
@@ -56,7 +56,6 @@ export default class AuthController {
     //POST 
     public static registerDoctor = async (req, res, next) => {
         try {
-            validateReqBody(req, ReqBody.registerDoctor, next);
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
             if (role !== Role.admin) {
@@ -64,6 +63,7 @@ export default class AuthController {
                 err.statusCode = ApiStatusCode.Forbidden;
                 return next(err)
             }
+            validateReqBody(req, ReqBody.registerDoctor, next);
             const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {
@@ -100,7 +100,6 @@ export default class AuthController {
     //POST 
     public static registerPatient = async (req, res, next) => {
         try {
-            validateReqBody(req, ReqBody.registerPatient, next);
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
             if (role !== Role.admin) {
@@ -108,6 +107,7 @@ export default class AuthController {
                 err.statusCode = ApiStatusCode.Forbidden;
                 return next(err)
             }
+            validateReqBody(req, ReqBody.registerPatient, next);
             const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {
@@ -259,7 +259,8 @@ export default class AuthController {
                         status: user.status,
                         heartRate: health.heartRate,
                         temperature: health.temperature,
-                        bloodPressure: health.bloodPressure,
+                        bloodPressureSystolic: health.bloodPressureSystolic,
+                        bloodPressureDiastolic: health.bloodPressureDiastolic,
                         glucose: health.glucose,
                         weight: health.weight,
                         height: health.height
