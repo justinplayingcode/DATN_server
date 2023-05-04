@@ -1,10 +1,12 @@
-import {Router as _Router} from 'express';
+import { Router } from 'express';
 import authRoute from "./authRoute";
 import departmentRoute from "./departmentRoute";
+import patientRoute from './patientRoute';
 
-const routes = _Router();
+const routes = Router();
 
 routes.use('/auth', authRoute);
 routes.use('/department', departmentRoute);
+routes.use('/patient', patientRoute);
 
 export default routes;
