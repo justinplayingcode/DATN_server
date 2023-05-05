@@ -48,8 +48,10 @@ export interface ICreateHealth {
     patient: Schema.Types.ObjectId,
     heartRate: Number,
     temperature: Number,
-    bloodPressureSystolic: Number,
-    bloodPressureDiastolic: Number,
+    bloodPressure: {
+        systolic: Number,
+        diastolic: Number
+    },
     glucose: Number,
     weight: Number,
     height: Number,
