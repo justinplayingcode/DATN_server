@@ -1,6 +1,17 @@
 import mongoose, { Schema } from 'mongoose';
 import { collectionName } from '../Data/schema';
 
+const bloodPressureSchema = new Schema({
+    systolic: {
+        type: Number,
+        required: true
+    },
+    diastolic: {
+        type: Number,
+        required: true
+    }
+})
+
 const healthSchema = new Schema({
     patient: {
         type: Schema.Types.ObjectId,
@@ -15,12 +26,8 @@ const healthSchema = new Schema({
         type: Number,
         required: true
     },
-    bloodPressureSystolic: {
-        type: Number,
-        required: true
-    },
-    bloodPressureDiastolic: {
-        type: Number,
+    bloodPressure: {
+        type: bloodPressureSchema,
         required: true
     },
     glucose: {

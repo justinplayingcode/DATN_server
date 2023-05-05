@@ -42,8 +42,7 @@ export const schemaFields = {
     refreshToken: 'refreshToken',
     heartRate: 'heartRate',
     temperature: 'temperature',
-    bloodPressureSystolic: 'bloodPressureSystolic',
-    bloodPressureDiastolic: 'bloodPressureDiastolic',
+    bloodPressure: 'bloodPressure',
     glucose: 'glucose',
     weight: 'weight',
     height: 'height',
@@ -51,7 +50,9 @@ export const schemaFields = {
     fullname: 'fullname',
     department: 'department',
     name: 'name',
-    code: 'code'
+    code: 'code',
+    systolic: 'systolic',
+    diastolic: 'diastolic'
 }
 
 export enum Role {

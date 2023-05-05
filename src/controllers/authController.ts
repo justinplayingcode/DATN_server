@@ -259,8 +259,7 @@ export default class AuthController {
                         status: user.status,
                         heartRate: health.heartRate,
                         temperature: health.temperature,
-                        bloodPressureSystolic: health.bloodPressureSystolic,
-                        bloodPressureDiastolic: health.bloodPressureDiastolic,
+                        bloodPressure: health.bloodPressure,
                         glucose: health.glucose,
                         weight: health.weight,
                         height: health.height

@@ -10,8 +10,10 @@ export default class HealthService {
             patient: patientId,
             heartRate: 0,
             temperature: 0,
-            bloodPressureSystolic: 0,
-            bloodPressureDiastolic: 0,
+            bloodPressure: {
+                systolic: 0,
+                diastolic: 0
+            },
             glucose: 0,
             weight: 0,
             height: 0,
