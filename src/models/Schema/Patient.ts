@@ -17,16 +17,6 @@ const patientSchema = new Schema({
         // khi moi dang ky => false, nhap vien => true
         required: [true, 'boarding must be required']
     },
-    identification: {
-        type: String,
-        trim: true,
-        validate: [
-            {
-                validator: value => Validate.identification(value),
-                message: props => Message.invalidIdentification(props.value)
-            }
-        ]
-    },
     insurance: {
         type: String,
         trim: true,

@@ -11,7 +11,8 @@ export interface ICreateUser {
     phonenumber: string,
     gender: Gender,
     dateOfBirth: Date,
-    address: string
+    address: string,
+    identification: string,
 }
 
 export interface ICreateDoctor {
@@ -22,7 +23,6 @@ export interface ICreateDoctor {
 export interface ICreatePatient {
     userId: Schema.Types.ObjectId,
     boarding: Boolean,
-    identification: string,
     insurance: string,
     status: Number,
     department: Schema.Types.ObjectId,

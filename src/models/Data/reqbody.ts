@@ -18,6 +18,7 @@ export default class ReqBody {
         schemaFields.dateOfBirth,
         schemaFields.address,
         schemaFields.gender,
+        schemaFields.identification,
     ];
 
     public static registerDoctor = [
@@ -27,7 +28,8 @@ export default class ReqBody {
         schemaFields.gender,
         schemaFields.department,
         schemaFields.address,
-        schemaFields.dateOfBirth
+        schemaFields.dateOfBirth,
+        schemaFields.identification,
     ];
 
     public static registerPatient = [

@@ -23,6 +23,7 @@ export default class PatientController {
                 status: ApiStatus.succes,
                 data: result
                 // confirm lại xem data cần trả những gì 
+                // fullname, useId, dateOfBirth, address
             });
         } catch (error) {
             next(error);

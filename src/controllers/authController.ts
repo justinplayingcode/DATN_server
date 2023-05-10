@@ -12,6 +12,7 @@ import DoctorService from '../services/doctorService';
 import PatientService from '../services/patientService';
 import DepartmentService from '../services/departmentService';
 import HealthService from '../services/healthService';
+import MomentTimezone from '../helpers/timezone';
 
 export default class AuthController {
     // POST
@@ -36,7 +37,8 @@ export default class AuthController {
                 phonenumber: req.body.phonenumber,
                 gender: req.body.gender,
                 dateOfBirth: new Date(req.body.dateOfBirth),
-                address: req.body.address
+                address: req.body.address,
+                identification: req.body.identification
             };
             const newUser = await UserService.createUser(objUser);
             await SecurityService.registerCreateSecurity(newUser._id);
@@ -75,7 +77,8 @@ export default class AuthController {
                 phonenumber: req.body.phonenumber,
                 gender: req.body.gender,
                 dateOfBirth: new Date(req.body.dateOfBirth),
-                address: req.body.address
+                address: req.body.address,
+                identification: req.body.identification
             };
             const newUser = await UserService.createUser(objUser);
             await SecurityService.registerCreateSecurity(newUser._id);
@@ -102,7 +105,7 @@ export default class AuthController {
         try {
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.admin) {
+            if (role !== Role.doctor) {
                 const err: any = new Error(Message.NoPermission());
                 err.statusCode = ApiStatusCode.Forbidden;
                 return next(err)
@@ -120,13 +123,13 @@ export default class AuthController {
                 gender: req.body.gender,
                 dateOfBirth: new Date(req.body.dateOfBirth),
                 address: req.body.address,
+                identification: req.body.identification
             };
             const newUser = await UserService.createUser(objUser);
             await SecurityService.registerCreateSecurity(newUser._id);
             const objPatient = {
                 userId: newUser._id,
                 boarding: false,
-                identification: req.body.identification,
                 insurance: req.body.insurance,
                 department: req.body.department,
                 hospitalization: 1,
@@ -205,8 +208,8 @@ export default class AuthController {
             const { _id } = await UserService.findOneUser(schemaFields.username, req.body.username)
             const rfToken = await SecurityService.findRefreshTokenByUserId(_id);
             if (req.body.refreshToken && req.body.refreshToken === rfToken) {
-                const payload = jwToken.getPayloadInRefreshToken(req.body.refreshToken);
-                const accessToken = jwToken.createAccessToken({userId: payload});
+                const payload = await jwToken.getPayloadInRefreshToken(req.body.refreshToken);
+                const accessToken = jwToken.createAccessToken({ userId: payload });
                 res.status(ApiStatusCode.OK).json({
                     status: ApiStatus.succes,
                     data: { accessToken }
@@ -234,7 +237,8 @@ export default class AuthController {
                 avatar: user.avatar,
                 phonenumber: user.phonenumber,
                 address: user.address,
-                dateOfBirth: Convert.formattedDate(user.dateOfBirth)
+                identification: user.identification,
+                dateOfBirth: MomentTimezone.convertDDMMYYY(user.dateOfBirth)
             }
             switch(user.role) {
                 case Role.admin:
@@ -266,8 +270,6 @@ export default class AuthController {
                     }
                     break;
             }
-
-
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
                 data: response
