@@ -95,6 +95,17 @@ const userSchema = new Schema({
         type: Date,
         required: [true, 'date Of Birth must be required']
     },
+    identification: {
+        type: String,
+        trim: true,
+        unique: true,
+        validate: [
+            {
+                validator: value => Validate.identification(value),
+                message: props => Message.invalidIdentification(props.value)
+            }
+        ]
+    },
 });
 
 userSchema.pre('save', function(next) {
