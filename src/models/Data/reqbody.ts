@@ -30,6 +30,8 @@ export default class ReqBody {
         schemaFields.address,
         schemaFields.dateOfBirth,
         schemaFields.identification,
+        schemaFields.rank,
+        schemaFields.position
     ];
 
     public static registerPatient = [

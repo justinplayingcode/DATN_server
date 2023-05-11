@@ -80,7 +80,6 @@ const userSchema = new Schema({
     },
     gender: {
         type: Number,
-        trim: true,
         required: [true, 'gender must be required'],
         enum: {
             values: Convert.enumToArray(Gender),

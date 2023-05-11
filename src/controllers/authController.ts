@@ -85,6 +85,8 @@ export default class AuthController {
             const objDoctor = {
                 userId: newUser._id,
                 department: req.body.department,
+                rank: req.body.rank,
+                position: req.body.position
             };
             await DoctorService.createDoctor(objDoctor);
             res.status(ApiStatusCode.OK).json({
