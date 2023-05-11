@@ -6,8 +6,10 @@ import helmet from "helmet";
 import Middlewares from './middlewares';
 connectDB();
 const app: Express  = express();
-app.use(cors());
-app.use(helmet())
+app.use(cors({
+    origin: '*',
+}));
+app.use(helmet());
 app.use(json());
 app.use('/api', routes);
 app.all('*', (req,res,next) => {
