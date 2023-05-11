@@ -18,6 +18,8 @@ export interface ICreateUser {
 export interface ICreateDoctor {
     userId: Schema.Types.ObjectId,
     department: Schema.Types.ObjectId,
+    rank: Number,
+    position: Number
 }
 
 export interface ICreatePatient {

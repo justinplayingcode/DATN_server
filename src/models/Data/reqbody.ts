@@ -1,6 +1,9 @@
 import { schemaFields } from "./schema";
 
 export default class ReqBody {
+
+
+    // auth
     public static login = [
         schemaFields.username, 
         schemaFields.password
@@ -30,9 +33,15 @@ export default class ReqBody {
         schemaFields.address,
         schemaFields.dateOfBirth,
         schemaFields.identification,
+        schemaFields.rank,
+        schemaFields.position
     ];
 
+    // doctor
+
+    // patient
     public static registerPatient = [
+        schemaFields.userId,
         schemaFields.fullname,
         schemaFields.email,
         schemaFields.phonenumber,
@@ -48,6 +57,16 @@ export default class ReqBody {
         schemaFields.insurance
     ]
 
+    public static getPatientByUserId = [
+        schemaFields.userId
+    ]
+
+    public static getAllPatientWait = [
+        schemaFields.boarding
+    ]
+
+
+    // department
     public static newDepartment = [
         schemaFields.name,
         schemaFields.code

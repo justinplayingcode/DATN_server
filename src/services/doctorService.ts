@@ -7,7 +7,10 @@ export default class DoctorService {
         return await Doctor.create(obj)
     }
     public static findOneByUserId = async (id) => {
-        return await Doctor.findOne({ userId: id})
+        return await Doctor.findOne({ userId: id}).populate({
+            path: schemaFields.userId,
+            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.identification} -${schemaFields._id}`
+        }).lean();
     } 
     public static getAll = async () => {
         return await Doctor.find().populate({

@@ -52,7 +52,10 @@ export const schemaFields = {
     name: 'name',
     code: 'code',
     systolic: 'systolic',
-    diastolic: 'diastolic'
+    diastolic: 'diastolic',
+    rank: 'rank',
+    position: 'position',
+    boarding: 'boarding'
 }
 
 export enum Role {
@@ -86,4 +89,18 @@ export enum DepartmentType {
     duoc = "BV00KD09",
     nhi = "BV00KN10",
     thanNhanTao = "BV00KTNT11"
+}
+
+export enum DoctorRank {
+    thacSi,
+    tienSi,
+    PGSTS,
+    GSTS,
+    none
+}
+
+export enum Position {
+    dean,
+    viceDean,
+    none
 }
