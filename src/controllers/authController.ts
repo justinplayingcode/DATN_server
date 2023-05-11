@@ -4,7 +4,7 @@ import jwToken from '../helpers/jwt';
 import { ApiStatus, ApiStatusCode } from '../models/Data/apiStatus';
 import validateReqBody from '../utils/validateReqBody';
 import ReqBody from '../models/Data/reqBody';
-import { Role, schemaFields, statusAppointment } from '../models/Data/schema';
+import { Role, schemaFields } from '../models/Data/schema';
 import SecurityService from '../services/securityService';
 import Message from '../utils/message';
 import Convert from '../utils/convert';
@@ -55,102 +55,6 @@ export default class AuthController {
         }
     }
 
-    //POST 
-    public static registerDoctor = async (req, res, next) => {
-        try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.admin) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            }
-            validateReqBody(req, ReqBody.registerDoctor, next);
-            const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
-            const password = Convert.generatePassword(req.body.fullname);
-            const objUser = {
-                username,
-                email: req.body.email,
-                password: password,
-                role: Role.doctor,
-                fullname: req.body.fullname,
-                phonenumber: req.body.phonenumber,
-                gender: req.body.gender,
-                dateOfBirth: new Date(req.body.dateOfBirth),
-                address: req.body.address,
-                identification: req.body.identification
-            };
-            const newUser = await UserService.createUser(objUser);
-            await SecurityService.registerCreateSecurity(newUser._id);
-            const objDoctor = {
-                userId: newUser._id,
-                department: req.body.department,
-                rank: req.body.rank,
-                position: req.body.position
-            };
-            await DoctorService.createDoctor(objDoctor);
-            res.status(ApiStatusCode.OK).json({
-                status: ApiStatus.succes,
-                data: { 
-                    fullname: newUser.fullname,
-                    username: newUser.username, 
-                    password: password
-                }
-            });
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    //POST 
-    public static registerPatient = async (req, res, next) => {
-        try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.doctor) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            }
-            validateReqBody(req, ReqBody.registerPatient, next);
-            const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
-            const password = Convert.generatePassword(req.body.fullname);
-            const objUser = {
-                username,
-                email: req.body.email,
-                password: password,
-                role: Role.patient,
-                fullname: req.body.fullname,
-                phonenumber: req.body.phonenumber,
-                gender: req.body.gender,
-                dateOfBirth: new Date(req.body.dateOfBirth),
-                address: req.body.address,
-                identification: req.body.identification
-            };
-            const newUser = await UserService.createUser(objUser);
-            await SecurityService.registerCreateSecurity(newUser._id);
-            const objPatient = {
-                userId: newUser._id,
-                boarding: false,
-                insurance: req.body.insurance,
-                department: req.body.department,
-                hospitalization: 1,
-                status: statusAppointment.wait
-            }
-            const { _id } = await PatientService.createPatient(objPatient);
-            await HealthService.createDefault(_id);
-            res.status(ApiStatusCode.OK).json({
-                status: ApiStatus.succes,
-                data: { 
-                    fullname: newUser.fullname,
-                    username: newUser.username, 
-                    password: password
-                }
-            });
-        } catch (error) {
-            next(error)
-        }
-    }
 
     // POST 
     public static login = async (req, res, next) => {

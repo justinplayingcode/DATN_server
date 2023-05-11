@@ -1,6 +1,17 @@
 import mongoose, { Schema } from 'mongoose';
 import { collectionName } from '../Data/schema';
 
+const prescriptionSchema = new Schema({
+    medications: {
+        type: Schema.Types.ObjectId,
+        ref: collectionName.Medications
+    },
+    dosage: {
+        type: String,
+        trim: true
+    }
+})
+
 const historySchema = new Schema({
     doctor: {
         type: Schema.Types.ObjectId,
@@ -22,8 +33,7 @@ const historySchema = new Schema({
         required: [true, 'hospitalizationCount must be required']
     },
     prescription: [{
-        type: Schema.Types.ObjectId,
-        ref: collectionName.Medications
+        type: prescriptionSchema
     }],
     testsId: [{
         type: Schema.Types.ObjectId,

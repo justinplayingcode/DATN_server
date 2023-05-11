@@ -41,6 +41,7 @@ export default class ReqBody {
 
     // patient
     public static registerPatient = [
+        schemaFields.userId,
         schemaFields.fullname,
         schemaFields.email,
         schemaFields.phonenumber,
@@ -58,6 +59,10 @@ export default class ReqBody {
 
     public static getPatientByUserId = [
         schemaFields.userId
+    ]
+
+    public static getAllPatientWait = [
+        schemaFields.boarding
     ]
 
 
