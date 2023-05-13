@@ -4,7 +4,7 @@ export default class jwToken {
     public static createAccessToken = (payload) => {
         return jwt.sign(payload, process.env.APP_SECRET, {
             algorithm: "HS256",
-            expiresIn: "1m",
+            expiresIn: "1d",
         })
     }
     public static createRefreshToken = (payload) => {
