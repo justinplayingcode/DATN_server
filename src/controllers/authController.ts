@@ -10,7 +10,6 @@ import Message from '../utils/message';
 import Convert from '../utils/convert';
 import DoctorService from '../services/doctorService';
 import PatientService from '../services/patientService';
-import DepartmentService from '../services/departmentService';
 import HealthService from '../services/healthService';
 import MomentTimezone from '../helpers/timezone';
 
@@ -54,7 +53,6 @@ export default class AuthController {
             next(error);
         }
     }
-
 
     // POST 
     public static login = async (req, res, next) => {
@@ -153,23 +151,28 @@ export default class AuthController {
                     }
                     break;
                 case Role.doctor:
-                    const doctor = await DoctorService.findOneByUserId(userId)
+                    const inforDoctor = await DoctorService.getInfor(userId);
+                    const { _id: departmentId, name } = inforDoctor.department as any;
                     response = {
-                        ...basicInfo,
-                        department: await DepartmentService.findOneDepartmentName(doctor.department)
+                      ...basicInfo,
+                      ...inforDoctor,
+                      department: name,
+                      departmentId: departmentId
                     }
                     break;
                 case Role.patient:
-                    const patient = await PatientService.findOneByUserId(userId)
+                    const patient = await PatientService.findOneCurrentInfoPatientByUserId(userId);
                     const health = await HealthService.findOneByPatientId(patient._id);
+                    const { systolic, diastolic } = health.bloodPressure as any;
+                    const { _id, ...infoPatient } = patient as any;
                     response = {
                         ...basicInfo,
-                        department: await DepartmentService.findOneDepartmentName(patient.department),
-                        boarding: user.boarding,
-                        status: user.status,
+                        ...infoPatient,
+                        // idpatient: _id,
                         heartRate: health.heartRate,
                         temperature: health.temperature,
-                        bloodPressure: health.bloodPressure,
+                        bloodPressureSystolic: systolic,
+                        bloodPressureDiastolic: diastolic,
                         glucose: health.glucose,
                         weight: health.weight,
                         height: health.height

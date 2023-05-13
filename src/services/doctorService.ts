@@ -20,4 +20,14 @@ export default class DoctorService {
           .populate({ path: schemaFields.department, select: `${schemaFields.name}` })
           .lean();
     }
+
+    public static getInfor = async (userId) => {
+      return await Doctor.findOne({ userId: userId} )
+        .populate({
+          path: schemaFields.department,
+          select: `-${schemaFields.code} -__v`
+        })
+        .select(`${schemaFields.department} -${schemaFields._id} ${schemaFields.rank} ${schemaFields.position}`)
+        .lean();
+    }
 }

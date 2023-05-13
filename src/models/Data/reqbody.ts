@@ -62,9 +62,9 @@ export default class ReqBody {
     ]
 
     public static getAllPatientWait = [
-        schemaFields.boarding
+        schemaFields.boarding,
+        schemaFields.department
     ]
-
 
     // department
     public static newDepartment = [
