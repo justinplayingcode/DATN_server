@@ -13,9 +13,21 @@ export default class DoctorService {
         }).lean();
     } 
     public static getAll = async () => {
-        return await Doctor.find().populate({
+        return await Doctor.find()
+          .populate({
             path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
-        }).lean();
+            select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`})
+          .populate({ path: schemaFields.department, select: `${schemaFields.name}` })
+          .lean();
+    }
+
+    public static getInfor = async (userId) => {
+      return await Doctor.findOne({ userId: userId} )
+        .populate({
+          path: schemaFields.department,
+          select: `-${schemaFields.code} -__v`
+        })
+        .select(`${schemaFields.department} -${schemaFields._id} ${schemaFields.rank} ${schemaFields.position}`)
+        .lean();
     }
 }

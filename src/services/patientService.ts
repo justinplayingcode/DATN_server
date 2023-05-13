@@ -39,5 +39,10 @@ export default class PatientService {
         await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment })
     }
 
+    public static findOneCurrentInfoPatientByUserId = async (id) => {
+      return await Patient.findOne({ userId: id})
+        .select(` -__v -${schemaFields.department} -${schemaFields.hospitalization}`)
+        .lean();
+  }
 
 }

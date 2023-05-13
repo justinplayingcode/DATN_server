@@ -69,9 +69,10 @@ export default class DoctorController {
           const result = await DoctorService.getAll();
           const response = result.map(e => {
             const { dateOfBirth } = e.userId as any;
+            const { name } = e.department as any;
             return {
               ...e.userId,
-              department: e.department,
+              department: name,
               dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth)
             }
           })
