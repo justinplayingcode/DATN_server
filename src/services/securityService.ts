@@ -1,13 +1,18 @@
-import { Schema } from "mongoose";
+import { ClientSession, Schema } from "mongoose";
 import Security from "../models/Schema/Security";
 
 export default class SecurityService {
-    public static registerCreateSecurity = async (userId: Schema.Types.ObjectId) => {
+    public static registerCreateSecurity = async (userId: Schema.Types.ObjectId, session: ClientSession) => {
+      try {
         const obj = {
             userId,
             refreshToken: ''
         }
-        return await Security.create(obj)
+        const newSecurity = new Security(obj);
+        return await newSecurity.save({ session });
+      } catch (error) {
+        throw error;
+      }
     }
     public static findAndUpdateSercurityByUserId = async (userId, refreshToken) => {
         return await Security.findOneAndUpdate( { userId }, { refreshToken })

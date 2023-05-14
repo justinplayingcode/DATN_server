@@ -44,7 +44,7 @@ export default class AuthController {
                 identification: req.body.identification
             };
             const newUser = await UserService.createUser(objUser, session);
-            await SecurityService.registerCreateSecurity(newUser._id);
+            await SecurityService.registerCreateSecurity(newUser._id, session);
 
             await session.commitTransaction();
             session.endSession();

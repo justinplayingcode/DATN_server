@@ -47,7 +47,7 @@ export default class DoctorController {
               position: req.body.position
             };
             await DoctorService.createDoctor(objDoctor, session);
-            await SecurityService.registerCreateSecurity(newUser._id);
+            await SecurityService.registerCreateSecurity(newUser._id, session);
 
             await session.commitTransaction();
             session.endSession();
