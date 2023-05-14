@@ -1,10 +1,16 @@
+import { ClientSession } from "mongoose";
 import { ICreateDoctor } from "../models/Data/objModel"
 import { schemaFields } from "../models/Data/schema"
 import Doctor from "../models/Schema/Doctor"
 
 export default class DoctorService {
-    public static createDoctor = async (obj: ICreateDoctor) => {
-        return await Doctor.create(obj)
+    public static createDoctor = async (obj: ICreateDoctor, session: ClientSession) => {
+      try {
+        const doctor = new Doctor(obj);
+        return await doctor.save({ session });
+      } catch (error) {
+        throw error;
+      }
     }
     public static findOneByUserId = async (id) => {
         return await Doctor.findOne({ userId: id}).populate({

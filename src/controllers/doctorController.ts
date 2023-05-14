@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import MomentTimezone from "../helpers/timezone";
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
 import ReqBody from "../models/Data/reqBody";
@@ -12,6 +13,9 @@ import validateReqBody from "../utils/validateReqBody";
 export default class DoctorController {
       //POST 
       public static registerDoctor = async (req, res, next) => {
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
         try {
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
@@ -35,15 +39,19 @@ export default class DoctorController {
                 address: req.body.address,
                 identification: req.body.identification
             };
-            const newUser = await UserService.createUser(objUser);
-            await SecurityService.registerCreateSecurity(newUser._id);
+            const newUser = await UserService.createUser(objUser, session);
             const objDoctor = {
-                userId: newUser._id,
-                department: req.body.department,
-                rank: req.body.rank,
-                position: req.body.position
+              userId: newUser._id,
+              department: req.body.department,
+              rank: req.body.rank,
+              position: req.body.position
             };
-            await DoctorService.createDoctor(objDoctor);
+            await DoctorService.createDoctor(objDoctor, session);
+            await SecurityService.registerCreateSecurity(newUser._id, session);
+
+            await session.commitTransaction();
+            session.endSession();
+
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
                 data: { 
@@ -53,7 +61,9 @@ export default class DoctorController {
                 }
             });
         } catch (error) {
-            next(error)
+          await session.abortTransaction();
+          session.endSession();
+          next(error)
         }
     }
   // GET
@@ -71,6 +81,8 @@ export default class DoctorController {
             const { dateOfBirth } = e.userId as any;
             const { name } = e.department as any;
             return {
+              position: e.position,
+              rank: e.rank,
               ...e.userId,
               department: name,
               dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth)
