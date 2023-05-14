@@ -12,10 +12,14 @@ import DoctorService from '../services/doctorService';
 import PatientService from '../services/patientService';
 import HealthService from '../services/healthService';
 import MomentTimezone from '../helpers/timezone';
+import mongoose from 'mongoose';
 
 export default class AuthController {
     // POST
     public static registerAdmin = async (req, res, next) => {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+
         try {
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
@@ -39,8 +43,11 @@ export default class AuthController {
                 address: req.body.address,
                 identification: req.body.identification
             };
-            const newUser = await UserService.createUser(objUser);
+            const newUser = await UserService.createUser(objUser, session);
             await SecurityService.registerCreateSecurity(newUser._id);
+
+            await session.commitTransaction();
+            session.endSession();
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
                 data: { 
@@ -50,7 +57,9 @@ export default class AuthController {
                 }
             });
         } catch (error) {
-            next(error);
+          await session.abortTransaction();
+          session.endSession();
+          next(error);
         }
     }
 

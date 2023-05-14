@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import MomentTimezone from "../helpers/timezone";
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
 import ReqBody from "../models/Data/reqBody";
@@ -13,6 +14,8 @@ import validateReqBody from "../utils/validateReqBody";
 export default class PatientController {
     //POST 
     public static registerPatient = async (req, res, next) => {
+      const session = await mongoose.startSession();
+      session.startTransaction();
         try {
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
@@ -42,7 +45,7 @@ export default class PatientController {
                     address: req.body.address,
                     identification: req.body.identification
                 };
-                const newUser = await UserService.createUser(objUser);
+                const newUser = await UserService.createUser(objUser,session);
                 await SecurityService.registerCreateSecurity(newUser._id);
                 const objPatient = {
                     userId: newUser._id,
@@ -54,6 +57,8 @@ export default class PatientController {
                 }
                 const { _id } = await PatientService.createPatient(objPatient);
                 await HealthService.createDefault(_id);
+                await session.commitTransaction();
+                session.endSession();
                 res.status(ApiStatusCode.OK).json({
                     status: ApiStatus.succes,
                     data: { 
@@ -64,6 +69,8 @@ export default class PatientController {
                 });
             }
         } catch (error) {
+            await session.abortTransaction();
+            session.endSession();
             next(error)
         }
     }
