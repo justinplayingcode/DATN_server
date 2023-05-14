@@ -71,6 +71,8 @@ export default class DoctorController {
             const { dateOfBirth } = e.userId as any;
             const { name } = e.department as any;
             return {
+              position: e.position,
+              rank: e.rank,
               ...e.userId,
               department: name,
               dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth)
