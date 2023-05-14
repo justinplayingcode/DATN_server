@@ -1,3 +1,5 @@
+import MomentTimezone from "../helpers/timezone";
+
 export default class Convert {
     public static enumToArray = (ob) => {
         return Object.keys(ob).filter((key) => isNaN(Number(key))).map((key) => ob[key]);
@@ -35,14 +37,14 @@ export default class Convert {
     }
 
     public static generateUsername = (str: string, dob: string, database: string[]): string => {
-        const date: Date = new Date(dob);
+        const date: Date = MomentTimezone.convertDate(new Date(dob));
         const unsignedArr = Convert.vietnameseUnsigned(str).split(' '); 
         const lastName = unsignedArr.pop();
         const firstName = unsignedArr.shift();
         let subName = '';
         if (unsignedArr.length > 0) {
             subName = unsignedArr.shift();
-        }
+        };
         const yy = date.getFullYear().toString().slice(-2);
         const month = date.getMonth() + 1;
         const day = date.getDate();
