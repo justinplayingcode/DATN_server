@@ -1,10 +1,16 @@
+import { ClientSession } from "mongoose"
 import { ICreatePatient } from "../models/Data/objModel"
 import { schemaFields, statusAppointment } from "../models/Data/schema"
 import Patient from "../models/Schema/Patient"
 
 export default class PatientService {
-    public static createPatient = async (obj: ICreatePatient) => {
-        return await Patient.create(obj)
+    public static createPatient = async (obj: ICreatePatient, session: ClientSession) => {
+      try {
+        const patient = new Patient(obj);
+        return await patient.save({ session });
+      } catch (error) {
+        throw error;
+      }
     }
 
     public static getAll = async () => {
@@ -35,8 +41,12 @@ export default class PatientService {
         }).lean();
     }
 
-    public static findOneAndUpdateDepartment = async (userId, newDepartment) => {
-        await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment })
+    public static findOneAndUpdateDepartment = async (userId, newDepartment, session: ClientSession) => {
+      try {
+        await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment }, { session: session})
+      } catch (error) {
+        throw (error)
+      }
     }
 
     public static findOneCurrentInfoPatientByUserId = async (id) => {

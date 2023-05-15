@@ -25,10 +25,11 @@ export default class PatientController {
                 return next(err)
             }
             validateReqBody(req, ReqBody.registerPatient, next);
-            if (req.body.userId) {
-                await PatientService.findOneAndUpdateDepartment(req.body.userId, req.body.department);
+            if (req.body.userId) { // nghiên cứu check theo insurance
+                await PatientService.findOneAndUpdateDepartment(req.body.userId, req.body.department, session);
                 res.status(ApiStatusCode.OK).json({
                     status: ApiStatus.succes,
+                    message: 'update department successful'
                 });
             } else {
                 const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
@@ -46,17 +47,18 @@ export default class PatientController {
                     identification: req.body.identification
                 };
                 const newUser = await UserService.createUser(objUser,session);
-                await SecurityService.registerCreateSecurity(newUser._id, session);
                 const objPatient = {
-                    userId: newUser._id,
-                    boarding: false,
-                    insurance: req.body.insurance,
-                    department: req.body.department,
-                    hospitalization: 1,
-                    status: statusAppointment.wait
+                  userId: newUser._id,
+                  boarding: false,
+                  insurance: req.body.insurance,
+                  department: req.body.department,
+                  hospitalization: 1,
+                  status: statusAppointment.wait
                 }
-                const { _id } = await PatientService.createPatient(objPatient);
-                await HealthService.createDefault(_id);
+                const { _id } = await PatientService.createPatient(objPatient, session);
+                await HealthService.createDefault(_id, session);
+                await SecurityService.registerCreateSecurity(newUser._id, session);
+                
                 await session.commitTransaction();
                 session.endSession();
                 res.status(ApiStatusCode.OK).json({
