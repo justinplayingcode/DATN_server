@@ -9,8 +9,8 @@ export default class DepartmentService {
     public static getAll = async () => {
         return await Department.find({})
     }
-    public static findOneDepartmentName = async (id) => {
+    public static findOneDepartmentCode = async (id) => {
         const obj = await Department.findById(id);
-        return obj.name;
+        return obj.code;
     }
 }

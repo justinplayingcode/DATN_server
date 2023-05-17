@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import MomentTimezone from "../helpers/timezone";
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
 import ReqBody from "../models/Data/reqBody";
-import { Role, schemaFields, statusAppointment } from "../models/Data/schema";
+import { DepartmentType, Role, schemaFields, statusAppointment } from "../models/Data/schema";
 import HealthService from "../services/healthService";
 import PatientService from "../services/patientService";
 import SecurityService from "../services/securityService";
@@ -10,6 +10,7 @@ import UserService from "../services/userService";
 import Convert from "../utils/convert";
 import Message from "../utils/message";
 import validateReqBody from "../utils/validateReqBody";
+import DepartmentService from "../services/departmentService";
 
 export default class PatientController {
     //POST 
@@ -176,7 +177,19 @@ export default class PatientController {
                 return next(err)
             };
             validateReqBody(req, ReqBody.getAllPatientWait, next);
-            const patients = await PatientService.getAllWait(req.body.boarding);
+            const departmentCode = await DepartmentService.findOneDepartmentCode(req.body.department);
+            let patients: any[];
+            switch(departmentCode) {
+              case DepartmentType.tiepDon: 
+                patients = await PatientService.getAllWaitRegister(req.body.boarding);
+                break;
+              case DepartmentType.canLamSang:
+                patients = await PatientService.getAllTesting(req.body.boarding);
+                break;
+              default:
+                patients = await PatientService.getAllWait(req.body.boarding, req.body.department);
+                break;
+            }
             const result = patients.map(patient => {
                 const { dateOfBirth, fullname, address, identification } = patient.userId as any;
                 return {

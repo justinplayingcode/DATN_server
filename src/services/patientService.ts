@@ -16,7 +16,6 @@ export default class PatientService {
     public static getAll = async () => {
         return await Patient.find().populate({
             path: schemaFields.userId,
-            // select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.identification} -${schemaFields._id}`
             select: `-__v -${schemaFields.role} -${schemaFields.password} -${schemaFields.username}`
         }).lean();
     }
@@ -35,11 +34,25 @@ export default class PatientService {
         }).lean();
     }
 
-    public static getAllWait = async (isOnboarding: boolean) => {
-        return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.wait} }).populate({
+    public static getAllWait = async (isOnboarding: boolean, department) => {
+        return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.wait}, department: { $eq: department} }).populate({
             path: schemaFields.userId,
             select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
         }).lean();
+    }
+
+    public static getAllWaitRegister = async (isOnboarding: boolean) => {
+      return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.wait} }).populate({
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
+      }).lean();
+    }
+
+    public static getAllTesting = async (isOnboarding: boolean) => {
+      return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.testing} }).populate({
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
+      }).lean();
     }
 
     public static registerFindOneAndUpdateDepartment = async (userId, newDepartment, session: ClientSession) => {
