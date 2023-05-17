@@ -27,10 +27,10 @@ export default class PatientService {
         }).lean();
     }
 
-    public static findOneByInsurance = async (insurance: string) => {
-        return  await Patient.find({ insurance: { $regex: insurance } }).populate({
+    public static findOneByInsuranceToRegister = async (insurance: string) => {
+        return  await Patient.find({ insurance: insurance, status: statusAppointment.done }).populate({
             path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth}`
+            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields.phonenumber}`
         }).lean();
     }
 
@@ -41,9 +41,9 @@ export default class PatientService {
         }).lean();
     }
 
-    public static findOneAndUpdateDepartment = async (userId, newDepartment, session: ClientSession) => {
+    public static registerFindOneAndUpdateDepartment = async (userId, newDepartment, session: ClientSession) => {
       try {
-        await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment }, { session: session})
+        await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment, status: statusAppointment.wait }, { session: session})
       } catch (error) {
         throw (error)
       }

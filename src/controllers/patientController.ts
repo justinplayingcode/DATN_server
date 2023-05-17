@@ -26,7 +26,7 @@ export default class PatientController {
             }
             validateReqBody(req, ReqBody.registerPatient, next);
             if (req.body.userId) { // nghiên cứu check theo insurance
-                await PatientService.findOneAndUpdateDepartment(req.body.userId, req.body.department, session);
+                await PatientService.registerFindOneAndUpdateDepartment(req.body.userId, req.body.department, session);
                 res.status(ApiStatusCode.OK).json({
                     status: ApiStatus.succes,
                     message: 'update department successful'
@@ -87,7 +87,7 @@ export default class PatientController {
                 return next(err)
             };
             validateReqBody(req, ReqBody.searchPatientByInsurance, next);
-            const patients = await PatientService.findOneByInsurance(req.body.insurance);
+            const patients = await PatientService.findOneByInsuranceToRegister(req.body.insurance);
             const result = patients.map(patient => {
                 const user = patient.userId as any;
                 return {
