@@ -1,3 +1,4 @@
+import { ClientSession } from "mongoose"
 import { ICreateHealth } from "../models/Data/objModel"
 import Health from "../models/Schema/Health"
 
@@ -5,7 +6,8 @@ export default class HealthService {
     public static create = async (obj: ICreateHealth) => {
         return await Health.create(obj)
     }
-    public static createDefault = async (patientId) => {
+    public static createDefault = async (patientId, session: ClientSession) => {
+      try {
         const obj = {
             patient: patientId,
             heartRate: 0,
@@ -19,7 +21,11 @@ export default class HealthService {
             height: 0,
             medicalHistory: []
         }
-        return await Health.create(obj)
+        const health = new Health(obj);
+        return health.save({ session: session});
+      } catch (error) {
+        throw error
+      }
     }
     public static findOneByPatientId = async (patientId) => {
         return await Health.findOne({patient: patientId})

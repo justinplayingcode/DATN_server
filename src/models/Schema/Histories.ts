@@ -38,7 +38,11 @@ const historySchema = new Schema({
     testsId: [{
         type: Schema.Types.ObjectId,
         ref: collectionName.Test
-    }]
+    }],
+    isProcessing: {
+        type: Boolean,
+        default: true,
+    }
 }, { timestamps: true })
 
 const Histories = mongoose.model(collectionName.Histories, historySchema);

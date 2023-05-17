@@ -1,16 +1,22 @@
+import { ClientSession } from "mongoose"
 import { ICreatePatient } from "../models/Data/objModel"
 import { schemaFields, statusAppointment } from "../models/Data/schema"
 import Patient from "../models/Schema/Patient"
 
 export default class PatientService {
-    public static createPatient = async (obj: ICreatePatient) => {
-        return await Patient.create(obj)
+    public static createPatient = async (obj: ICreatePatient, session: ClientSession) => {
+      try {
+        const patient = new Patient(obj);
+        return await patient.save({ session });
+      } catch (error) {
+        throw error;
+      }
     }
 
     public static getAll = async () => {
         return await Patient.find().populate({
             path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.identification} -${schemaFields._id}`
+            select: `-__v -${schemaFields.role} -${schemaFields.password} -${schemaFields.username}`
         }).lean();
     }
 
@@ -21,22 +27,40 @@ export default class PatientService {
         }).lean();
     }
 
-    public static findOneByInsurance = async (insurance: string) => {
-        return  await Patient.find({ insurance: { $regex: insurance } }).populate({
+    public static findOneByInsuranceToRegister = async (insurance: string) => {
+        return  await Patient.find({ insurance: insurance, status: statusAppointment.done }).populate({
             path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth}`
+            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields.phonenumber}`
         }).lean();
     }
 
-    public static getAllWait = async (isOnboarding: boolean) => {
-        return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.wait} }).populate({
+    public static getAllWait = async (isOnboarding: boolean, department) => {
+        return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.wait}, department: { $eq: department} }).populate({
             path: schemaFields.userId,
             select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
         }).lean();
     }
 
-    public static findOneAndUpdateDepartment = async (userId, newDepartment) => {
-        await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment })
+    public static getAllWaitRegister = async (isOnboarding: boolean) => {
+      return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.wait} }).populate({
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
+      }).lean();
+    }
+
+    public static getAllTesting = async (isOnboarding: boolean) => {
+      return await Patient.find({ boarding: { $eq: isOnboarding }, status: { $eq: statusAppointment.testing} }).populate({
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} -${schemaFields._id}`
+      }).lean();
+    }
+
+    public static registerFindOneAndUpdateDepartment = async (userId, newDepartment, session: ClientSession) => {
+      try {
+        await Patient.findOneAndUpdate({ userId: userId}, { department: newDepartment, status: statusAppointment.wait }, { session: session})
+      } catch (error) {
+        throw (error)
+      }
     }
 
     public static findOneCurrentInfoPatientByUserId = async (id) => {

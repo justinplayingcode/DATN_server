@@ -7,5 +7,6 @@ const healthcareRoute = Router();
 healthcareRoute.route('/getallpatient').post(Middlewares.verifyToken, PatientController.getAllPatientWait)
 healthcareRoute.route('/getinfobyuserid').post(Middlewares.verifyToken, PatientController.getPatientByUserId)
 healthcareRoute.route('/registerpatient').post(Middlewares.verifyToken, PatientController.registerPatient);
+healthcareRoute.route('/searchinsurance').post(Middlewares.verifyToken, PatientController.searchPatientByInsurance);
 
 export default healthcareRoute;
