@@ -143,13 +143,17 @@ export default class PatientController {
             };
             const patients = await PatientService.getAll();
             const response = patients.map(patient => {
-                const { dateOfBirth, fullname, address, identification } = patient.userId as any;
+                const { dateOfBirth, email, fullname, phonenumber, gender, address, identification } = patient.userId as any;
                 return {
                     fullname,
                     address,
-                    dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
                     identification,
-                    insurance: patient.insurance
+                    dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
+                    insurance: patient.insurance,
+                    boarding: patient.boarding,
+                    email,
+                    phonenumber,
+                    gender
                 }
             })
             res.status(ApiStatusCode.OK).json({

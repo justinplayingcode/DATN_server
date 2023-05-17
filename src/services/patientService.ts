@@ -16,7 +16,8 @@ export default class PatientService {
     public static getAll = async () => {
         return await Patient.find().populate({
             path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.identification} -${schemaFields._id}`
+            // select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.identification} -${schemaFields._id}`
+            select: `-__v -${schemaFields.role} -${schemaFields.password} -${schemaFields.username}`
         }).lean();
     }
 
