@@ -57,6 +57,7 @@ export const schemaFields = {
     position: 'position',
     boarding: 'boarding',
     isProcessing: 'isProcessing',
+    designation: 'designation'
 }
 
 export enum Role {
