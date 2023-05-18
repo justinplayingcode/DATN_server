@@ -19,6 +19,8 @@ export default class Message {
     };
     public static NoPermission = () => {
         return "Your account don't have permission"
-    }
+    };
+    public static invalidDateOfBirth = `DateOfBirth is invalid, not match MM/DD/YYYY`
+  
 }
 

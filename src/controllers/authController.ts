@@ -13,6 +13,7 @@ import PatientService from '../services/patientService';
 import HealthService from '../services/healthService';
 import MomentTimezone from '../helpers/timezone';
 import mongoose from 'mongoose';
+import Validate from '../utils/validate';
 
 export default class AuthController {
     // POST
@@ -29,6 +30,11 @@ export default class AuthController {
                 return next(err)
             }
             validateReqBody(req, ReqBody.registerAdmin, next);
+            if(!Validate.dateOfBirth(req.body.dateOfBirth)) {
+              const err: any = new Error(Message.invalidDateOfBirth);
+              err.statusCode = ApiStatusCode.BadRequest;
+              return next(err)
+            }
             const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {

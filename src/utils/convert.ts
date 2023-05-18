@@ -1,5 +1,3 @@
-import MomentTimezone from "../helpers/timezone";
-
 export default class Convert {
     public static enumToArray = (ob) => {
         return Object.keys(ob).filter((key) => isNaN(Number(key))).map((key) => ob[key]);
@@ -37,7 +35,6 @@ export default class Convert {
     }
 
     public static generateUsername = (str: string, dob: string, database: string[]): string => {
-        const date: Date = MomentTimezone.convertDate(new Date(dob));
         const unsignedArr = Convert.vietnameseUnsigned(str).split(' '); 
         const lastName = unsignedArr.pop();
         const firstName = unsignedArr.shift();
@@ -45,11 +42,13 @@ export default class Convert {
         if (unsignedArr.length > 0) {
             subName = unsignedArr.shift();
         };
-        const yy = date.getFullYear().toString().slice(-2);
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
+        const [ month, date, year ] = dob.split('/');
+        const yy = year.slice(-2);
+        const tempMonth = parseInt(month);
+        const day = parseInt(date);
         const dd = day < 10 ? '0' + day.toString() : day.toString();
-        const mm = month < 10 ? '0' + month.toString() : month.toString();
+        const mm = tempMonth < 10 ? '0' + tempMonth.toString() : tempMonth.toString();
+
         let result = `${lastName.toLowerCase()}.${firstName[0].toLowerCase()}${subName && subName[0].toLowerCase()}${dd}${mm}${yy}`;
         if (!database.includes(result)) {
             return result;

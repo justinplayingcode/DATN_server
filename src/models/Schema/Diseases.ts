@@ -14,12 +14,19 @@ const diseasesSchema = new Schema({
         type: String,
         trim: true,
         uppercase: true,
-        required: true
+        required: true,
+        unique: true
     },
-    description: {
+    symptom: {
         type: String,
         trim: true,
+        required: true
     },
+    prevention: {
+      type: String,
+      trim: true,
+      required: true
+  },
     department: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Department,

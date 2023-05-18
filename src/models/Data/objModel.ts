@@ -59,3 +59,18 @@ export interface ICreateHealth {
     height: Number,
     medicalHistory: Schema.Types.ObjectId[]
 }
+
+export interface ICreateMedication {
+  name: string,
+  designation: string,
+  usage: string,
+  price: number
+}
+
+export interface ICreateDiseases {
+  code: string,
+  name: string,
+  symptom: string,
+  prevention: string,
+  department: string
+}
