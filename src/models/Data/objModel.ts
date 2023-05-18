@@ -66,3 +66,11 @@ export interface ICreateMedication {
   usage: string,
   price: number
 }
+
+export interface ICreateDiseases {
+  code: string,
+  name: string,
+  symptom: string,
+  prevention: string,
+  department: string
+}
