@@ -9,6 +9,7 @@ import UserService from "../services/userService";
 import Convert from "../utils/convert";
 import Message from "../utils/message";
 import validateReqBody from "../utils/validateReqBody";
+import Validate from "../utils/validate";
 
 export default class DoctorController {
       //POST 
@@ -25,6 +26,11 @@ export default class DoctorController {
                 return next(err)
             }
             validateReqBody(req, ReqBody.registerDoctor, next);
+            if(!Validate.dateOfBirth(req.body.dateOfBirth)) {
+              const err: any = new Error(Message.invalidDateOfBirth);
+              err.statusCode = ApiStatusCode.BadRequest;
+              return next(err)
+            }
             const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {

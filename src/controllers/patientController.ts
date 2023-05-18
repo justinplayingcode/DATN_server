@@ -11,6 +11,7 @@ import Convert from "../utils/convert";
 import Message from "../utils/message";
 import validateReqBody from "../utils/validateReqBody";
 import DepartmentService from "../services/departmentService";
+import Validate from "../utils/validate";
 
 export default class PatientController {
     //POST 
@@ -33,6 +34,11 @@ export default class PatientController {
                     message: 'update department successful'
                 });
             } else {
+                if(!Validate.dateOfBirth(req.body.dateOfBirth)) {
+                  const err: any = new Error(Message.invalidDateOfBirth);
+                  err.statusCode = ApiStatusCode.BadRequest;
+                  return next(err)
+                }
                 const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
                 const password = Convert.generatePassword(req.body.fullname);
                 const objUser = {
