@@ -1,9 +1,9 @@
 import { ClientSession } from "mongoose"
-import { ICreateHealth } from "../models/Data/objModel"
+import { IHealth } from "../models/Data/objModel"
 import Health from "../models/Schema/Health"
 
 export default class HealthService {
-    public static create = async (obj: ICreateHealth) => {
+    public static create = async (obj: IHealth) => {
         return await Health.create(obj)
     }
     public static createDefault = async (patientId, session: ClientSession) => {

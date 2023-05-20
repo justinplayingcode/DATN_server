@@ -10,10 +10,17 @@ export default class DiseasesController {
   //GET
   public static getAllDiseases = async (req, res, next) => {
     try {
-      const Diseases = await DiseasesService.getAll();
+      const diseases = await DiseasesService.getAll();
+      const result = diseases.map(e => {
+        const { name } = e.department as any;
+        return {
+          ...e,
+          department: name
+        }
+      })
       res.status(ApiStatusCode.OK).json({
         status: ApiStatus.succes,
-        data: Diseases
+        data: result
     })
     } catch (error) {
       next(error)
@@ -29,7 +36,7 @@ export default class DiseasesController {
           err.statusCode = ApiStatusCode.Forbidden;
           return next(err)
       }
-      validateReqBody(req, ReqBody.objDisases, next);
+      validateReqBody(req, ReqBody.createDisases, next);
       const Diseases = await DiseasesService.create(req.body);
       res.status(ApiStatusCode.OK).json({
         status: ApiStatus.succes,
@@ -49,8 +56,9 @@ export default class DiseasesController {
           err.statusCode = ApiStatusCode.Forbidden;
           return next(err)
       }
-      validateReqBody(req, ReqBody.objDisases, next);
-      const updateDiseases = await DiseasesService.editOne(req.body.name, req.body)
+      validateReqBody(req, ReqBody.editDisases, next);
+      const { id, ...obj } = req.body;
+      const updateDiseases = await DiseasesService.editOne(id, obj);
       if(!updateDiseases) {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.fail,

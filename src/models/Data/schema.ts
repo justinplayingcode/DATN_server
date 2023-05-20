@@ -19,6 +19,7 @@ export const schemaFields = {
     password: 'password',
     email: 'email',
     _id: '_id',
+    id: 'id',
     role: 'role',
     avatar: 'avatar',
     gender: 'gender',

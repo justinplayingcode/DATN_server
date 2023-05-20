@@ -1,8 +1,10 @@
-import { ICreateUser } from "../models/Data/objModel";
+import { ClientSession } from "mongoose";
+import { IEditUser, IUser } from "../models/Data/objModel";
 import User from "../models/Schema/User";
+import { schemaFields } from "../models/Data/schema";
 
 export default class UserService {
-    public static createUser = async (obj: ICreateUser, session) => {
+    public static createUser = async (obj: IUser, session) => {
       try {
         const user = new User(obj);
         return user.save({ session });
@@ -20,5 +22,8 @@ export default class UserService {
             usernames.push(e.username)
         })
         return usernames
+    }
+    public static editOne = async (id, obj: IEditUser, session: ClientSession) => {
+      return await User.findByIdAndUpdate( id, obj, { new: true, runValidators: true, session, select: `-__v -${schemaFields.username} -${schemaFields.password} -${schemaFields._id} -${schemaFields.role}`})
     }
 }
