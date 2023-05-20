@@ -8,6 +8,7 @@ authRoute.route('/registeradmin').post(Middlewares.verifyToken, AuthController.r
 authRoute.route('/login').post(AuthController.login);
 authRoute.route('/').get(Middlewares.verifyToken, AuthController.getCurrentUser);
 authRoute.route('/newtoken').post(AuthController.newAccessToken);
-authRoute.route('/infocurrentuser').get(Middlewares.verifyToken, AuthController.getInfoUser)
+authRoute.route('/infocurrentuser').get(Middlewares.verifyToken, AuthController.getInfoUser);
+authRoute.route('/edit').post(Middlewares.verifyToken, AuthController.editInfomationUser);
 
 export default authRoute;

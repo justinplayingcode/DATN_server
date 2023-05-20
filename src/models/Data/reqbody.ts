@@ -37,6 +37,16 @@ export default class ReqBody {
         schemaFields.position
     ];
 
+    public static editInfomationUser = [
+      schemaFields.email,
+      schemaFields.fullname,
+      schemaFields.phonenumber,
+      schemaFields.gender,
+      schemaFields.dateOfBirth,
+      schemaFields.address,
+      schemaFields.identification
+    ]
+
     // doctor
 
     // patient

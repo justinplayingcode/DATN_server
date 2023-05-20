@@ -15,6 +15,16 @@ export interface IUser {
     identification: string,
 }
 
+export interface IEditUser {
+    email: string,
+    fullname: string,
+    phonenumber: string,
+    gender: Gender,
+    dateOfBirth: Date,
+    address: string,
+    identification: string,
+}
+
 export interface IDoctor {
     userId: Schema.Types.ObjectId,
     department: Schema.Types.ObjectId,

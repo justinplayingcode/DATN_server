@@ -20,7 +20,6 @@ export default class AuthController {
     public static registerAdmin = async (req, res, next) => {
       const session = await mongoose.startSession();
       session.startTransaction();
-
         try {
             const { userId } = req.user;
             const { role } = await UserService.findOneUser(schemaFields._id, userId);
@@ -201,5 +200,41 @@ export default class AuthController {
         } catch (error) {
             next(error)
         }
+    }
+
+    //POST
+    public static editInfomationUser = async (req, res, next) => {
+      const session = await mongoose.startSession();
+      session.startTransaction();
+      try {
+        const { userId } = req.user;
+        validateReqBody(req, ReqBody.editInfomationUser, next);
+        if(!Validate.dateOfBirth(req.body.dateOfBirth)) {
+          const err: any = new Error(Message.invalidDateOfBirth);
+          err.statusCode = ApiStatusCode.BadRequest;
+          return next(err)
+        }
+        const { dateOfBirth, ...obj } = req.body;
+        const user = {
+          ...obj,
+          dateOfBirth: new Date(dateOfBirth)
+        }
+        const userUpdate = await UserService.editOne(userId, user, session)
+        if(!userUpdate) {
+          res.status(ApiStatusCode.OK).json({
+            status: ApiStatus.fail,
+            message: `Not found user: ${req.body.fullname}`
+          })
+        } else {
+          res.status(ApiStatusCode.OK).json({
+            status: ApiStatus.succes,
+            data: userUpdate
+          })
+        }
+      } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
+        next(error);
+      }
     }
 }

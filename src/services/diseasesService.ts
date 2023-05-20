@@ -8,6 +8,10 @@ export default class DiseasesService {
   }
   public static getAll = async () => {
     return await Diseases.find({}, { __v: 0 })
+    .populate({
+      path: schemaFields.department,
+      select: `${schemaFields.name}`
+    }).lean();
   }
   public static findOne = async (id) => {
     return await Diseases.findById(id, {
@@ -15,6 +19,6 @@ export default class DiseasesService {
     });
   }
   public static editOne = async (id, obj: IDiseases) => {
-    return await Diseases.findByIdAndUpdate( id, obj, { new: true} )
+    return await Diseases.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
 }

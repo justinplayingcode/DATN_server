@@ -50,13 +50,8 @@ export default class MedicationController {
           return next(err)
       }
       validateReqBody(req, ReqBody.editMedication, next);
-      const obj = {
-        name: req.body.name,
-        designation: req.body.designation,
-        usage: req.body.usage,
-        price: req.body.price
-      }
-      const updateMedication = await MedicationService.editOne(req.body.id, obj)
+      const { id, ...obj } = req.body;
+      const updateMedication = await MedicationService.editOne(id, obj)
       if(!updateMedication) {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.fail,

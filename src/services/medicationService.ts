@@ -15,6 +15,6 @@ export default class MedicationService {
     });
   }
   public static editOne = async (id, obj: IMedication) => {
-    return await Medications.findByIdAndUpdate( id, obj, { new: true} )
+    return await Medications.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
 }

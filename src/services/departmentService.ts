@@ -13,4 +13,8 @@ export default class DepartmentService {
         const obj = await Department.findById(id);
         return obj.code;
     }
+    public static findOneDepartmentName = async (id) => {
+      const obj = await Department.findById(id);
+      return obj.name;
+  }
 }
