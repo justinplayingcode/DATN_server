@@ -75,7 +75,7 @@ export default class AuthController {
             validateReqBody(req, ReqBody.login, next)
             const user = await UserService.findOneUser(schemaFields.username, req.body.username);
             if(!user) {
-                const err: any = new Error('username is not correct');
+                const err: any = new Error('username không chính xác');
                 err.statusCode = ApiStatusCode.BadRequest;
                 return next(err)
             }
@@ -93,7 +93,7 @@ export default class AuthController {
                     }
                 })
             } else {
-                const err: any = new Error('Password is not correct');
+                const err: any = new Error('password không chính xác');
                 err.statusCode = ApiStatusCode.BadRequest;
                 return next(err)
             }

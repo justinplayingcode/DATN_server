@@ -35,7 +35,7 @@ const userSchema = new Schema({
                     const user = await UserService.findOneUser('email', value);
                     return !user;
                 },
-                message: props => `${props.value}: email already exists`
+                message: props => `${props.value}: email này đã tồn tại`
             }
         ]
     },
