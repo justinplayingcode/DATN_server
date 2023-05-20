@@ -1,9 +1,9 @@
-import { ICreateDepartment } from "../models/Data/objModel";
+import { IDepartment } from "../models/Data/objModel";
 import Department from "../models/Schema/Department";
 
 
 export default class DepartmentService {
-    public static create = async (obj: ICreateDepartment) => {
+    public static create = async (obj: IDepartment) => {
         return await Department.create(obj);
     }
     public static getAll = async () => {

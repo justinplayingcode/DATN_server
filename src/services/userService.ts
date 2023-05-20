@@ -1,8 +1,8 @@
-import { ICreateUser } from "../models/Data/objModel";
+import { IUser } from "../models/Data/objModel";
 import User from "../models/Schema/User";
 
 export default class UserService {
-    public static createUser = async (obj: ICreateUser, session) => {
+    public static createUser = async (obj: IUser, session) => {
       try {
         const user = new User(obj);
         return user.save({ session });

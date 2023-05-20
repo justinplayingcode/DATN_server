@@ -2,7 +2,7 @@ import { Schema } from "mongoose";
 import { Gender, Role } from "./schema";
 
 
-export interface ICreateUser {
+export interface IUser {
     username: string,
     email: string,
     password: string,
@@ -15,14 +15,14 @@ export interface ICreateUser {
     identification: string,
 }
 
-export interface ICreateDoctor {
+export interface IDoctor {
     userId: Schema.Types.ObjectId,
     department: Schema.Types.ObjectId,
     rank: Number,
     position: Number
 }
 
-export interface ICreatePatient {
+export interface IPatient {
     userId: Schema.Types.ObjectId,
     boarding: Boolean,
     insurance: string,
@@ -41,12 +41,12 @@ export interface IValidateReqBody {
     message? : string
 }
 
-export interface ICreateDepartment {
+export interface IDepartment {
     name: string,
     code: string
 }
 
-export interface ICreateHealth {
+export interface IHealth {
     patient: Schema.Types.ObjectId,
     heartRate: Number,
     temperature: Number,
@@ -60,14 +60,14 @@ export interface ICreateHealth {
     medicalHistory: Schema.Types.ObjectId[]
 }
 
-export interface ICreateMedication {
+export interface IMedication {
   name: string,
   designation: string,
   usage: string,
   price: number
 }
 
-export interface ICreateDiseases {
+export interface IDiseases {
   code: string,
   name: string,
   symptom: string,

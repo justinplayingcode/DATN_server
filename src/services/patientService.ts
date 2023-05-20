@@ -1,10 +1,10 @@
 import { ClientSession } from "mongoose"
-import { ICreatePatient } from "../models/Data/objModel"
+import { IPatient } from "../models/Data/objModel"
 import { schemaFields, statusAppointment } from "../models/Data/schema"
 import Patient from "../models/Schema/Patient"
 
 export default class PatientService {
-    public static createPatient = async (obj: ICreatePatient, session: ClientSession) => {
+    public static createPatient = async (obj: IPatient, session: ClientSession) => {
       try {
         const patient = new Patient(obj);
         return await patient.save({ session });

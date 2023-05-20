@@ -29,7 +29,7 @@ export default class MedicationController {
           err.statusCode = ApiStatusCode.Forbidden;
           return next(err)
       }
-      validateReqBody(req, ReqBody.newMedication, next);
+      validateReqBody(req, ReqBody.createMedication, next);
       const medication = await MedicationService.create(req.body);
       res.status(ApiStatusCode.OK).json({
         status: ApiStatus.succes,
@@ -49,8 +49,14 @@ export default class MedicationController {
           err.statusCode = ApiStatusCode.Forbidden;
           return next(err)
       }
-      validateReqBody(req, ReqBody.newMedication, next);
-      const updateMedication = await MedicationService.editOne(req.body.name, req.body)
+      validateReqBody(req, ReqBody.editMedication, next);
+      const obj = {
+        name: req.body.name,
+        designation: req.body.designation,
+        usage: req.body.usage,
+        price: req.body.price
+      }
+      const updateMedication = await MedicationService.editOne(req.body.id, obj)
       if(!updateMedication) {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.fail,

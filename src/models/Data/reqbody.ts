@@ -73,7 +73,15 @@ export default class ReqBody {
     ]
 
     //medication
-    public static newMedication = [
+    public static createMedication = [
+      schemaFields.name,
+      schemaFields.designation,
+      schemaFields.usage,
+      schemaFields.price
+    ]
+
+    public static editMedication = [
+      schemaFields.id,
       schemaFields.name,
       schemaFields.designation,
       schemaFields.usage,
@@ -81,7 +89,16 @@ export default class ReqBody {
     ]
 
     //díeases
-    public static objDisases = [
+    public static createDisases = [
+      schemaFields.code,
+      schemaFields.name,
+      schemaFields.symptom,
+      schemaFields.prevention,
+      schemaFields.department
+    ]
+
+    public static editDisases = [
+      schemaFields.id,
       schemaFields.code,
       schemaFields.name,
       schemaFields.symptom,
