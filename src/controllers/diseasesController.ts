@@ -12,10 +12,11 @@ export default class DiseasesController {
     try {
       const diseases = await DiseasesService.getAll();
       const result = diseases.map(e => {
-        const { name } = e.department as any;
+        const { name, _id } = e.department as any;
         return {
           ...e,
-          department: name
+          department: name,
+          departmentId: _id
         }
       })
       res.status(ApiStatusCode.OK).json({

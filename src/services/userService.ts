@@ -13,7 +13,7 @@ export default class UserService {
       }
     }
     public static findOneUser = async (key, obj) => {
-        return await User.findOne({ [key]: obj});
+        return await User.findOne({ [key]: obj}).lean();
     }
     public static getAllUserName = async () => {
         const arr = await User.find({});
@@ -23,7 +23,20 @@ export default class UserService {
         })
         return usernames
     }
-    public static editOne = async (id, obj: IEditUser, session: ClientSession) => {
-      return await User.findByIdAndUpdate( id, obj, { new: true, runValidators: true, session, select: `-__v -${schemaFields.username} -${schemaFields.password} -${schemaFields._id} -${schemaFields.role}`})
+    public static updateOne = async (id, obj: IEditUser, session: ClientSession) => {
+      const { email, ...other } = obj;
+      let updateObj: any = obj;
+      const oldEmail = await this.findEmailById(id);
+      if(email === oldEmail) {
+        updateObj = other;
+      }
+      return await User.findByIdAndUpdate( id, updateObj, { new: true, runValidators: true, session, select: `-__v -${schemaFields.username} -${schemaFields.password} -${schemaFields._id} -${schemaFields.role}`})
+    }
+    public static findById = async (id) => {
+      return await User.findById(id).lean();
+    }
+    public static findEmailById = async (id) => {
+      const { email } = await User.findById(id).lean();
+      return email;
     }
 }
