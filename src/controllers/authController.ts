@@ -219,7 +219,9 @@ export default class AuthController {
           ...obj,
           dateOfBirth: new Date(dateOfBirth)
         }
-        const userUpdate = await UserService.editOne(userId, user, session)
+        const userUpdate = await UserService.updateOne(userId, user, session)
+        await session.commitTransaction();
+        session.endSession();
         if(!userUpdate) {
           res.status(ApiStatusCode.OK).json({
             status: ApiStatus.fail,
