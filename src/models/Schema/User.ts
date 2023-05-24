@@ -1,25 +1,14 @@
 import mongoose, { Schema } from 'mongoose';
-import bcrypt from 'bcryptjs';
 import Validate from '../../utils/validate';
 import Message from '../../utils/message';
 import UserService from '../../services/userService';
-import { Gender, Role, collectionName } from '../Data/schema';
+import { Gender, collectionName } from '../Data/schema';
 import Convert from '../../utils/convert';
 import Doctor from './Doctor';
 import Patient from './Patient';
 import Security from './Security';
 
 const userSchema = new Schema({
-    username: {
-        type: String, 
-        unique: true,
-        trim: true,
-        validate: {
-            validator: value => Validate.userName(value),
-            message: props => Message.invalidUserName(props.value)
-        },
-        required: [true, 'username must be required']
-    },
     email: {
         type: String,
         trim: true,
@@ -38,21 +27,6 @@ const userSchema = new Schema({
                 message: props => `${props.value}: email này đã tồn tại`
             }
         ]
-    },
-    password: {
-        type: String, 
-        trim: true, 
-        required: [true, 'password must be required'], 
-        minlength: [6, 'password must be at least 6 characters']
-    },
-    role: {
-        type: Number,
-        trim: true, 
-        required: [true, 'role must be required'],
-        enum: {
-            values: Convert.enumToArray(Role),
-            message: "{VALUE} is not supported in role"
-        }
     },
     avatar: {
         type: String,
@@ -105,18 +79,6 @@ const userSchema = new Schema({
             }
         ]
     },
-});
-
-userSchema.pre('save', function(next) {
-    let user = this;
-    bcrypt.hash(user.password, 10, (error, hashPassword) => {
-        if (error) {
-            return next(error);
-        } else {
-            user.password = hashPassword;
-            next();
-        }
-    })
 });
 
 userSchema.pre('remove', function(this: mongoose.Document ,next) {
