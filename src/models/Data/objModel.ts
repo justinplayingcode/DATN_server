@@ -1,12 +1,15 @@
 import { Schema } from "mongoose";
 import { Gender, Role } from "./schema";
 
+export interface ICreateSecurity {
+  userId: Schema.Types.ObjectId,
+  username: string,
+  password: string,
+  role: Role,
+}
 
 export interface IUser {
-    username: string,
     email: string,
-    password: string,
-    role: Role,
     fullname: string,
     phonenumber: string,
     gender: Gender,

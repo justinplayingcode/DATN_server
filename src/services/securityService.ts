@@ -1,24 +1,36 @@
-import { ClientSession, Schema } from "mongoose";
+import { ClientSession } from "mongoose";
 import Security from "../models/Schema/Security";
+import { ICreateSecurity } from "../models/Data/objModel";
 
 export default class SecurityService {
-    public static registerCreateSecurity = async (userId: Schema.Types.ObjectId, session: ClientSession) => {
+    public static registerCreateSecurity = async (obj: ICreateSecurity, session: ClientSession) => {
       try {
-        const obj = {
-            userId,
+        const newAccount = {
+            ...obj,
             refreshToken: ''
         }
-        const newSecurity = new Security(obj);
+        const newSecurity = new Security(newAccount);
         return await newSecurity.save({ session });
       } catch (error) {
         throw error;
       }
     }
+    public static getAllUserName = async () => {
+        const arr = await Security.find({});
+        const usernames = [];
+        arr.forEach((e) => {
+            usernames.push(e.username)
+        })
+        return usernames
+    }
     public static findAndUpdateSercurityByUserId = async (userId, refreshToken) => {
         return await Security.findOneAndUpdate( { userId }, { refreshToken })
     }
-    public static findRefreshTokenByUserId = async (userId) => {
-        const { refreshToken } = await Security.findOne({ userId })
+    public static findRefreshTokenByUserName = async (username: string) => {
+        const { refreshToken } = await Security.findOne({ username })
         return refreshToken;
     }
+    public static findOneAccount = async (key, obj) => {
+      return await Security.findOne({ [key]: obj}).lean();
+  }
 }

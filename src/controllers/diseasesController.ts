@@ -1,9 +1,6 @@
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
 import ReqBody from "../models/Data/reqBody";
-import { Role, schemaFields } from "../models/Data/schema";
 import DiseasesService from "../services/diseasesService";
-import UserService from "../services/userService";
-import Message from "../utils/message";
 import validateReqBody from "../utils/validateReqBody";
 
 export default class DiseasesController {
@@ -30,13 +27,6 @@ export default class DiseasesController {
   //POST
   public static createDiseases = async (req, res, next) => {
     try {
-      const { userId } = req.user;
-      const { role } = await UserService.findOneUser(schemaFields._id, userId);
-      if (role !== Role.admin) {
-          const err: any = new Error(Message.NoPermission());
-          err.statusCode = ApiStatusCode.Forbidden;
-          return next(err)
-      }
       validateReqBody(req, ReqBody.createDisases, next);
       const Diseases = await DiseasesService.create(req.body);
       res.status(ApiStatusCode.OK).json({
@@ -50,13 +40,6 @@ export default class DiseasesController {
   //POST
   public static editDiseases = async (req, res, next) => {
     try {
-      const { userId } = req.user;
-      const { role } = await UserService.findOneUser(schemaFields._id, userId);
-      if (role !== Role.admin) {
-          const err: any = new Error(Message.NoPermission());
-          err.statusCode = ApiStatusCode.Forbidden;
-          return next(err)
-      }
       validateReqBody(req, ReqBody.editDisases, next);
       const { id, ...obj } = req.body;
       const updateDiseases = await DiseasesService.editOne(id, obj);

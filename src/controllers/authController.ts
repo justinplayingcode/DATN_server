@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import UserService from "../services/userService";
-import jwToken from '../helpers/jwt';
+import jwToken, { IPayLoad } from '../helpers/jwt';
 import { ApiStatus, ApiStatusCode } from '../models/Data/apiStatus';
 import validateReqBody from '../utils/validateReqBody';
 import ReqBody from '../models/Data/reqBody';
@@ -21,26 +21,16 @@ export default class AuthController {
       const session = await mongoose.startSession();
       session.startTransaction();
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.admin) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            }
             validateReqBody(req, ReqBody.registerAdmin, next);
             if(!Validate.dateOfBirth(req.body.dateOfBirth)) {
               const err: any = new Error(Message.invalidDateOfBirth);
               err.statusCode = ApiStatusCode.BadRequest;
               return next(err)
             }
-            const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
+            const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await SecurityService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {
-                username,
                 email: req.body.email,
-                password: password,
-                role: Role.admin,
                 fullname: req.body.fullname,
                 phonenumber: req.body.phonenumber,
                 gender: req.body.gender,
@@ -49,7 +39,13 @@ export default class AuthController {
                 identification: req.body.identification
             };
             const newUser = await UserService.createUser(objUser, session);
-            await SecurityService.registerCreateSecurity(newUser._id, session);
+            const objSecurity = {
+              userId: newUser._id,
+              username,
+              password,
+              role: Role.admin,
+            }
+            await SecurityService.registerCreateSecurity(objSecurity, session);
 
             await session.commitTransaction();
             session.endSession();
@@ -57,8 +53,8 @@ export default class AuthController {
                 status: ApiStatus.succes,
                 data: { 
                     fullname: newUser.fullname,
-                    username: newUser.username, 
-                    password: password,
+                    username,
+                    password
                 }
             });
         } catch (error) {
@@ -72,23 +68,23 @@ export default class AuthController {
     public static login = async (req, res, next) => {
         try {
             validateReqBody(req, ReqBody.login, next)
-            const user = await UserService.findOneUser(schemaFields.username, req.body.username);
-            if(!user) {
-                const err: any = new Error('username không chính xác');
+            const account = await SecurityService.findOneAccount(schemaFields.username, req.body.username);
+            if(!account) {
+                const err: any = new Error('Tên đăng nhập không chính xác');
                 err.statusCode = ApiStatusCode.BadRequest;
                 return next(err)
             }
-            if (bcrypt.compareSync(req.body.password, user.password)) {
-                const accessToken = jwToken.createAccessToken({ userId: user._id});
-                const refreshToken = jwToken.createRefreshToken({ userId: user._id});
-                await SecurityService.findAndUpdateSercurityByUserId(user._id, refreshToken);
+            if (bcrypt.compareSync(req.body.password, account.password)) {
+                const accessToken = jwToken.createAccessToken({ userId: account.userId, role: account.role});
+                const refreshToken = jwToken.createRefreshToken({ userId: account.userId, role: account.role});
+                await SecurityService.findAndUpdateSercurityByUserId(account.userId, refreshToken);
                 res.status(ApiStatusCode.OK).json({
                     status: ApiStatus.succes,
                     data: {
                         accessToken, 
                         refreshToken, 
-                        username: user.username, 
-                        role: user.role 
+                        username: account.username, 
+                        role: account.role 
                     }
                 })
             } else {
@@ -105,10 +101,10 @@ export default class AuthController {
     public static getCurrentUser = async (req, res, next) => {
         try {
             const { userId } = req.user;
-            const user = await UserService.findOneUser(schemaFields._id, userId);
+            const account = await SecurityService.findOneAccount(schemaFields.userId, userId);
             let data = { username: null, role: null };
-            if(user) {
-                data = { username: user.username, role: user.role }
+            if(account) {
+                data = { username: account.username, role: account.role }
             }
             res.status(ApiStatusCode.OK).json({
                 status: ApiStatus.succes,
@@ -123,11 +119,10 @@ export default class AuthController {
     public static newAccessToken = async (req, res, next) => {
         try {
             validateReqBody(req, ReqBody.newAccessToken, next)
-            const { _id } = await UserService.findOneUser(schemaFields.username, req.body.username)
-            const rfToken = await SecurityService.findRefreshTokenByUserId(_id);
+            const rfToken = await SecurityService.findRefreshTokenByUserName(req.body.username);
             if (req.body.refreshToken && req.body.refreshToken === rfToken) {
-                const payload = await jwToken.getPayloadInRefreshToken(req.body.refreshToken);
-                const accessToken = jwToken.createAccessToken({ userId: payload });
+                const payload = jwToken.getPayloadInRefreshToken(req.body.refreshToken) as IPayLoad;
+                const accessToken = jwToken.createAccessToken({ userId: payload.userId, role: payload.role});
                 res.status(ApiStatusCode.OK).json({
                     status: ApiStatus.succes,
                     data: { accessToken }
@@ -145,7 +140,7 @@ export default class AuthController {
     //GET
     public static getInfoUser = async (req, res, next) => {
         try {
-            const { userId } = req.user;
+            const { userId, role } = req.user;
             const user = await UserService.findOneUser(schemaFields._id, userId);
             let response;
             const basicInfo = {
@@ -158,7 +153,7 @@ export default class AuthController {
                 identification: user.identification,
                 dateOfBirth: MomentTimezone.convertDDMMYYY(user.dateOfBirth)
             }
-            switch(user.role) {
+            switch(role) {
                 case Role.admin:
                     response = {
                         ...basicInfo

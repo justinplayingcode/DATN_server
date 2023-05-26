@@ -1,31 +1,30 @@
 import  jwt from "jsonwebtoken";
+import { Role } from "../models/Data/schema";
+import mongoose from "mongoose";
 
+
+export interface IPayLoad {
+  userId: mongoose.Types.ObjectId,
+  role: Role
+}
 export default class jwToken {
-    public static createAccessToken = (payload) => {
+    public static createAccessToken = (payload: IPayLoad) => {
         return jwt.sign(payload, process.env.APP_SECRET, {
             algorithm: "HS256",
             expiresIn: "1d",
         })
     }
-    public static createRefreshToken = (payload) => {
+    public static createRefreshToken = (payload: IPayLoad) => {
         return jwt.sign(payload, process.env.APP_REFRESH, {
             algorithm: "HS512",
             expiresIn: "7d",
         })
     }
     public static getPayloadInRefreshToken = (token) => {
-        const payload  = jwt.verify(token, process.env.APP_REFRESH);
-        if (typeof payload === 'string') {
-            return payload;
-        }
-        return payload.userId;
+        return jwt.verify(token, process.env.APP_REFRESH);
     }
     public static getPayLoadInAccessToken = (token) => {
-        const payload  = jwt.verify(token, process.env.APP_SECRET);
-        if (typeof payload === 'string') {
-            return payload;
-        }
-        return payload.userId;
+        return jwt.verify(token, process.env.APP_SECRET);
     }
 }
 

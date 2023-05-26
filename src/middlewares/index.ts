@@ -1,5 +1,7 @@
 import jwToken from "../helpers/jwt";
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
+import { Role } from "../models/Data/schema";
+import Message from "../utils/message";
 
 export default class Middlewares {
     public static verifyToken = (req, res, next) => {
@@ -11,8 +13,8 @@ export default class Middlewares {
         } else {
             const token = authorization.replace('Bearer ', '');
             try {
-                const userId = jwToken.getPayLoadInAccessToken(token);
-                req.user = { userId } ;
+                const payload = jwToken.getPayLoadInAccessToken(token);
+                req.user = payload ;
                 next();
             } catch (err) {
                 if(err.name === 'TokenExpiredError') {
@@ -26,6 +28,24 @@ export default class Middlewares {
             }
         }
     }
+
+    public static permission = (acceptedRoles: Role[]) => {
+      return function (req, res, next) {
+        try {
+          const payload = req.user;
+            if (!acceptedRoles.includes(payload.role)) {
+                const error: any = new Error(Message.NoPermission());
+                error.statusCode = ApiStatusCode.Forbidden;
+                return next(error)
+            } else {
+              next();
+            }
+        } catch (error) {
+          next(error)
+        }
+      }
+    }
+    
 
     public static errorHandler = (err, req, res, next) => {
         err.statusCode = err.statusCode || ApiStatusCode.ServerError;

@@ -19,13 +19,6 @@ export default class PatientController {
       const session = await mongoose.startSession();
       session.startTransaction();
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.doctor) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            }
             validateReqBody(req, ReqBody.registerPatient, next);
             if (req.body.userId) { // nghiên cứu check theo insurance
                 await PatientService.registerFindOneAndUpdateDepartment(req.body.userId, req.body.department, session);
@@ -39,13 +32,10 @@ export default class PatientController {
                   err.statusCode = ApiStatusCode.BadRequest;
                   return next(err)
                 }
-                const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
+                const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await SecurityService.getAllUserName());
                 const password = Convert.generatePassword(req.body.fullname);
                 const objUser = {
-                    username,
                     email: req.body.email,
-                    password: password,
-                    role: Role.patient,
                     fullname: req.body.fullname,
                     phonenumber: req.body.phonenumber,
                     gender: req.body.gender,
@@ -64,7 +54,13 @@ export default class PatientController {
                 }
                 const { _id } = await PatientService.createPatient(objPatient, session);
                 await HealthService.createDefault(_id, session);
-                await SecurityService.registerCreateSecurity(newUser._id, session);
+                const objSecurity = {
+                  userId: newUser._id,
+                  username,
+                  password,
+                  role: Role.patient,
+                }
+                await SecurityService.registerCreateSecurity(objSecurity, session);
                 
                 await session.commitTransaction();
                 session.endSession();
@@ -86,13 +82,6 @@ export default class PatientController {
     // POST
     public static searchPatientByInsurance = async (req, res, next) => {
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role === Role.patient) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            };
             validateReqBody(req, ReqBody.searchPatientByInsurance, next);
             const patients = await PatientService.findOneByInsuranceToRegister(req.body.insurance);
             const result = patients.map(patient => {
@@ -114,13 +103,6 @@ export default class PatientController {
     //POST
     public static getPatientByUserId = async (req, res, next) => {
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role === Role.patient) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            };
             validateReqBody(req, ReqBody.getPatientByUserId, next);
             const patient = await PatientService.findOneByUserId(req.body.userId);
             const { dateOfBirth } = patient.userId as any;
@@ -141,13 +123,6 @@ export default class PatientController {
     //GET
     public static getAllPatient = async (req, res, next) => {
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.admin) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            };
             const patients = await PatientService.getAll();
             const response = patients.map(patient => {
                 const { dateOfBirth, email, fullname, phonenumber, gender, address, identification } = patient.userId as any;

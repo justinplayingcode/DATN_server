@@ -4,7 +4,7 @@ import User from "../models/Schema/User";
 import { schemaFields } from "../models/Data/schema";
 
 export default class UserService {
-    public static createUser = async (obj: IUser, session) => {
+    public static createUser = async (obj: IUser, session: ClientSession) => {
       try {
         const user = new User(obj);
         return user.save({ session });
@@ -14,14 +14,6 @@ export default class UserService {
     }
     public static findOneUser = async (key, obj) => {
         return await User.findOne({ [key]: obj}).lean();
-    }
-    public static getAllUserName = async () => {
-        const arr = await User.find({});
-        const usernames = [];
-        arr.forEach((e) => {
-            usernames.push(e.username)
-        })
-        return usernames
     }
     public static updateOne = async (id, obj: IEditUser, session: ClientSession) => {
       const { email, ...other } = obj;

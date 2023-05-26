@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import MomentTimezone from "../helpers/timezone";
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
 import ReqBody from "../models/Data/reqBody";
-import { Role, schemaFields } from "../models/Data/schema";
+import { Role } from "../models/Data/schema";
 import DoctorService from "../services/doctorService";
 import SecurityService from "../services/securityService";
 import UserService from "../services/userService";
@@ -18,26 +18,16 @@ export default class DoctorController {
         session.startTransaction();
 
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.admin) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            }
             validateReqBody(req, ReqBody.registerDoctor, next);
             if(!Validate.dateOfBirth(req.body.dateOfBirth)) {
               const err: any = new Error(Message.invalidDateOfBirth);
               err.statusCode = ApiStatusCode.BadRequest;
               return next(err)
             }
-            const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await UserService.getAllUserName());
+            const username = Convert.generateUsername(req.body.fullname, req.body.dateOfBirth, await SecurityService.getAllUserName());
             const password = Convert.generatePassword(req.body.fullname);
             const objUser = {
-                username,
                 email: req.body.email,
-                password: password,
-                role: Role.doctor,
                 fullname: req.body.fullname,
                 phonenumber: req.body.phonenumber,
                 gender: req.body.gender,
@@ -53,7 +43,13 @@ export default class DoctorController {
               position: req.body.position
             };
             await DoctorService.createDoctor(objDoctor, session);
-            await SecurityService.registerCreateSecurity(newUser._id, session);
+            const objSecurity = {
+              userId: newUser._id,
+              username,
+              password,
+              role: Role.doctor,
+            }
+            await SecurityService.registerCreateSecurity(objSecurity, session);
 
             await session.commitTransaction();
             session.endSession();
@@ -75,13 +71,6 @@ export default class DoctorController {
   // GET
   public static getAllDoctor = async (req, res, next) => {
       try {
-          const { userId } = req.user;
-          const { role } = await UserService.findOneUser(schemaFields._id, userId);
-          if (role !== Role.admin) {
-              const err: any = new Error(Message.NoPermission());
-              err.statusCode = ApiStatusCode.Forbidden;
-              return next(err)
-          };
           const result = await DoctorService.getAll();
           const response = result.map(e => {
             const { dateOfBirth } = e.userId as any;
