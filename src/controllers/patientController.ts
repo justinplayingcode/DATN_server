@@ -68,8 +68,8 @@ export default class PatientController {
                     status: ApiStatus.succes,
                     data: { 
                         fullname: newUser.fullname,
-                        username: newUser.username, 
-                        password: password
+                        username, 
+                        password
                     }
                 });
             }

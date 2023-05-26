@@ -58,8 +58,8 @@ export default class DoctorController {
                 status: ApiStatus.succes,
                 data: { 
                     fullname: newUser.fullname,
-                    username: newUser.username, 
-                    password: password
+                    username, 
+                    password
                 }
             });
         } catch (error) {
