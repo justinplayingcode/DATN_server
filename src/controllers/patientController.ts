@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import MomentTimezone from "../helpers/timezone";
 import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
 import ReqBody from "../models/Data/reqBody";
-import { DepartmentType, Role, schemaFields, statusAppointment } from "../models/Data/schema";
+import { DepartmentType, Role, statusAppointment } from "../models/Data/schema";
 import HealthService from "../services/healthService";
 import PatientService from "../services/patientService";
 import SecurityService from "../services/securityService";
@@ -150,13 +150,6 @@ export default class PatientController {
     //POST
     public static getAllPatientWait = async (req, res, next) => {
         try {
-            const { userId } = req.user;
-            const { role } = await UserService.findOneUser(schemaFields._id, userId);
-            if (role !== Role.doctor) {
-                const err: any = new Error(Message.NoPermission());
-                err.statusCode = ApiStatusCode.Forbidden;
-                return next(err)
-            };
             validateReqBody(req, ReqBody.getAllPatientWait, next);
             const departmentCode = await DepartmentService.findOneDepartmentCode(req.body.department);
             let patients: any[];
