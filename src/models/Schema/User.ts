@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import Validate from '../../utils/validate';
 import Message from '../../utils/message';
 import UserService from '../../services/userService';
-import { Gender, collectionName } from '../Data/schema';
+import { Gender, collectionName, schemaFields } from '../Data/schema';
 import Convert from '../../utils/convert';
 import Doctor from './Doctor';
 import Patient from './Patient';
@@ -21,7 +21,7 @@ const userSchema = new Schema({
             {
                 validator: async (value) => {
                     if (value === "") return true;
-                    const user = await UserService.findOneUser('email', value);
+                    const user = await UserService.findOneUser(schemaFields.email, value);
                     return !user;
                 },
                 message: props => `${props.value}: email này đã tồn tại`
@@ -71,11 +71,18 @@ const userSchema = new Schema({
     identification: {
         type: String,
         trim: true,
-        unique: true,
         validate: [
             {
                 validator: value => Validate.identification(value),
                 message: props => Message.invalidIdentification(props.value)
+            },
+            {
+                validator: async (value) => {
+                  if (value === "") return true;
+                  const user = await UserService.findOneUser(schemaFields.identification, value);
+                  return !user;
+                },
+                message: props => `${props.value}: identification này đã tồn tại`
             }
         ]
     },

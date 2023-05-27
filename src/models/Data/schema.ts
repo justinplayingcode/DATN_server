@@ -108,3 +108,16 @@ export enum Position {
     viceDean,
     none
 }
+
+export enum Onboarding {
+  none,
+  inpatient,
+  outpatient,
+}
+
+export enum TypeAppointmentSchedule {
+  khamTheoYeuCau,
+  khamThuong,
+  khamTheoBHYT,
+  khamTheoChiDinh,
+}
