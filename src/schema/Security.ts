@@ -1,9 +1,10 @@
 import mongoose, { Schema } from 'mongoose';
-import { Role, collectionName } from '../Data/schema';
 import bcrypt from 'bcryptjs';
-import Validate from '../../utils/validate';
-import Message from '../../utils/message';
-import Convert from '../../utils/convert';
+import Validate from '../utils/validate';
+import Message from '../utils/message';
+import Convert from '../utils/convert';
+import { Role } from '../utils/enum';
+import { collectionName } from '../utils/constant';
 
 const securitySchema = new Schema({
     username: {
@@ -39,6 +40,10 @@ const securitySchema = new Schema({
     refreshToken: {
         type: String,
         trim: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 })
 

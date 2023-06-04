@@ -1,19 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
-import { collectionName } from '../Data/schema';
-
-const bloodPressureSchema = new Schema({
-    systolic: {
-        type: Number,
-        required: true
-    },
-    diastolic: {
-        type: Number,
-        required: true
-    }
-})
+import { collectionName } from '../utils/constant';
 
 const healthSchema = new Schema({
-    patient: {
+    patientId: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Patient,
         required: true
@@ -26,10 +15,14 @@ const healthSchema = new Schema({
         type: Number,
         required: true
     },
-    bloodPressure: {
-        type: bloodPressureSchema,
+    bloodPressureSystolic: {
+        type: Number,
         required: true
     },
+    bloodPressureDiastolic: {
+      type: Number,
+      required: true
+  },
     glucose: {
         type: Number,
         required: true
@@ -41,13 +34,6 @@ const healthSchema = new Schema({
     height: {
         type: Number,
         required: true
-    },
-    medicalHistory: {
-        type: [{
-            type: Schema.Types.ObjectId,
-            ref: collectionName.Diseases
-        }],
-        default: []
     }
 })
 

@@ -1,10 +1,10 @@
 import { ClientSession } from "mongoose";
-import { IEditUser, IUser } from "../models/Data/objModel";
-import User from "../models/Schema/User";
-import { schemaFields } from "../models/Data/schema";
+import User from "../schema/User";
+import { schemaFields } from "../utils/constant";
+import { ICreateUser, IEditUser } from "../models/User";
 
 export default class UserService {
-    public static createUser = async (obj: IUser, session: ClientSession) => {
+    public static createUser = async (obj: ICreateUser, session: ClientSession) => {
       try {
         const user = new User(obj);
         return user.save({ session });
@@ -16,10 +16,16 @@ export default class UserService {
         return await User.findOne({ [key]: obj}).lean();
     }
     public static updateOne = async (id, obj: IEditUser, session: ClientSession) => {
-      const { email, ...other } = obj;
+      const { identification, email } = obj;
       let updateObj: any = obj;
       const oldEmail = await this.findEmailById(id);
+      const oldidentification = await this.findIdentificationById(id);
       if(email === oldEmail) {
+        const { email, ...other } = obj;
+        updateObj = other;
+      }
+      if (identification === oldidentification) {
+        const { identification, ...other } = updateObj;
         updateObj = other;
       }
       return await User.findByIdAndUpdate( id, updateObj, { new: true, runValidators: true, session, select: `-__v -${schemaFields.username} -${schemaFields.password} -${schemaFields._id} -${schemaFields.role}`})
@@ -30,5 +36,9 @@ export default class UserService {
     public static findEmailById = async (id) => {
       const { email } = await User.findById(id).lean();
       return email;
+    }
+    public static findIdentificationById = async (id) => {
+      const { identification } = await User.findById(id).lean();
+      return identification;
     }
 }

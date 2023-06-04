@@ -1,12 +1,13 @@
 import mongoose, { Schema } from 'mongoose';
-import Validate from '../../utils/validate';
-import Message from '../../utils/message';
-import UserService from '../../services/userService';
-import { Gender, collectionName, schemaFields } from '../Data/schema';
-import Convert from '../../utils/convert';
-import Doctor from './Doctor';
-import Patient from './Patient';
-import Security from './Security';
+import Validate from '../utils/validate';
+import Message from '../utils/message';
+import UserService from '../services/userService';
+import Convert from '../utils/convert';
+// import Doctor from './Doctor';
+// import Patient from './Patient';
+// import Security from './Security';
+import { collectionName, schemaFields } from '../utils/constant';
+import { Gender } from '../utils/enum';
 
 const userSchema = new Schema({
     email: {
@@ -88,11 +89,16 @@ const userSchema = new Schema({
     },
 });
 
-userSchema.pre('remove', function(this: mongoose.Document ,next) {
-    Doctor.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
-    Patient.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
-    Security.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
-    next();
+// userSchema.pre('remove', function(this: mongoose.Document ,next) {
+//     Doctor.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+//     Patient.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+//     Security.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+//     next();
+// })
+
+userSchema.pre('remove', function(next) {
+
+
 })
 
 const User = mongoose.model(collectionName.User, userSchema);

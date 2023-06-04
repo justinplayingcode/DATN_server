@@ -1,10 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
-import { collectionName } from '../Data/schema';
+import Convert from '../utils/convert';
+import { collectionName } from '../utils/constant';
+import { TemplateType } from '../utils/enum';
 
 const postSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
-        ref: collectionName.Doctor,
+        ref: collectionName.User,
         required: [true, 'author must be required']
     },
     title: {
@@ -17,17 +19,16 @@ const postSchema = new Schema({
         trim: true,
         required: [true, 'content must be required']
     },
-    department: {
-        type: Schema.Types.ObjectId,
-        ref: collectionName.Department,
-        required: [true, 'departmentId must be required']
-    },
     image: {
         type: String,
         trim: true,
     },
     template: {
         type: Number,
+        enum: {
+          values: Convert.enumToArray(TemplateType),
+          message: "{VALUE} is not supported in type of template"
+        },
         required: [true, 'template must be required']
     }
 })

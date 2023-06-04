@@ -1,6 +1,6 @@
 import  jwt from "jsonwebtoken";
-import { Role } from "../models/Data/schema";
 import mongoose from "mongoose";
+import { Role } from "../utils/enum";
 
 
 export interface IPayLoad {

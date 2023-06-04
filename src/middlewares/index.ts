@@ -1,6 +1,5 @@
 import jwToken from "../helpers/jwt";
-import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
-import { Role } from "../models/Data/schema";
+import { ApiStatus, ApiStatusCode, Role } from "../utils/enum";
 import Message from "../utils/message";
 
 export default class Middlewares {

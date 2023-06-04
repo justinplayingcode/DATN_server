@@ -1,19 +1,18 @@
 import bcrypt from 'bcryptjs';
 import UserService from "../services/userService";
 import jwToken, { IPayLoad } from '../helpers/jwt';
-import { ApiStatus, ApiStatusCode } from '../models/Data/apiStatus';
-import validateReqBody from '../utils/validateReqBody';
-import ReqBody from '../models/Data/reqBody';
-import { Role, schemaFields } from '../models/Data/schema';
+import validateReqBody, { ReqBody } from '../utils/requestbody';
 import SecurityService from '../services/securityService';
 import Message from '../utils/message';
 import Convert from '../utils/convert';
 import DoctorService from '../services/doctorService';
-import PatientService from '../services/patientService';
-import HealthService from '../services/healthService';
 import MomentTimezone from '../helpers/timezone';
 import mongoose from 'mongoose';
 import Validate from '../utils/validate';
+import { ApiStatus, ApiStatusCode, Role } from '../utils/enum';
+import { schemaFields } from '../utils/constant';
+import PatientService from '../services/patientService';
+import HealthService from '../services/healthService';
 
 export default class AuthController {
     // POST
@@ -155,33 +154,30 @@ export default class AuthController {
             }
             switch(role) {
                 case Role.admin:
-                    response = {
-                        ...basicInfo
-                    }
+                    response = basicInfo;
                     break;
                 case Role.doctor:
                     const inforDoctor = await DoctorService.getInfor(userId);
-                    const { _id: departmentId, name } = inforDoctor.department as any;
+                    const { _id: departmentId, departmentName, departmentCode } = inforDoctor.departmentId as any;
                     response = {
                       ...basicInfo,
                       ...inforDoctor,
-                      department: name,
-                      departmentId: departmentId
+                      department: departmentName,
+                      departmentCode,
+                      departmentId
                     }
                     break;
                 case Role.patient:
-                    const patient = await PatientService.findOneCurrentInfoPatientByUserId(userId);
-                    const health = await HealthService.findOneByPatientId(patient._id);
-                    const { systolic, diastolic } = health.bloodPressure as any;
+                    const patient = await PatientService.findByUserId(userId);
                     const { _id, ...infoPatient } = patient as any;
+                    const health = await HealthService.findOneByPatientId(_id);
                     response = {
                         ...basicInfo,
                         ...infoPatient,
-                        // idpatient: _id,
                         heartRate: health.heartRate,
                         temperature: health.temperature,
-                        bloodPressureSystolic: systolic,
-                        bloodPressureDiastolic: diastolic,
+                        bloodPressureSystolic: health.bloodPressureSystolic,
+                        bloodPressureDiastolic: health.bloodPressureDiastolic,
                         glucose: health.glucose,
                         weight: health.weight,
                         height: health.height
