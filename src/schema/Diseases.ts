@@ -1,15 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
-import { collectionName } from '../Data/schema';
 import Histories from './Histories';
 import Health from './Health';
+import { collectionName } from '../utils/constant';
 
 const diseasesSchema = new Schema({
-    code: {
-        type: String,
-        trim: true,
-        uppercase: true,
-        required: true
-    },
     name: {
         type: String,
         trim: true,
@@ -27,10 +21,15 @@ const diseasesSchema = new Schema({
       trim: true,
       required: true
   },
-    department: {
+    departmentId: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Department,
         required: true
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true
     }
 })
 

@@ -1,17 +1,25 @@
-import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
-import ReqBody from "../models/Data/reqBody";
-import MedicationService from "../services/medicationService"
-import validateReqBody from "../utils/validateReqBody";
+import MedicationService from "../services/medicationService";
+import { TableResponseNoData } from "../utils/constant";
+import { ApiStatus, ApiStatusCode, TableType } from "../utils/enum";
+import validateReqBody, { ReqBody } from "../utils/requestbody";
 
 export default class MedicationController {
   //GET
   public static getAllMedication = async (req, res, next) => {
     try {
-      const medications = await MedicationService.getAll();
+      validateReqBody(req, ReqBody.getTableValues, next);
+      let data;
+      switch (req.body.tableType) {
+        case TableType.medications:
+          data = await MedicationService.getAll(req.body.page, req.body.pageSize, req.body.searchKey);
+          break;
+        default:
+          data = TableResponseNoData;
+      }
       res.status(ApiStatusCode.OK).json({
         status: ApiStatus.succes,
-        data: medications
-    })
+        data: data
+      })
     } catch (error) {
       next(error)
     }
@@ -20,10 +28,10 @@ export default class MedicationController {
   public static createMedication = async (req, res, next) => {
     try {
       validateReqBody(req, ReqBody.createMedication, next);
-      const medication = await MedicationService.create(req.body);
+      await MedicationService.create(req.body);
       res.status(ApiStatusCode.OK).json({
         status: ApiStatus.succes,
-        data: medication
+        data: "them moi thanh cong"
       })
     } catch (error) {
       next(error)

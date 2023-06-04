@@ -1,7 +1,36 @@
-import { schemaFields } from "./schema";
+import { IValidateReqBody } from "../models/Security";
+import { schemaFields } from "./constant";
+import { ApiStatusCode } from "./enum";
 
-export default class ReqBody {
+const validate = (req, requiredFields: string[]): IValidateReqBody => {
+    const missingFields = [];
+    requiredFields.forEach((field) => {
+        if (!(field in req.body)) {
+            missingFields.push(field);
+        }
+    });
+    const result: IValidateReqBody = {
+        pass: true
+    }
+    if (missingFields.length > 0) {
+        result.pass = false;
+        result.message = `Missing required field(s): ${missingFields.join(', ')}`;
+    }
+    return result
+};
 
+const validateReqBody = (req, requiredFields: string[], next) => {
+    const verifyReqBody = validate(req, requiredFields)
+    if(!verifyReqBody.pass) {
+        const err: any = new Error(verifyReqBody.message);
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+    }
+}
+
+export default validateReqBody
+
+export class ReqBody {
 
     // auth
     public static login = [
@@ -24,12 +53,13 @@ export default class ReqBody {
         schemaFields.identification,
     ];
 
+    //account
     public static registerDoctor = [
         schemaFields.fullname,
         schemaFields.email,
         schemaFields.phonenumber,
         schemaFields.gender,
-        schemaFields.department,
+        schemaFields.departmentId,
         schemaFields.address,
         schemaFields.dateOfBirth,
         schemaFields.identification,
@@ -37,6 +67,15 @@ export default class ReqBody {
         schemaFields.position
     ];
 
+    // table view
+    public static getTableValues = [
+      schemaFields.page,
+      schemaFields.pageSize,
+      schemaFields.tableType,
+      schemaFields.searchKey
+    ]
+
+    // ======
     public static editInfomationUser = [
       schemaFields.email,
       schemaFields.fullname,
@@ -48,7 +87,6 @@ export default class ReqBody {
     ]
 
     // doctor
-
     // patient
     public static registerPatient = [
         schemaFields.userId,
@@ -56,11 +94,13 @@ export default class ReqBody {
         schemaFields.email,
         schemaFields.phonenumber,
         schemaFields.gender,
-        schemaFields.department,
+        schemaFields.departmentId,
         schemaFields.address,
         schemaFields.dateOfBirth,
         schemaFields.identification,
-        schemaFields.insurance
+        schemaFields.insurance,
+        schemaFields.initialSymptom,
+        schemaFields.typeAppointment
     ]
 
     public static searchPatientByInsurance = [
@@ -71,15 +111,10 @@ export default class ReqBody {
         schemaFields.userId
     ]
 
-    public static getAllPatientWait = [
-        schemaFields.boarding,
-        schemaFields.department
-    ]
-
     // department
     public static newDepartment = [
-        schemaFields.name,
-        schemaFields.code
+        schemaFields.departmentName,
+        schemaFields.departmentCode
     ]
 
     //medication
@@ -100,19 +135,17 @@ export default class ReqBody {
 
     //díeases
     public static createDisases = [
-      schemaFields.code,
       schemaFields.name,
       schemaFields.symptom,
       schemaFields.prevention,
-      schemaFields.department
+      schemaFields.departmentId
     ]
 
     public static editDisases = [
       schemaFields.id,
-      schemaFields.code,
       schemaFields.name,
       schemaFields.symptom,
       schemaFields.prevention,
-      schemaFields.department
+      schemaFields.departmentId
     ]
 }

@@ -1,3 +1,6 @@
+import { ApiStatusCode } from "./enum";
+import Message from "./message";
+
 export default class Validate {
     public static userName = (value) => {
         const regex = new RegExp('^[a-zA-Z0-9.]+$');
@@ -27,5 +30,12 @@ export default class Validate {
     public static dateOfBirth = (value: string) => {
       const regex = new RegExp('^(0?[1-9]|1[0-2])\\/(0?[1-9]|[12][0-9]|3[01])\\/\\d{4}$');
       return regex.test(value);
+    }
+    public static validateDob = (dob, next) => {
+      if(!Validate.dateOfBirth(dob)) {
+        const err: any = new Error(Message.invalidDateOfBirth);
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+      }
     }
 }

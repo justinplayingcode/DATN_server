@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import Middlewares from '../middlewares';
-import PatientController from '../controllers/patientController';
-import { Role } from '../models/Data/schema';
+import { Role } from '../utils/enum';
+import HealthcareController from '../controllers/healthcareController';
 
 const healthcareRoute = Router();
 
-healthcareRoute.route('/getallpatient').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), PatientController.getAllPatientWait)
-healthcareRoute.route('/getinfobyuserid').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]),PatientController.getPatientByUserId)
-healthcareRoute.route('/registerpatient').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), PatientController.registerPatient);
-healthcareRoute.route('/searchinsurance').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), PatientController.searchPatientByInsurance);
+healthcareRoute.route('/getinfobyuserid').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), HealthcareController.getPatientByUserId) //done
+healthcareRoute.route('/registerpatient').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), HealthcareController.registerPatient); //done
+healthcareRoute.route('/searchinsurance').post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), HealthcareController.searchPatientByInsurance); //done
 
 export default healthcareRoute;

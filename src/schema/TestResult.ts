@@ -1,0 +1,26 @@
+import mongoose, { Schema } from "mongoose";
+import { collectionName } from "../utils/constant";
+
+const testResultSchema = new Schema({
+  doctorId: {
+    type: Schema.Types.ObjectId,
+    ref: collectionName.Doctor,
+  },
+  reason: {
+    type: String,
+    trim: true,
+    required: true
+  },
+  serviceId: {
+    type: Schema.Types.ObjectId,
+    ref: collectionName.TestService,
+  },
+  historyId: {
+    type: Schema.Types.ObjectId,
+    ref: collectionName.Histories,
+  }
+})
+
+const TestResult = mongoose.model(collectionName.TestResult, testResultSchema);
+
+export default TestResult;

@@ -1,12 +1,13 @@
 import mongoose, { Schema } from 'mongoose';
-import Validate from '../../utils/validate';
-import Message from '../../utils/message';
-import UserService from '../../services/userService';
-import { Gender, collectionName } from '../Data/schema';
-import Convert from '../../utils/convert';
-import Doctor from './Doctor';
-import Patient from './Patient';
-import Security from './Security';
+import Validate from '../utils/validate';
+import Message from '../utils/message';
+import UserService from '../services/userService';
+import Convert from '../utils/convert';
+// import Doctor from './Doctor';
+// import Patient from './Patient';
+// import Security from './Security';
+import { collectionName, schemaFields } from '../utils/constant';
+import { Gender } from '../utils/enum';
 
 const userSchema = new Schema({
     email: {
@@ -21,7 +22,7 @@ const userSchema = new Schema({
             {
                 validator: async (value) => {
                     if (value === "") return true;
-                    const user = await UserService.findOneUser('email', value);
+                    const user = await UserService.findOneUser(schemaFields.email, value);
                     return !user;
                 },
                 message: props => `${props.value}: email này đã tồn tại`
@@ -71,21 +72,33 @@ const userSchema = new Schema({
     identification: {
         type: String,
         trim: true,
-        unique: true,
         validate: [
             {
                 validator: value => Validate.identification(value),
                 message: props => Message.invalidIdentification(props.value)
+            },
+            {
+                validator: async (value) => {
+                  if (value === "") return true;
+                  const user = await UserService.findOneUser(schemaFields.identification, value);
+                  return !user;
+                },
+                message: props => `${props.value}: identification này đã tồn tại`
             }
         ]
     },
 });
 
-userSchema.pre('remove', function(this: mongoose.Document ,next) {
-    Doctor.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
-    Patient.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
-    Security.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
-    next();
+// userSchema.pre('remove', function(this: mongoose.Document ,next) {
+//     Doctor.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+//     Patient.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+//     Security.updateMany({userId: this._id},{$unset:{ userId: ''}}).exec();
+//     next();
+// })
+
+userSchema.pre('remove', function(next) {
+
+
 })
 
 const User = mongoose.model(collectionName.User, userSchema);

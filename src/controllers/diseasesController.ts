@@ -1,25 +1,25 @@
-import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
-import ReqBody from "../models/Data/reqBody";
 import DiseasesService from "../services/diseasesService";
-import validateReqBody from "../utils/validateReqBody";
+import { TableResponseNoData } from "../utils/constant";
+import { ApiStatus, ApiStatusCode, TableType } from "../utils/enum";
+import validateReqBody, { ReqBody } from "../utils/requestbody";
 
 export default class DiseasesController {
-  //GET
+  //POST
   public static getAllDiseases = async (req, res, next) => {
     try {
-      const diseases = await DiseasesService.getAll();
-      const result = diseases.map(e => {
-        const { name, _id } = e.department as any;
-        return {
-          ...e,
-          department: name,
-          departmentId: _id
-        }
-      })
+      validateReqBody(req, ReqBody.getTableValues, next);
+      let data;
+      switch(req.body.tableType) {
+        case TableType.diseases:
+          data = await DiseasesService.getAll(req.body.page, req.body.pageSize, req.body.searchKey);
+          break;
+        default:
+          data = TableResponseNoData
+      }
       res.status(ApiStatusCode.OK).json({
         status: ApiStatus.succes,
-        data: result
-    })
+        data: data
+      })
     } catch (error) {
       next(error)
     }

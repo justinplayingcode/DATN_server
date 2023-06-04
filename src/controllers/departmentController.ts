@@ -1,7 +1,6 @@
-import { ApiStatus, ApiStatusCode } from "../models/Data/apiStatus";
-import ReqBody from "../models/Data/reqBody"
 import DepartmentService from "../services/departmentService";
-import validateReqBody from "../utils/validateReqBody"
+import { ApiStatus, ApiStatusCode } from "../utils/enum";
+import validateReqBody, { ReqBody } from "../utils/requestbody"
 
 export default class DepartmentController {
     //POST

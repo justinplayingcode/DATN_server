@@ -1,6 +1,6 @@
 import { ClientSession } from "mongoose";
-import Security from "../models/Schema/Security";
-import { ICreateSecurity } from "../models/Data/objModel";
+import Security from "../schema/Security";
+import { ICreateSecurity } from "../models/Security";
 
 export default class SecurityService {
     public static registerCreateSecurity = async (obj: ICreateSecurity, session: ClientSession) => {

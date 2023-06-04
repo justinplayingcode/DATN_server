@@ -1,8 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
-import { DoctorRank, Position, collectionName } from '../Data/schema';
-import Post from './Post';
-import Histories from './Histories';
-import Convert from '../../utils/convert';
+import Convert from '../utils/convert';
+import { collectionName } from '../utils/constant';
+import { DoctorRank, Position } from '../utils/enum';
 
 const doctorSchema = new Schema({
     userId: {
@@ -10,9 +9,9 @@ const doctorSchema = new Schema({
         ref: collectionName.User,
         required: [true, 'userId must be required'],
     },
-    department: {
+    departmentId: {
         type: Schema.Types.ObjectId,
-        required: [true, 'speciality must be required'],
+        required: [true, 'department must be required'],
         ref: collectionName.Department
     },
     rank: {
@@ -30,14 +29,17 @@ const doctorSchema = new Schema({
             values: Convert.enumToArray(Position),
             message: "{VALUE} is not supported in gender"
         }
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true
     }
 })
 
-doctorSchema.pre('remove', function(this: mongoose.Document ,next) {
-    Histories.updateMany({doctor: this._id},{$unset:{ doctor: ''}}).exec();
-    Post.updateMany({author: this._id},{$unset:{ author: ''}}).exec();
-    next();
-})
+// doctorSchema.pre('remove', function(this: mongoose.Document ,next) {
+//     AppointmentSchedule.updateMany({doctor: this._id},{$unset:{ doctor: ''}}).exec();
+// })
 
 const Doctor = mongoose.model(collectionName.Doctor, doctorSchema);
 
