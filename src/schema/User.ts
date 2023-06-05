@@ -3,9 +3,6 @@ import Validate from '../utils/validate';
 import Message from '../utils/message';
 import UserService from '../services/userService';
 import Convert from '../utils/convert';
-// import Doctor from './Doctor';
-// import Patient from './Patient';
-// import Security from './Security';
 import { collectionName, schemaFields } from '../utils/constant';
 import { Gender } from '../utils/enum';
 
