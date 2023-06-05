@@ -103,7 +103,7 @@ export default class appointmentScheduleService {
           }
         }
         return acc;
-      }, [])
+      }, []) // sort by appointmentDate
 
       const total = await (await AppointmentSchedule
         .find({ doctorId: { $exists: false } }, { __v: 0 })
