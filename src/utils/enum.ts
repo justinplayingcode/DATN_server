@@ -95,9 +95,8 @@ export enum TableType {
   scheduleParaclinicalDepartment, //status testing 
   scheduleNormalOtherDepartmentTesting,
   scheduleWithRequest,
-
   patientOnboarding,
   schedulePatientIn,
-
+  departments,
 
 }

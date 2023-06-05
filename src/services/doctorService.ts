@@ -8,7 +8,6 @@ export default class DoctorService {
     public static totalCount = async () => {
       return await Doctor.countDocuments({ isActive: true });
     }
-
     public static createDoctor = async (obj: ICreateDoctor, session: ClientSession) => {
       try {
         const doctor = new Doctor(obj);
@@ -82,5 +81,12 @@ export default class DoctorService {
           select: `-__v`
         })
         .lean();
+    }
+
+    public static getAllDoctorsInDepartment = async (departmentId) => {
+      
+    }
+    public static getTotalDoctorsInDepartment = async (departmentId) => {
+      return await Doctor.find({ departmentId }).countDocuments();
     }
 }
