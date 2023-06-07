@@ -23,22 +23,22 @@ export default class DepartmentService {
     }
     public static getAllDepartmentForTable = async (page: number, pageSize: number, searchKey: string) => {
       const value = (await Department
-      .find({ departmentName: { $regex: searchKey, $options: "i" }})
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
-      .select(`-__v -${schemaFields.isActive}`)
-      .lean())?.reduce( async (acc, cur) => {
-        const totalDoctors = await DoctorService.getTotalDoctorsInDepartment(cur._id);
-        (await acc).push({
-          ...cur,
-          totalDoctors
-        });
-        return acc;
-      }, Promise.resolve([]));
-      const values = await value;
-      const total = await Department
-      .find({ departmentName: { $regex: searchKey, $options: "i" }})
-      .countDocuments();
+        .find({ departmentName: { $regex: searchKey, $options: "i" }})
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .select(`-__v -${schemaFields.isActive}`)
+        .lean())?.reduce( async (acc, cur) => {
+          const totalDoctors = await DoctorService.getTotalDoctorsInDepartment(cur._id);
+          (await acc).push({
+            ...cur,
+            totalDoctors
+          });
+          return acc;
+        }, Promise.resolve([]));
+        const values = await value;
+        const total = await Department
+        .find({ departmentName: { $regex: searchKey, $options: "i" }})
+        .countDocuments();
 
       return {
         values,

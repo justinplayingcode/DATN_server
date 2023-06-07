@@ -157,7 +157,7 @@ export default class AuthController {
                     response = basicInfo;
                     break;
                 case Role.doctor:
-                    const inforDoctor = await DoctorService.getInfor(userId);
+                    const inforDoctor = await DoctorService.getInforByUserId(userId);
                     const { _id: departmentId, departmentName, departmentCode } = inforDoctor.departmentId as any;
                     response = {
                       ...basicInfo,

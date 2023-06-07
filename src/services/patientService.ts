@@ -96,4 +96,8 @@ export default class PatientService {
 
     return respone;
   }
+
+  public static findOneById = async (id) => {
+    return await Patient.findById(id).lean();
+  }
 }

@@ -1,4 +1,5 @@
 import DepartmentService from "../services/departmentService";
+import DoctorService from "../services/doctorService";
 import { TableResponseNoData } from "../utils/constant";
 import { ApiStatus, ApiStatusCode, TableType } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody"
@@ -48,6 +49,28 @@ export default class DepartmentController {
             break;
           default:
             data = TableResponseNoData; 
+        }
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: data
+        });
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    //POST
+    public static getAllDoctorsInDepartment = async (req, res, next) => {
+      try {
+        validateReqBody(req, ReqBody.getTableValues, next);
+        let data;
+
+        switch(req.body.tableType) {
+          case TableType.doctorInDepartment: 
+            data = await DoctorService.getAllDoctorsInDepartment(req.body.page, req.body.pageSize, req.body.searchKey, req.body.departmentId)
+            break;
+          default:
+            data = TableResponseNoData;
         }
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,

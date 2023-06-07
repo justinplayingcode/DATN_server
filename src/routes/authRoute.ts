@@ -10,6 +10,6 @@ authRoute.route('/login').post(AuthController.login); //done
 authRoute.route('/').get(Middlewares.verifyToken, AuthController.getCurrentUser); //done
 authRoute.route('/newtoken').post(AuthController.newAccessToken); //done
 authRoute.route('/infocurrentuser').get(Middlewares.verifyToken, AuthController.getInfoUser); // done
-authRoute.route('/edit').post(Middlewares.verifyToken, AuthController.editInfomationUser); //done
+authRoute.route('/edit').put(Middlewares.verifyToken, AuthController.editInfomationUser); //done
 
 export default authRoute;
