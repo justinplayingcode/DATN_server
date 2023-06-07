@@ -60,29 +60,29 @@ export enum Position {
 }
 
 export enum Onboarding {
-none,
-inpatient,
-outpatient,
+  none,
+  inpatient,
+  outpatient,
 }
 
 export enum TypeAppointmentSchedule {
-khamTheoYeuCau,
-khamThuong,
-khamTheoBHYT,
-khamTheoChiDinh,
+  khamTheoYeuCau,
+  khamThuong,
+  khamTheoBHYT,
+  khamTheoChiDinh,
 }
 
 export enum TypeTestService {
-chupXquang,
-noiSoi,
-xetNghiemMau,
-xetNghiemNuocTieu,
+  chupXquang,
+  noiSoi,
+  xetNghiemMau,
+  xetNghiemNuocTieu,
 }
 
 export enum TemplateType {
-template1,
-template2,
-template3,
+  template1,
+  template2,
+  template3,
 }
 
 export enum TableType {
@@ -90,13 +90,11 @@ export enum TableType {
   patientAccount,
   medications,
   diseases,
-  scheduleNormalReception,
-  scheduleNormalOtherDepartment,
-  scheduleParaclinicalDepartment, //status testing 
-  scheduleNormalOtherDepartmentTesting,
+  departments,
+  doctorInDepartment,
+  scheduleNormal,
+  scheduleParaclinical,
   scheduleWithRequest,
   patientOnboarding,
   schedulePatientIn,
-  departments,
-
 }

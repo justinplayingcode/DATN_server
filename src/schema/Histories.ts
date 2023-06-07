@@ -1,6 +1,16 @@
 import mongoose, { Schema } from 'mongoose';
 import { collectionName } from '../utils/constant';
 
+const healthIndicatorSchema = new Schema({
+  heartRate: Number,
+  temperature: Number,
+  bloodPressureSystolic: Number,
+  bloodPressureDiastolic: Number,
+  glucose: Number,
+  weight: Number,
+  height: Number
+})
+
 const historySchema = new Schema({
     appointmentScheduleId: {
         type: Schema.Types.ObjectId,
@@ -10,16 +20,19 @@ const historySchema = new Schema({
     diagnosis: {
         type: Schema.Types.ObjectId,
         ref: collectionName.Diseases,
-        required: [true, 'diagnosis must be required']
+        // đây sẽ lưu id của bệnh mà bác sĩ chuẩn đoán
     },
     hospitalizationCount: {
         type: Number,
         required: [true, 'hospitalizationCount must be required']
-        // lay data tu bang patient
     },
     summary: {
       type: String,
       trim: true
+    },
+    healthIndicator: {
+      type: healthIndicatorSchema,
+      default: {}
     }
 })
 

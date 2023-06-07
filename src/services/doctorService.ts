@@ -16,12 +16,6 @@ export default class DoctorService {
         throw error;
       }
     }
-    public static findOneByUserId = async (id) => {
-        return await Doctor.findOne({ userId: id}).populate({
-            path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.identification} -${schemaFields._id}`
-        }).lean();
-    } 
     public static getAll = async (page: number, pageSize: number, searchKey: string) => {
         const doctors = await Doctor.find({ isActive: true })
           .skip((page - 1) * pageSize)
@@ -74,7 +68,7 @@ export default class DoctorService {
         }
     }
 
-    public static getInfor = async (userId) => {
+    public static getInforByUserId = async (userId) => {
       return await Doctor.findOne({ userId: userId} )
         .populate({
           path: schemaFields.departmentId,
@@ -83,10 +77,54 @@ export default class DoctorService {
         .lean();
     }
 
-    public static getAllDoctorsInDepartment = async (departmentId) => {
-      
-    }
     public static getTotalDoctorsInDepartment = async (departmentId) => {
       return await Doctor.find({ departmentId }).countDocuments();
+    }
+
+    public static getAllDoctorsInDepartment = async (page: number, pageSize: number, searchKey: string, departmentId) => {
+      const values = (await Doctor
+          .find(departmentId ? {departmentId} : {})
+          .skip((page - 1) * pageSize)
+          .limit(pageSize)
+          .select(`-__v -${schemaFields.isActive}`)
+          .populate({
+            path: schemaFields.userId,
+            select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`,
+            match: {
+              fullname: { $regex: new RegExp(searchKey, 'i') }
+            }
+          })
+          .lean())?.reduce((acc, curr) => {
+            if(curr.userId) {
+              const { dateOfBirth, _id, ...userInfo } = curr.userId as any;
+              const { departmentName } = curr.departmentId as any;
+              acc.push({
+                position: curr.position,
+                rank: curr.rank,
+                ...userInfo,
+                userId: _id,
+                departmentName,
+                dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth)
+              })
+            }
+            return acc;
+          }, []);
+
+        return {
+          values
+        }
+    }
+
+    public static findDepartmentOfDoctor = async (userId) => {
+      const res = await Doctor
+        .findOne({userId})
+        .populate({
+          path: schemaFields.departmentId,
+          select: `-__v`
+        })
+        .select(`${schemaFields.departmentId}`)
+        .lean()
+
+      return res;
     }
 }

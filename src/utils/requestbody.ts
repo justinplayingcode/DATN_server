@@ -148,4 +148,9 @@ export class ReqBody {
       schemaFields.prevention,
       schemaFields.departmentId
     ]
+
+    // schedule
+    public static changeStatusToProcess = [
+      schemaFields.id
+    ]
 }

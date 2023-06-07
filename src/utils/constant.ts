@@ -115,6 +115,7 @@ export const schemaFields = {
   initialSymptom: 'initialSymptom',
   statusAppointment: 'statusAppointment',
   statusUpdateTime: 'statusUpdateTime',
+  healthIndicator: 'healthIndicator'
 }
 
 export const TableResponseNoData = {
