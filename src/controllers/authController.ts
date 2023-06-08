@@ -87,7 +87,7 @@ export default class AuthController {
                     }
                 })
             } else {
-                const err: any = new Error('password không chính xác');
+                const err: any = new Error('Mật khẩu không chính xác');
                 err.statusCode = ApiStatusCode.BadRequest;
                 return next(err)
             }

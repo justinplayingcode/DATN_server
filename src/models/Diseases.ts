@@ -1,7 +1,8 @@
 import { Schema } from "mongoose";
 
 export interface ICreateDiseases {
-  name: string,
+  diseasesCode: string,
+  diseasesName: string,
   symptom: string,
   prevention: string,
   departmentId: Schema.Types.ObjectId

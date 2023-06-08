@@ -45,6 +45,7 @@ export const schemaFields = {
   reason: 'reason',
   serviceId: 'serviceId',
   historyId: 'historyId',
+  detailsFileCloud: 'detailsFileCloud',
 
   //security
   username: 'username',
@@ -98,6 +99,8 @@ export const schemaFields = {
   position: 'position',
 
   //diseases
+  diseasesCode: 'diseasesCode',
+  diseasesName: 'diseasesName',
   symptom: 'symptom',
   prevention: 'prevention',
 

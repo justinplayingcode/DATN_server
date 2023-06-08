@@ -4,7 +4,14 @@ import Health from './Health';
 import { collectionName } from '../utils/constant';
 
 const diseasesSchema = new Schema({
-    name: {
+    diseasesCode: {
+        type: String,
+        trim: true,
+        uppercase: true,
+        required: true,
+        unique: true
+    },
+    diseasesName: {
         type: String,
         trim: true,
         uppercase: true,
