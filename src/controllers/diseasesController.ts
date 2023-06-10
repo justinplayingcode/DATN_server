@@ -46,7 +46,7 @@ export default class DiseasesController {
       if(!updateDiseases) {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.fail,
-          message: `Not found Diseases: ${req.body.name}`
+          message: `Not found Diseases: ${req.body.diseasesName}`
         })
       } else {
         res.status(ApiStatusCode.OK).json({

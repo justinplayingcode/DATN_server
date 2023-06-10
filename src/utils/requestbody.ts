@@ -135,7 +135,8 @@ export class ReqBody {
 
     //díeases
     public static createDisases = [
-      schemaFields.name,
+      schemaFields.diseasesCode,
+      schemaFields.diseasesName,
       schemaFields.symptom,
       schemaFields.prevention,
       schemaFields.departmentId
@@ -143,7 +144,8 @@ export class ReqBody {
 
     public static editDisases = [
       schemaFields.id,
-      schemaFields.name,
+      schemaFields.diseasesCode,
+      schemaFields.diseasesName,
       schemaFields.symptom,
       schemaFields.prevention,
       schemaFields.departmentId
@@ -152,5 +154,12 @@ export class ReqBody {
     // schedule
     public static changeStatusToProcess = [
       schemaFields.id
+    ]
+    
+    public static patientRequestMedical = [
+      schemaFields.doctorId,
+      schemaFields.departmentId,
+      schemaFields.appointmentDate,
+      schemaFields.initialSymptom
     ]
 }

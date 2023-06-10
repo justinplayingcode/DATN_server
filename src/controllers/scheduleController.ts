@@ -2,10 +2,11 @@ import mongoose from "mongoose";
 import appointmentScheduleService from "../services/appointmentScheduleService";
 import DoctorService from "../services/doctorService";
 import PatientService from "../services/patientService";
-import { TableResponseNoData } from "../utils/constant";
+import { TableResponseNoData, schemaFields } from "../utils/constant";
 import { ApiStatus, ApiStatusCode, TableType, statusAppointment } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
 import HistoriesService from "../services/historiesService";
+// import MomentTimezone from "../helpers/timezone";
 
 export default class ScheduleController {
   //POST
@@ -73,5 +74,97 @@ export default class ScheduleController {
   //PUT
   public static changeToDone = async (req, res, next) => {
     
+  }
+
+  //POST
+  public static patientRequestMedical = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.patientRequestMedical, next);
+      const { _id: patientId } = await PatientService.findByUserId(userId);
+      if(patientId) {
+        const response = await appointmentScheduleService.createWithRequestMedical
+          ( 
+            patientId, 
+            req.body.doctorId, 
+            req.body.departmentId, 
+            req.body.appointmentDate,
+            req.body.initialSymptom,
+            session
+          ) as any;
+          if(response._id) {
+            await session.commitTransaction();
+            session.endSession();
+            res.status(ApiStatusCode.OK).json({
+              status: ApiStatus.succes,
+              messager: "Đặt lịch thành công, hãy chờ bác sĩ xác nhận"
+            })
+          } else {
+            const err: any = new Error("Hẹn lịch không thành công, vui lòng liên hệ bộ phận hỗ trợ");
+            err.statusCode = ApiStatusCode.BadRequest;
+            await session.abortTransaction();
+            session.endSession();
+            return next(err)
+          }
+      } else {
+        const err: any = new Error("Patient not exist");
+        err.statusCode = ApiStatusCode.BadRequest;
+        await session.abortTransaction();
+        session.endSession();
+        return next(err)
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    }
+  }
+
+  //POST
+  public static getAllScheduleRequest = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.getTableValues, next);
+      let data;
+      switch(req.body.tableType) {
+        case TableType.scheduleRequestWaitApprove:
+          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, userId, false);
+          break;
+        case TableType.scheduleRequestApproved:
+          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, userId, true);
+          break;
+        default:
+          data = TableResponseNoData;
+      }
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        data: data
+      })
+
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  //PUT 
+  public static approveScheduleRequest = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.id], next);
+      const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id);
+      if(schedule.approve) {
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "Chấp nhận lịch hẹn khám bệnh thành công"
+        })
+      } else {
+        const err: any = new Error("Có lỗi xảy ra");
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+      }
+    } catch (error) {
+      next(error)
+    }
   }
 }

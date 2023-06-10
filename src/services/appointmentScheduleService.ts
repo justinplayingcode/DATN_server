@@ -48,20 +48,19 @@ export default class appointmentScheduleService {
     }
   }
 
-  public static createWithRequestMedical = async (patientId, doctorId, departmentId, session: ClientSession) => {
+  public static createWithRequestMedical = async (patientId, doctorId, departmentId, appointmentDate: Date, initialSymptom: string, session: ClientSession) => {
     try {
       const obj: ICreateAppointmentSchedule = {
         doctorId,
         patientId,
-        appointmentDate: new Date,
+        appointmentDate,
         approve: false,
         typeAppointment: TypeAppointmentSchedule.khamTheoYeuCau,
-        initialSymptom: "", //
+        initialSymptom,
         statusAppointment: statusAppointment.wait,
         departmentId
       };
-      const appointmentSchedule = new AppointmentSchedule(obj);
-      return appointmentSchedule.save({ session });
+      return await AppointmentSchedule.create([obj], {session} );
     } catch (error) {
       throw error
     }
@@ -275,5 +274,13 @@ export default class appointmentScheduleService {
 
   public static changeStatusToTesting = async (doctorId, ) => {
     
+  }
+
+  public static getAllScheduleRequest = async (page: number, pageSize: number, searchKey: string, doctorId, approve: boolean) => {
+
+  }
+
+  public static approveScheduleRequest = async (id) => {
+    return await AppointmentSchedule.findByIdAndUpdate(id, { approve: true }, { new: true, runValidators: true})
   }
 }

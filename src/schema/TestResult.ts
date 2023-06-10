@@ -6,6 +6,10 @@ const testResultSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: collectionName.Doctor,
   },
+  detailsFileCloud: {
+    type: String,
+    trim: true,
+  },
   reason: {
     type: String,
     trim: true,

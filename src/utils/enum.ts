@@ -94,7 +94,8 @@ export enum TableType {
   doctorInDepartment,
   scheduleNormal,
   scheduleParaclinical,
-  scheduleWithRequest,
-  patientOnboarding,
-  schedulePatientIn,
+  schedulePatientIn, //
+  schedulePatientOut, //
+  scheduleRequestWaitApprove,
+  scheduleRequestApproved,
 }
