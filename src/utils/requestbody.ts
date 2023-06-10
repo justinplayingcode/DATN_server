@@ -155,4 +155,11 @@ export class ReqBody {
     public static changeStatusToProcess = [
       schemaFields.id
     ]
+    
+    public static patientRequestMedical = [
+      schemaFields.doctorId,
+      schemaFields.departmentId,
+      schemaFields.appointmentDate,
+      schemaFields.initialSymptom
+    ]
 }

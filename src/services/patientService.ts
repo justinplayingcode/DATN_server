@@ -73,8 +73,8 @@ export default class PatientService {
     }).lean();
   }
 
-  public static findByUserId = async (id) => {
-    return await Patient.findOne({ userId: id})
+  public static findByUserId = async (userId) => {
+    return await Patient.findOne({ userId })
       .select(`-__v`)
       .lean();
   }
