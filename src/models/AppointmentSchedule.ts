@@ -1,5 +1,5 @@
 import { Schema } from "mongoose";
-import {  TypeAppointmentSchedule, statusAppointment } from "../utils/enum";
+import {  TypeAppointmentSchedule, StatusAppointment } from "../utils/enum";
 
 export interface ICreateAppointmentSchedule {
   doctorId: Schema.Types.ObjectId | string,
@@ -9,7 +9,7 @@ export interface ICreateAppointmentSchedule {
   approve: Boolean,
   typeAppointment: TypeAppointmentSchedule,
   initialSymptom: String,
-  statusAppointment: statusAppointment
+  statusAppointment: StatusAppointment
 }
 
 export interface ICreateAppointmentScheduleWhenRegister {
@@ -19,5 +19,5 @@ export interface ICreateAppointmentScheduleWhenRegister {
   approve: Boolean,
   typeAppointment: TypeAppointmentSchedule,
   initialSymptom: String,
-  statusAppointment: statusAppointment
+  statusAppointment: StatusAppointment
 }
