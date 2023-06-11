@@ -3,9 +3,10 @@ import appointmentScheduleService from "../services/appointmentScheduleService";
 import DoctorService from "../services/doctorService";
 import PatientService from "../services/patientService";
 import { TableResponseNoData, schemaFields } from "../utils/constant";
-import { ApiStatus, ApiStatusCode, TableType, statusAppointment } from "../utils/enum";
+import { ApiStatus, ApiStatusCode, TableType, StatusAppointment } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
 import HistoriesService from "../services/historiesService";
+import Validate from "../utils/validate";
 // import MomentTimezone from "../helpers/timezone";
 
 export default class ScheduleController {
@@ -43,7 +44,7 @@ export default class ScheduleController {
       validateReqBody(req, ReqBody.changeStatusToProcess, next);
       const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
       const { _id: scheduleId , statusAppointment: status, patientId } = await appointmentScheduleService.findOneWithId(req.body.id);
-      if(status !== statusAppointment.wait) {
+      if(status !== StatusAppointment.wait) {
         const err: any = new Error("Schedule not exist");
         err.statusCode = ApiStatusCode.BadRequest;
         await session.abortTransaction();
@@ -83,14 +84,16 @@ export default class ScheduleController {
     try {
       const { userId } = req.user;
       validateReqBody(req, ReqBody.patientRequestMedical, next);
+      Validate.validateDob(req.body.appointmentDate, next);
       const { _id: patientId } = await PatientService.findByUserId(userId);
       if(patientId) {
+        const appointmentDate = new Date(req.body.appointmentDate)
         const response = await appointmentScheduleService.createWithRequestMedical
           ( 
             patientId, 
             req.body.doctorId, 
             req.body.departmentId, 
-            req.body.appointmentDate,
+            appointmentDate,
             req.body.initialSymptom,
             session
           ) as any;
@@ -127,13 +130,19 @@ export default class ScheduleController {
     try {
       const { userId } = req.user;
       validateReqBody(req, ReqBody.getTableValues, next);
+      const doctor = await DoctorService.getInforByUserId(userId);
+      if(!doctor) {
+        const err: any = new Error("Không tồn tại bác sĩ");
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+      }
       let data;
       switch(req.body.tableType) {
         case TableType.scheduleRequestWaitApprove:
-          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, userId, false);
+          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id, false);
           break;
         case TableType.scheduleRequestApproved:
-          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, userId, true);
+          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id, true);
           break;
         default:
           data = TableResponseNoData;
@@ -149,10 +158,10 @@ export default class ScheduleController {
   }
 
   //PUT 
-  public static approveScheduleRequest = async (req, res, next) => {
+  public static responseScheduleRequest = async (req, res, next) => {
     try {
-      validateReqBody(req, [schemaFields.id], next);
-      const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id);
+      validateReqBody(req, [schemaFields.id, schemaFields.approve], next);
+      const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id, req.body.approve);
       if(schedule.approve) {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,
@@ -163,6 +172,34 @@ export default class ScheduleController {
         err.statusCode = ApiStatusCode.BadRequest;
         return next(err)
       }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  //POST
+  public static getListRequestMedical = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.getTableValues, next);
+      const patient = await PatientService.findByUserId(userId);
+      if(!patient) {
+        const err: any = new Error("Không tòn tại bệnh nhân");
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+      }
+      let data;
+      switch(req.body.tableType) {
+        case TableType.scheduleRequestOfPatient:
+          data = await appointmentScheduleService.patientGetListRequestMedical(req.body.page, req.body.pageSize, req.body.searchKey, patient._id);
+          break;
+        default:
+          data = TableResponseNoData;
+      }
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        data: data
+      })
     } catch (error) {
       next(error)
     }

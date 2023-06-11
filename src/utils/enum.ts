@@ -24,7 +24,7 @@ export enum Gender {
   female
 }
 
-export enum statusAppointment {
+export enum StatusAppointment {
   wait,
   process,
   testing,
@@ -98,4 +98,11 @@ export enum TableType {
   schedulePatientOut, //
   scheduleRequestWaitApprove,
   scheduleRequestApproved,
+  scheduleRequestOfPatient,
+}
+
+export enum ScheduleRequestStatus {
+  wait,
+  accpect,
+  reject
 }

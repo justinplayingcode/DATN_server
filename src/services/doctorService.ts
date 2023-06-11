@@ -94,6 +94,9 @@ export default class DoctorService {
               fullname: { $regex: new RegExp(searchKey, 'i') }
             }
           })
+          .populate({
+            path: schemaFields.departmentId,
+          })
           .lean())?.reduce((acc, curr) => {
             if(curr.userId) {
               const { dateOfBirth, _id, ...userInfo } = curr.userId as any;
@@ -102,6 +105,7 @@ export default class DoctorService {
                 position: curr.position,
                 rank: curr.rank,
                 ...userInfo,
+                doctorId: curr._id,
                 userId: _id,
                 departmentName,
                 dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth)
@@ -110,8 +114,23 @@ export default class DoctorService {
             return acc;
           }, []);
 
+        const total = (await Doctor
+          .find(departmentId ? {departmentId} : {})
+          .populate({
+            path: schemaFields.userId,
+            match: {
+              fullname: { $regex: new RegExp(searchKey, 'i') }
+            }
+          }).lean())?.reduce((acc, cur) => {
+            if(cur.userId) {
+              acc.push(cur)
+            }
+            return acc;
+          }, []);
+
         return {
-          values
+          values,
+          total: total.length
         }
     }
 
