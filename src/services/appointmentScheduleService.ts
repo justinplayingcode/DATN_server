@@ -374,7 +374,7 @@ export default class appointmentScheduleService {
           }
         }
       })
-      .select(`-${schemaFields.statusUpdateTime} -${schemaFields.approve}`)
+      .select(`-${schemaFields.statusUpdateTime}`)
       .lean())?.reduce((acc, cur) => {
         const { doctorId, departmentId, appointmentDate, statusAppointment, approve, ...other } = cur;
         if (departmentId && doctorId) {
