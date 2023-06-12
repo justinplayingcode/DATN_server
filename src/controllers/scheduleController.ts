@@ -162,7 +162,7 @@ export default class ScheduleController {
     try {
       validateReqBody(req, [schemaFields.id, schemaFields.approve], next);
       const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id, req.body.approve);
-      if(schedule.approve) {
+      if(schedule) {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,
           message: "Chấp nhận lịch hẹn khám bệnh thành công"
