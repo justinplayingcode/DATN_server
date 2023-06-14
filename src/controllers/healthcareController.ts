@@ -128,10 +128,10 @@ export default class HealthcareController {
         let data;
         switch(req.body.tableType) {
           case TableType.schedulePatientIn:
-            data = HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.inpatient);
+            data = await HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.inpatient);
             break;
           case TableType.schedulePatientOut:
-            data = HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.outpatient);
+            data = await HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.outpatient);
             break;
           default:
             data = TableResponseNoData;
