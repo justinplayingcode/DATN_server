@@ -27,4 +27,32 @@ export default class HealthService {
     public static findOneByPatientId = async (patientId) => {
         return await Health.findOne({ patientId })
     }
+
+    public static getAllPatientOnBoarding = async (page: number, pageSize: number, searchKey: string, departmentId, boardingStatus) => {
+      // viet sau
+      const values = []
+      
+      return {
+        values,
+        total: 0
+      }
+    }
+    public static getHistoryMedicalOfPatient = async (page: number, pageSize: number, searchKey: string, userId) => {
+      // viet sau
+      const values = []
+      
+      return {
+        values,
+        total: 0
+      }
+    }
+    public static getHistoryMedicalOfDoctor = async (page: number, pageSize: number, searchKey: string, userId) => {
+      // viet sau
+      const values = []
+      
+      return {
+        values,
+        total: 0
+      }
+    }
 }

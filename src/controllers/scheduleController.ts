@@ -204,4 +204,31 @@ export default class ScheduleController {
       next(error)
     }
   }
+
+  public static getAllApproveRequestScheduleOfDoctor = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.getTableValues, next);
+      const doctor = await DoctorService.getInforByUserId(userId);
+      if(!doctor) {
+        const err: any = new Error("Không tòn tại bác sĩ");
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+      }
+      let data;
+      switch(req.body.tableType) {
+        case TableType.approveRequestMedical:
+          data = await appointmentScheduleService.doctorGetAllRequestMedical(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id);
+          break;
+        default:
+          data = TableResponseNoData;
+      }
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        data: data
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
 }

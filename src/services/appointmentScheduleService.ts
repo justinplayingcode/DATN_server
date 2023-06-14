@@ -354,8 +354,10 @@ export default class appointmentScheduleService {
   }
 
   public static patientGetListRequestMedical = async (page: number, pageSize: number, searchKey: string, patientId) => {
+    const currentDate = new Date();
+    currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
-      .find({ patientId })
+      .find({ patientId, appointmentDate: { $gte: currentDate } })
       .sort({ statusUpdateTime: 1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
@@ -409,7 +411,7 @@ export default class appointmentScheduleService {
       }, [])
 
       const total = (await AppointmentSchedule
-        .find({ patientId })
+        .find({ patientId, appointmentDate: { $gte: currentDate } })
         .populate({
           path: schemaFields.doctorId,
           select: `-__v`,
@@ -430,6 +432,74 @@ export default class appointmentScheduleService {
       return {
         values,
         total: total.length,
+      }
+  }
+
+  public static doctorGetAllRequestMedical = async (page: number, pageSize: number, searchKey: string, doctorId) => {
+    const currentDate = new Date();
+    currentDate.setHours( 0, 0, 0, 0);
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    const values = (await AppointmentSchedule
+      .find({ doctorId, approve: true, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
+      .sort({ statusUpdateTime: 1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .populate({
+        path: schemaFields.patientId,
+        select: `-__v`,
+        populate: {
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`,
+          match: {
+            fullname: { $regex: new RegExp(searchKey, 'i') }
+          }
+        }
+      })
+      .select(`-${schemaFields.statusUpdateTime} -${schemaFields.approve} -${schemaFields.departmentId}`)
+      .lean()).reduce((acc, cur) => {
+        const { patientId, appointmentDate, ...other } = cur;
+          if (patientId) {
+            const { _id, userId, insurance } = patientId as any;
+            if (userId) {
+              const { _id: userid, dateOfBirth, ...infoUser } = userId as any;
+              acc.push({
+                ...other,
+                appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
+                userId: userid,
+                ...infoUser,
+                dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
+                patientId: _id,
+                insurance,
+              });
+            }
+          }
+          return acc;
+      }, []);
+
+      const total = (await AppointmentSchedule
+        .find({ doctorId, approve: true, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
+        .populate({
+          path: schemaFields.patientId,
+          select: `-__v`,
+          populate: {
+            path: schemaFields.userId,
+            match: {
+              fullname: { $regex: new RegExp(searchKey, 'i') }
+            }
+          }
+        }).lean())?.reduce((acc, cur) => {
+          const { userId } = cur.patientId as any;
+          if (userId) {
+            acc.push(cur);
+          }
+          return acc;
+        }, []);
+
+      return {
+        values,
+        total: total.length
       }
   }
 }

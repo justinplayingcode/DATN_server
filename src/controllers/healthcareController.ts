@@ -1,7 +1,7 @@
 import MomentTimezone from "../helpers/timezone";
 import PatientService from "../services/patientService";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
-import { ApiStatus, ApiStatusCode, Role} from "../utils/enum";
+import { ApiStatus, ApiStatusCode, Onboarding, Role, TableType} from "../utils/enum";
 import mongoose from "mongoose";
 import Validate from "../utils/validate";
 import Convert from "../utils/convert";
@@ -9,6 +9,8 @@ import SecurityService from "../services/securityService";
 import UserService from "../services/userService";
 import HealthService from "../services/healthService";
 import appointmentScheduleService from "../services/appointmentScheduleService";
+import { TableResponseNoData } from "../utils/constant";
+import DoctorService from "../services/doctorService";
 
 export default class HealthcareController {
     //POST 
@@ -113,5 +115,65 @@ export default class HealthcareController {
         }
     }
     //POST
+    public static getListPatientOnBoarding = async (req, res, next) => {
+      try {
+        const { userId } = req.user;
+        validateReqBody(req, ReqBody.getTableValues, next);
+        const doctor = await DoctorService.getInforByUserId(userId);
+        if(!doctor) {
+          const err: any = new Error("Không tòn tại bác sĩ");
+          err.statusCode = ApiStatusCode.BadRequest;
+          return next(err)
+        }
+        let data;
+        switch(req.body.tableType) {
+          case TableType.schedulePatientIn:
+            data = HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.inpatient);
+            break;
+          case TableType.schedulePatientOut:
+            data = HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.outpatient);
+            break;
+          default:
+            data = TableResponseNoData;
+        }
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: data
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    //POST
+    public static getHistoryMedical = async (req, res, next) => {
+      try {
+        const { userId } = req.user;
+        validateReqBody(req, ReqBody.getTableValues, next);
+        const user = await UserService.findById(userId);
+        if(!user) {
+          const err: any = new Error("Không tòn tại người dùng");
+          err.statusCode = ApiStatusCode.BadRequest;
+          return next(err)
+        }
+        let data;
+        switch(req.body.tableType) {
+          case TableType.historyMedicalOfPatient:
+            data = HealthService.getHistoryMedicalOfPatient(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+            break;
+          case TableType.historyMedicalOfDoctor:
+            data = HealthService.getHistoryMedicalOfDoctor(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+            break;
+          default:
+            data = TableResponseNoData;
+        }
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: data
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
 
 }
