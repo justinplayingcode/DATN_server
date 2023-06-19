@@ -10,7 +10,7 @@ export default class DiseasesService {
     return await Diseases.countDocuments({ isActive: true });
   }
   public static getAll = async (page: number, pageSize: number, searchKey: string) => {
-    const data = await Diseases.find({ isActive: true, name: { $regex: searchKey, $options: "i" } })
+    const data = await Diseases.find({ isActive: true, diseasesName: { $regex: searchKey, $options: "i" } })
     .skip((page - 1) * pageSize)
     .limit(pageSize)
     .select(`-__v -${schemaFields.isActive}`)
@@ -42,5 +42,8 @@ export default class DiseasesService {
   }
   public static editOne = async (id, obj: ICreateDiseases) => {
     return await Diseases.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
+  }
+  public static fineOneByName = async (searchKey) => {
+    return await Diseases.find({ name: searchKey })
   }
 }

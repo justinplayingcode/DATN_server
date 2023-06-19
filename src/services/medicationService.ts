@@ -30,4 +30,7 @@ export default class MedicationService {
   public static editOne = async (id, obj: ICreateMedication) => {
     return await Medications.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
+  public static findOneByName = async (searchKey) => {
+    return await Medications.find({ name: searchKey })
+  }
 }
