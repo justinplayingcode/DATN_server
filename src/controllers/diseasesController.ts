@@ -1,5 +1,5 @@
 import DiseasesService from "../services/diseasesService";
-import { TableResponseNoData } from "../utils/constant";
+import { TableResponseNoData, schemaFields } from "../utils/constant";
 import { ApiStatus, ApiStatusCode, TableType } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
 
@@ -54,6 +54,20 @@ export default class DiseasesController {
           data: updateDiseases
         })
       }
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  //POST
+  public static pickerDisease = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.searchKey], next);
+      const diseases = await DiseasesService.fineOneByName(req.body.searchKey);
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        data: diseases
+      })
     } catch (error) {
       next(error)
     }
