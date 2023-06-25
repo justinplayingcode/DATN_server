@@ -162,4 +162,30 @@ export class ReqBody {
       schemaFields.appointmentDate,
       schemaFields.initialSymptom
     ]
+
+    public static changeToTesting = [
+      schemaFields.appointmentScheduleId,
+      schemaFields.historyId,
+      schemaFields.initialSymptom,
+      schemaFields.height,
+      schemaFields.weight,
+      schemaFields.heartRate,
+      schemaFields. temperature,
+      schemaFields.bloodPressureDiastolic,
+      schemaFields.bloodPressureSystolic,
+      schemaFields.glucose,
+      schemaFields.testservices, // mang cac test service id
+    ]
+
+    public static testingToProcess = [
+      schemaFields.appointmentScheduleId,
+      schemaFields.testResults
+    ]
+
+    //test
+    public static createTestService = [
+        schemaFields.service,
+        schemaFields.price
+    ]
+    
 }

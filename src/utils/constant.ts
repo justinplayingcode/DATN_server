@@ -39,6 +39,7 @@ export const schemaFields = {
   //test service
   service: 'service',
   price: 'price',
+  testservices: 'testservices',
 
   //test result 
   doctorId: 'doctorId',
@@ -46,6 +47,7 @@ export const schemaFields = {
   serviceId: 'serviceId',
   historyId: 'historyId',
   detailsFileCloud: 'detailsFileCloud',
+  testResults: 'testResults',
 
   //security
   username: 'username',

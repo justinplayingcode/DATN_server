@@ -44,6 +44,6 @@ export default class DiseasesService {
     return await Diseases.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
   public static fineOneByName = async (searchKey) => {
-    return await Diseases.find({ name: searchKey })
+    return await Diseases.find({ name: { $regex: new RegExp(searchKey, 'i') } })
   }
 }

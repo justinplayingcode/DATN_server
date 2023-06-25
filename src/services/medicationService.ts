@@ -31,6 +31,6 @@ export default class MedicationService {
     return await Medications.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
   public static findOneByName = async (searchKey) => {
-    return await Medications.find({ name: searchKey })
+    return await Medications.find({ name: { $regex: new RegExp(searchKey, 'i') } })
   }
 }
