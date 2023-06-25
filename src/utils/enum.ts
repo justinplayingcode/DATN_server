@@ -73,10 +73,14 @@ export enum TypeAppointmentSchedule {
 }
 
 export enum TypeTestService {
-  chupXquang,
-  noiSoi,
-  xetNghiemMau,
-  xetNghiemNuocTieu,
+  sinhHoa,
+  dongMau,
+  huyetHoc,
+  nuocTieu,
+  sieuAm,
+  dienTim,
+  chupXQuang,
+  chupCT
 }
 
 export enum TemplateType {

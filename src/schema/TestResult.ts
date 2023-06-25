@@ -12,8 +12,7 @@ const testResultSchema = new Schema({
   },
   reason: {
     type: String,
-    trim: true,
-    required: true
+    trim: true
   },
   serviceId: {
     type: Schema.Types.ObjectId,

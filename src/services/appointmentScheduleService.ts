@@ -220,63 +220,7 @@ export default class appointmentScheduleService {
     }
   }
 
-  public static changeStatusToProcess = async (id, doctorId, session) => {
-    try {
-      const obj = {
-        doctorId,
-        statusAppointment: StatusAppointment.process,
-        statusUpdateTime: new Date
-      }
-      const value = await AppointmentSchedule
-        .findByIdAndUpdate(id, obj, {runValidators: true, session})
-        .populate({
-          path: schemaFields.patientId,
-          select: `-__v`,
-          populate: {
-            path: schemaFields.userId,
-            select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`
-          }
-        })
-        .populate({
-          path: schemaFields.departmentId,
-          select: `${schemaFields.departmentName} -${schemaFields._id}`
-        })
-        .select(`-__v -${schemaFields.approve} -${schemaFields.statusUpdateTime}`)
-        .lean()
-
-        let result;
-        const { patientId, departmentId, appointmentDate, ...other } = value;
-        const { departmentName } = departmentId as any;
-        const { _id, userId, insurance } = patientId as any;
-        if (userId) {
-          const { _id: userid, dateOfBirth, ...infoUser } = userId as any;
-          result = {
-            ...other,
-            appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
-            userId: userid,
-            ...infoUser,
-            dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
-            patientId: _id,
-            insurance,
-            departmentName
-          };
-        }
-      return result; 
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  public static changeStatusToProcessAfterTesting = async (doctorId, ) => {
-    
-  }
-
-  public static changeStatusToTesting = async (doctorId, ) => {
-    
-  }
-
   public static getAllScheduleRequest = async (page: number, pageSize: number, searchKey: string, doctorId, approve: boolean) => {
-    
     const values = (await AppointmentSchedule
       .find( { doctorId, approve, statusAppointment: StatusAppointment.wait } )
       .sort({ statusUpdateTime: 1 })
@@ -345,11 +289,11 @@ export default class appointmentScheduleService {
       }
   }
 
-  public static approveScheduleRequest = async (id, approve) => {
+  public static approveScheduleRequest = async (id, approve, session) => {
     if(approve) {
-      return await AppointmentSchedule.findByIdAndUpdate(id, { approve: true }, { new: true, runValidators: true})
+      return await AppointmentSchedule.findByIdAndUpdate(id, { approve: true }, { new: true, runValidators: true, session})
     } else {
-      return await AppointmentSchedule.findByIdAndUpdate(id, { statusAppointment: StatusAppointment.done }, { new: true, runValidators: true})
+      return await AppointmentSchedule.findByIdAndUpdate(id, { statusAppointment: StatusAppointment.done }, { new: true, runValidators: true, session})
     }
   }
 
@@ -502,4 +446,71 @@ export default class appointmentScheduleService {
         total: total.length
       }
   }
+
+  public static changeStatusToProcess = async (id, doctorId, session) => {
+    try {
+      const obj = {
+        doctorId,
+        statusAppointment: StatusAppointment.process,
+        statusUpdateTime: new Date
+      }
+      await AppointmentSchedule.findByIdAndUpdate(id, obj, {runValidators: true, session});
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static changeStatusToTesting = async (id, obj, session) => {
+    try {
+      const update = {
+        statusAppointment: StatusAppointment.testing,
+        statusUpdateTime: new Date,
+        ...obj
+      }
+      await AppointmentSchedule.findByIdAndUpdate(id, update, {runValidators: true, session});
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static changeStatusTestingToProcess = async (id, session) => {
+    try {
+      const obj = {
+        statusAppointment: StatusAppointment.process,
+        statusUpdateTime: new Date
+      }
+      await AppointmentSchedule.findByIdAndUpdate(id, obj, {runValidators: true, session});
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static changeStatusToProcessBeforeTesting = async (id, session) => {
+    try {
+      const obj = {
+        statusAppointment: StatusAppointment.process,
+        statusUpdateTime: new Date
+      }
+      await AppointmentSchedule.findByIdAndUpdate(id, obj, {runValidators: true, session});
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static changeStatusToWaitAfterTesting = async (id, session) => {
+    try {
+      const obj = {
+        statusAppointment: StatusAppointment.wait,
+        statusUpdateTime: new Date
+      }
+      await AppointmentSchedule.findByIdAndUpdate(id, obj, {runValidators: true, session});
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public static changeStatusToDone = async () => {
+    
+  }
+
 }

@@ -5,8 +5,9 @@ import PatientService from "../services/patientService";
 import { TableResponseNoData, schemaFields } from "../utils/constant";
 import { ApiStatus, ApiStatusCode, TableType, StatusAppointment } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
-import HistoriesService from "../services/historiesService";
 import Validate from "../utils/validate";
+import historiesService from "../services/historiesService";
+import testService from "../services/testService";
 // import MomentTimezone from "../helpers/timezone";
 
 export default class ScheduleController {
@@ -33,48 +34,6 @@ export default class ScheduleController {
     } catch (error) {
       next(error)
     }
-  }
-
-  //PUT
-  public static changeStatusToProcess = async (req, res, next) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    try {
-      const { userId } = req.user;
-      validateReqBody(req, ReqBody.changeStatusToProcess, next);
-      const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
-      const { _id: scheduleId , statusAppointment: status, patientId } = await appointmentScheduleService.findOneWithId(req.body.id);
-      if(status !== StatusAppointment.wait) {
-        const err: any = new Error("Schedule not exist");
-        err.statusCode = ApiStatusCode.BadRequest;
-        await session.abortTransaction();
-        session.endSession();
-        return next(err)
-      } else {
-        const { hospitalization } = await PatientService.findOneById(patientId);
-        await HistoriesService.createNew(scheduleId, hospitalization, session)
-        const response = await appointmentScheduleService.changeStatusToProcess(req.body.id, doctorId, session);
-        await session.commitTransaction();
-        session.endSession();
-        res.status(ApiStatusCode.OK).json({
-          status: ApiStatus.succes,
-          data: response
-        })
-      }
-    } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      next(error)
-    }
-  }
-
-  //PUT
-  public static changeToTesting = async (req, res, next) => {
-    
-  }
-  //PUT
-  public static changeToDone = async (req, res, next) => {
-    
   }
 
   //POST
@@ -159,20 +118,33 @@ export default class ScheduleController {
 
   //PUT 
   public static responseScheduleRequest = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
-      validateReqBody(req, [schemaFields.id, schemaFields.approve], next);
-      const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id, req.body.approve);
+      // if approve, create History
+      validateReqBody(req, [schemaFields.id, schemaFields.userId, schemaFields.approve], next);
+      if(req.body.approve) {
+        const patient = await PatientService.findByUserId(req.body.userId);
+        await historiesService.createNew(req.body.id, patient.hospitalization, session);
+      }
+      const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id, req.body.approve, session);
       if(schedule) {
+        await session.commitTransaction();
+        session.endSession();
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,
-          message: "Chấp nhận lịch hẹn khám bệnh thành công"
+          message: "Successful"
         })
       } else {
+        await session.abortTransaction();
+        session.endSession();
         const err: any = new Error("Có lỗi xảy ra");
         err.statusCode = ApiStatusCode.BadRequest;
         return next(err)
       }
     } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
       next(error)
     }
   }
@@ -230,5 +202,173 @@ export default class ScheduleController {
     } catch (error) {
       next(error)
     }
+  }
+
+  //PUT
+  public static changeStatusToProcess = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.changeStatusToProcess, next);
+      const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
+      const { statusAppointment } = await appointmentScheduleService.findOneWithId(req.body.id);
+      if(statusAppointment !== StatusAppointment.wait) {
+        const err: any = new Error("Schedule not exist");
+        err.statusCode = ApiStatusCode.BadRequest;
+        await session.abortTransaction();
+        session.endSession();
+        return next(err)
+      } else {
+        await appointmentScheduleService.changeStatusToProcess(req.body.id, doctorId, session);
+        // get
+        const _history = await historiesService.findOneByKey(schemaFields.appointmentScheduleId, req.body.id);
+        const testResult = await testService.getAllTestServiceInHistory(_history._id);
+        await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: { history: _history, testResult}
+        })
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    }
+  }
+
+  //PUT
+  public static changeToTesting = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      validateReqBody(req, ReqBody.changeToTesting, next);
+      // change status to testing
+      const appointmentUpdate = {
+        initialSymptom: req.body.initialSymptom,
+      };
+      await appointmentScheduleService.changeStatusToTesting(req.body.appointmentScheduleId, appointmentUpdate, session);
+      // update history
+      const health = {
+        heartRate: req.body.heartRate,
+        temperature: req.body.temperature,
+        bloodPressureSystolic: req.body.bloodPressureSystolic,
+        bloodPressureDiastolic: req.body.bloodPressureDiastolic,
+        glucose: req.body.glucose,
+        weight: req.body.weight,
+        height: req.body.height
+      }
+      const updateHistory = {
+        healthIndicator: health,
+      }
+      await historiesService.updateHistory(req.body.historyId, updateHistory, session);
+      // create test service
+      const listService: string[] = req.body.testservices;
+      listService.forEach(async (serviceId) => {
+        // create test result
+        const newTest = {
+          historyId: req.body.historyId,
+          serviceId
+        } 
+        await testService.createTestResult(newTest, session);
+      })
+      await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "successful"
+        })
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    } 
+  }
+  //POST
+  public static getAllTestRequestBeforeTesting = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.appointmentScheduleId], next);
+      const { _id } = await historiesService.findOneByKey(schemaFields.appointmentScheduleId, req.body.appointmentScheduleId)
+      const testResult = await testService.getAllTestServiceInHistory(_id);
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        data: testResult
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+  //PUT
+  public static testingToProcess = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      validateReqBody(req, ReqBody.changeStatusToProcess, next);
+      const { statusAppointment } = await appointmentScheduleService.findOneWithId(req.body.id);
+      if(statusAppointment !== StatusAppointment.testing) {
+        const err: any = new Error("Schedule not exist");
+        err.statusCode = ApiStatusCode.BadRequest;
+        await session.abortTransaction();
+        session.endSession();
+        return next(err)
+      } else {
+        await appointmentScheduleService.changeStatusTestingToProcess(req.body.id, session);
+        await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "successful"
+        })
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    }
+  }
+  //PUT
+  public static testingToWait = async (req, res, next) => {
+    // change status to wait 
+    // update test result
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.testingToProcess, next);
+      const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
+      const listResult: any[] = req.body.testResults;
+      if(listResult.length > 0) {
+        listResult.forEach( async (result) => {
+          let updateObj = {
+            doctorId,
+            detailsFileCloud: result.detailsFileCloud,
+            reason: result.reason,
+          }
+          await testService.updateTestResultById(result.id, updateObj, session);
+        })
+        await appointmentScheduleService.changeStatusToWaitAfterTesting(req.body.appointmentScheduleId, session);
+        await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "Successful"
+        })
+      } else {
+        const err: any = new Error("Test Result không được trống");
+        err.statusCode = ApiStatusCode.BadRequest;
+        await session.abortTransaction();
+        session.endSession();
+        return next(err)
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    }
+  }
+  //PUT
+  public static changeToDone = async (req, res, next) => {
+    
   }
 }

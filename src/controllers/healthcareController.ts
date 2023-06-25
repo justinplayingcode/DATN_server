@@ -11,6 +11,8 @@ import HealthService from "../services/healthService";
 import appointmentScheduleService from "../services/appointmentScheduleService";
 import { TableResponseNoData } from "../utils/constant";
 import DoctorService from "../services/doctorService";
+import HistoriesService from "../services/historiesService";
+import testService from "../services/testService";
 
 export default class HealthcareController {
     //POST 
@@ -51,16 +53,18 @@ export default class HealthcareController {
                 userId: newUser._id,
                 insurance: req.body.insurance,
                 hospitalization: 1,
-              }
+              };
               const { _id } = await PatientService.createPatient(objPatient, session);
               await HealthService.createDefault(_id, session);
-              await appointmentScheduleService.createWhenRegister(_id, req.body.initialSymptom, req.body.typeAppointment, req.body.departmentId, session )
+              const newAppointment = await appointmentScheduleService.createWhenRegister(_id, req.body.initialSymptom, req.body.typeAppointment, req.body.departmentId, session )
+              //create history
+              await HistoriesService.createNew(newAppointment._id, 1, session);
               const objSecurity = {
                 userId: newUser._id,
                 username,
                 password,
                 role: Role.patient,
-              }
+              };
               await SecurityService.registerCreateSecurity(objSecurity, session);
               await session.commitTransaction();
               session.endSession();
@@ -170,6 +174,33 @@ export default class HealthcareController {
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,
           data: data
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    //GET
+    public static getListTestService = async (req, res, next) => {
+      try {
+        const tests = await testService.getListTestService();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: tests
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    //POST 
+    public static createTestService = async (req, res, next) => {
+      try {
+        validateReqBody(req, ReqBody.createTestService, next);
+        await testService.createTestservice(req.body.service, req.body.price);
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: 'successful'
         })
       } catch (error) {
         next(error)
