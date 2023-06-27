@@ -163,10 +163,10 @@ export default class HealthcareController {
         let data;
         switch(req.body.tableType) {
           case TableType.historyMedicalOfPatient:
-            data = HealthService.getHistoryMedicalOfPatient(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+            data = await HealthService.getHistoryMedicalOfPatient(req.body.page, req.body.pageSize, req.body.searchKey, userId);
             break;
           case TableType.historyMedicalOfDoctor:
-            data = HealthService.getHistoryMedicalOfDoctor(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+            data = await HealthService.getHistoryMedicalOfDoctor(req.body.page, req.body.pageSize, req.body.searchKey, userId);
             break;
           default:
             data = TableResponseNoData;
