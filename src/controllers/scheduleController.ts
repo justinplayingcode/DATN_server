@@ -265,20 +265,20 @@ export default class ScheduleController {
       await historiesService.updateHistory(req.body.historyId, updateHistory, session);
       // create test service
       const listService: string[] = req.body.testservices;
-      listService.forEach(async (serviceId) => {
-        // create test result
+      const createTestPromises = listService.map((serviceId) => {
         const newTest = {
           historyId: req.body.historyId,
-          serviceId
+          serviceId: serviceId
         } 
-        await testService.createTestResult(newTest, session);
+        return testService.createTestResult(newTest, session);
       })
+      await Promise.all(createTestPromises);
       await session.commitTransaction();
-        session.endSession();
-        res.status(ApiStatusCode.OK).json({
-          status: ApiStatus.succes,
-          message: "successful"
-        })
+      session.endSession();
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        message: "successful"
+      })
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
