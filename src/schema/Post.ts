@@ -23,6 +23,10 @@ const postSchema = new Schema({
         type: String,
         trim: true,
     },
+    approve: {
+        type: Boolean,
+        required: [true, 'approve must be required']
+    },
     template: {
         type: Number,
         enum: {
