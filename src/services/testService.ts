@@ -33,9 +33,10 @@ export default class testService {
       .lean()
   }
 
-  public static createTestResult = async (newResult, session) => {
+  public static createTestResult = async (obj, session) => {
     try {
-      return await TestService.create([{newResult}], {session});
+      const newResult = new TestResult(obj);
+      return await newResult.save({ session });
     } catch (error) {
       throw error
     }
