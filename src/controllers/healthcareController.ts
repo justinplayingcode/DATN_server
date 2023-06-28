@@ -24,7 +24,10 @@ export default class HealthcareController {
             if (req.body.userId) {
               const patient = await PatientService.findByUserId(req.body.userId)
               if(patient) {
-                await appointmentScheduleService.createWhenRegister(patient._id, req.body.initialSymptom, req.body.typeAppointment, req.body.departmentId, session )
+                const newAppointment = await appointmentScheduleService.createWhenRegister(patient._id, req.body.initialSymptom, req.body.typeAppointment, req.body.departmentId, session );
+                await HistoriesService.createNew(newAppointment._id, 1, session);
+                await session.commitTransaction();
+                session.endSession();
                 res.status(ApiStatusCode.OK).json({
                   status: ApiStatus.succes,
                   message: 'Dang ky kham benh thanh cong'

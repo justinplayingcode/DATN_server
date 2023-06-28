@@ -43,7 +43,6 @@ const userSchema = new Schema({
     phonenumber: {
         type: String,
         trim: true,
-        unique: true,
         required: [true, 'phonenumber must be required'],
         validate: {
             validator: value => Validate.phoneNumber(value),
