@@ -88,4 +88,29 @@ export default class AccountController {
           next(error);
       }
   }
+  //PUT
+  public static changeInfoDoctor = async (req, res, next) => {
+    try {
+      validateReqBody(req, ReqBody.changeInfoDoctorByAdmin, next);
+      const doctor = await DoctorService.getInforByUserId(req.body.userId);
+      if(!doctor) {
+        const err: any = new Error("Người dùng không tồn tại");
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err);
+      } else {
+        const updateOoctor = {
+          rank: Number(req.body.rank),
+          position: Number(req.body.position),
+          departmentId: req.body.departmentId
+        };
+        await DoctorService.changeInfoByAdmin(doctor._id, updateOoctor);
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "Thay đổi thông tin thành công"
+        })
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import { ClientSession } from "mongoose";
 import Doctor from "../schema/Doctor"
 import { schemaFields } from "../utils/constant";
-import { ICreateDoctor } from "../models/Doctor";
+import { IChangeInfoByAdmin, ICreateDoctor } from "../models/Doctor";
 import MomentTimezone from "../helpers/timezone";
 
 export default class DoctorService {
@@ -145,5 +145,9 @@ export default class DoctorService {
         .lean()
 
       return res;
+    }
+
+    public static changeInfoByAdmin = async (id, updateObj: IChangeInfoByAdmin) => {
+      return await Doctor.findByIdAndUpdate( id, updateObj, {runValidators: true});
     }
 }

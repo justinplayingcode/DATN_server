@@ -32,5 +32,8 @@ export default class SecurityService {
     }
     public static findOneAccount = async (key, obj) => {
       return await Security.findOne({ [key]: obj}).lean();
-  }
+    }
+    public static findAndUpdatePasswordById = async (id, password) => {
+      return await Security.findByIdAndUpdate( id, { password }, {runValidators: true})
+    }
 }

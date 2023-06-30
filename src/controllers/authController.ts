@@ -214,7 +214,7 @@ export default class AuthController {
         await session.commitTransaction();
         session.endSession();
         if(!userUpdate) {
-          res.status(ApiStatusCode.OK).json({
+          res.status(ApiStatusCode.BadRequest).json({
             status: ApiStatus.fail,
             message: `Not found user: ${req.body.fullname}`
           })
@@ -228,6 +228,68 @@ export default class AuthController {
         await session.abortTransaction();
         session.endSession();
         next(error);
+      }
+    }
+
+    //PUT
+    public static changePassword =async (req, res, next) => {
+      try {
+        const { userId } = req.user;
+        validateReqBody(req, [schemaFields.password, schemaFields.newpassword], next);
+        const account = await SecurityService.findOneAccount(schemaFields.userId, userId);
+        if(!account) {
+          const err: any = new Error("Người dùng không tồn tại");
+          err.statusCode = ApiStatusCode.BadRequest;
+          return next(err);
+        } else {
+          if(!bcrypt.compareSync(req.body.password, account.password)) {
+            const err: any = new Error("Mật khẩu cũ không chính xác");
+            err.statusCode = ApiStatusCode.BadRequest;
+            return next(err);
+          } else {
+            bcrypt.hash(req.body.newpassword, 10, async (err, hashpw) => {
+              if(err) {
+                next(err);
+              } else {
+                await SecurityService.findAndUpdatePasswordById(account._id, hashpw);
+                res.status(ApiStatusCode.OK).json({
+                  status: ApiStatus.succes,
+                  message: "Cập nhật mật khẩu thành công"
+                })
+              }
+            })
+          }        
+        }
+      } catch (error) {
+        next(error)
+      }
+    }
+    //PUT
+    public static resetPassword = async (req, res, next) => {
+      try {
+        validateReqBody(req, [schemaFields.userId], next);
+        const account = await SecurityService.findOneAccount(schemaFields.userId, req.body.userId);
+        if(!account) {
+          const err: any = new Error("Người dùng không tồn tại");
+          err.statusCode = ApiStatusCode.BadRequest;
+          return next(err);
+        } else {
+          const user = await UserService.findById(account.userId);
+          const pwreset = Convert.generatePassword(user.fullname);;
+          bcrypt.hash(pwreset, 10, async (err, hashpw) => {
+            if(err) {
+              next(err);
+            } else {
+              await SecurityService.findAndUpdatePasswordById(account._id, hashpw);
+              res.status(ApiStatusCode.OK).json({
+                status: ApiStatus.succes,
+                message: "Đặt lại mật khẩu thành công"
+              })
+            }
+          })
+        }
+      } catch (error) {
+        next(error)
       }
     }
 }
