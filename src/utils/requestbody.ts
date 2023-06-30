@@ -87,6 +87,12 @@ export class ReqBody {
     ]
 
     // doctor
+    public static changeInfoDoctorByAdmin = [
+      schemaFields.userId,
+      schemaFields.rank,
+      schemaFields.position,
+      schemaFields.departmentId
+    ]
     // patient
     public static registerPatient = [
         schemaFields.userId,
@@ -187,5 +193,6 @@ export class ReqBody {
         schemaFields.service,
         schemaFields.price
     ]
+
     
 }

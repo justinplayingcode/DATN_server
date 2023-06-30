@@ -18,6 +18,7 @@ export const collectionName = {
 }
 
 export const schemaFields = {
+  newpassword: "newpassword",
   //
   searchKey: 'searchKey',
   page: 'page',
