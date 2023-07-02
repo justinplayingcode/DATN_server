@@ -118,8 +118,7 @@ export default class AccountController {
 
   public static getInfoByUserId = async (req, res, next) => {
     try {
-      validateReqBody(req, [schemaFields.userId], next);
-      const user = await UserService.findOneUser(schemaFields._id, req.body.userId);
+      const user = await UserService.findOneUser(schemaFields._id, req.query.id);
       let response;
       const basicInfo = {
         fullname: user.fullname,
@@ -131,13 +130,13 @@ export default class AccountController {
         identification: user.identification,
         dateOfBirth: MomentTimezone.convertDDMMYYY(user.dateOfBirth)
       }
-      const acc = await SecurityService.findOneAccount(schemaFields.userId, req.body.userId)
+      const acc = await SecurityService.findOneAccount(schemaFields.userId, req.query.id)
       switch(acc.role) {
       case Role.admin:
         response = basicInfo;
         break;
       case Role.doctor:
-        const inforDoctor = await DoctorService.getInforByUserId(req.body.userId);
+        const inforDoctor = await DoctorService.getInforByUserId(req.query.id);
         const { _id: departmentId, departmentName, departmentCode } = inforDoctor.departmentId as any;
         response = {
           ...basicInfo,
@@ -148,7 +147,7 @@ export default class AccountController {
         }
         break;
       case Role.patient:
-        const patient = await PatientService.findByUserId(req.body.userId);
+        const patient = await PatientService.findByUserId(req.query.id);
         const { _id, ...infoPatient } = patient as any;
         const health = await HealthService.findOneByPatientId(_id);
         response = {
