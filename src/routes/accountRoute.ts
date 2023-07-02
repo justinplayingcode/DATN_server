@@ -8,6 +8,7 @@ const accountRoute = Router();
 accountRoute.route('/registerdoctor').post(Middlewares.verifyToken, Middlewares.permission([Role.admin]), AccountController.registerDoctor); //done
 accountRoute.route('/getall').post(Middlewares.verifyToken, Middlewares.permission([Role.admin]), AccountController.getAll); // done
 accountRoute.route('/changeinfodoctor').put(Middlewares.verifyToken, Middlewares.permission([Role.admin]), AccountController.changeInfoDoctor); // done
+accountRoute.route('/detail').post(Middlewares.verifyToken, AccountController.getInfoByUserId); // done
 
 
 export default accountRoute;

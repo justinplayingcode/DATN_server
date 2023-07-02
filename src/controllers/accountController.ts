@@ -8,7 +8,9 @@ import validateReqBody, { ReqBody } from "../utils/requestbody";
 import Validate from "../utils/validate";
 import { ApiStatus, ApiStatusCode, Role, TableType } from "../utils/enum";
 import PatientService from "../services/patientService";
-import { TableResponseNoData } from "../utils/constant";
+import { TableResponseNoData, schemaFields } from "../utils/constant";
+import MomentTimezone from "../helpers/timezone";
+import HealthService from "../services/healthService";
 
 export default class AccountController {
   //POST 
@@ -111,6 +113,75 @@ export default class AccountController {
       }
     } catch (error) {
       next(error)
+    }
+  }
+
+  public static getInfoByUserId = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.userId], next);
+      const user = await UserService.findOneUser(schemaFields._id, req.body.userId);
+      let response;
+      const basicInfo = {
+        fullname: user.fullname,
+        email: user.email,
+        gender: user.gender,
+        avatar: user.avatar,
+        phonenumber: user.phonenumber,
+        address: user.address,
+        identification: user.identification,
+        dateOfBirth: MomentTimezone.convertDDMMYYY(user.dateOfBirth)
+      }
+      const acc = await SecurityService.findOneAccount(schemaFields.userId, req.body.userId)
+      switch(acc.role) {
+      case Role.admin:
+        response = basicInfo;
+        break;
+      case Role.doctor:
+        const inforDoctor = await DoctorService.getInforByUserId(req.body.userId);
+        const { _id: departmentId, departmentName, departmentCode } = inforDoctor.departmentId as any;
+        response = {
+          ...basicInfo,
+          ...inforDoctor,
+          department: departmentName,
+          departmentCode,
+          departmentId
+        }
+        break;
+      case Role.patient:
+        const patient = await PatientService.findByUserId(req.body.userId);
+        const { _id, ...infoPatient } = patient as any;
+        const health = await HealthService.findOneByPatientId(_id);
+        response = {
+            ...basicInfo,
+            ...infoPatient,
+            heartRate: health.heartRate,
+            temperature: health.temperature,
+            bloodPressureSystolic: health.bloodPressureSystolic,
+            bloodPressureDiastolic: health.bloodPressureDiastolic,
+            glucose: health.glucose,
+            weight: health.weight,
+            height: health.height
+        }
+        break;
+      }
+      res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: response
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  //upload avatar
+  public static uploadAvatar = async (req, res, next) => {
+    try {
+      // const filePath = req.file.path;
+
+
+      
+    } catch (error) {
+      next(error);
     }
   }
 }
