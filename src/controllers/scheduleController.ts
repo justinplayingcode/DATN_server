@@ -122,9 +122,9 @@ export default class ScheduleController {
     session.startTransaction();
     try {
       // if approve, create History
-      validateReqBody(req, [schemaFields.id, schemaFields.userId, schemaFields.approve], next);
+      validateReqBody(req, [schemaFields.id, schemaFields.patientId, schemaFields.approve], next);
       if(req.body.approve) {
-        const patient = await PatientService.findByUserId(req.body.userId);
+        const patient = await PatientService.findOneById(req.body.patientId);
         await historiesService.createNew(req.body.id, patient.hospitalization, session);
       }
       const schedule = await appointmentScheduleService.approveScheduleRequest(req.body.id, req.body.approve, session);

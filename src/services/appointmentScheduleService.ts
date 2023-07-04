@@ -221,8 +221,10 @@ export default class appointmentScheduleService {
   }
 
   public static getAllScheduleRequest = async (page: number, pageSize: number, searchKey: string, doctorId, approve: boolean) => {
+    const currentDate = new Date();
+    currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
-      .find( { doctorId, approve, statusAppointment: StatusAppointment.wait } )
+      .find( { doctorId, approve, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate } } )
       .sort({ statusUpdateTime: 1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
