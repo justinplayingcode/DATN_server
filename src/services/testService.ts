@@ -18,13 +18,23 @@ export default class testService {
   }
 
   public static getAllTestServiceInHistory = async (historyId) => {
-    return await TestResult
+    const values = (await TestResult
       .find({ historyId })
+      .select(`-__v`)
       .populate({
         path: schemaFields.serviceId,
         select: `${schemaFields.service}`
       })
-      .lean();
+      .lean())?.reduce((acc, cur) => {
+        const { _id, service } = cur.serviceId as any;
+        acc.push({
+          ...cur,
+          serviceId: _id,
+          service
+        })
+        return acc;
+      }, [])
+      return values;
   }
 
   public static getListTestService = async () => {
