@@ -137,10 +137,10 @@ export default class HealthcareController {
         let data;
         switch(req.body.tableType) {
           case TableType.schedulePatientIn:
-            data = await HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.inpatient);
+            data = await PatientService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.inpatient);
             break;
           case TableType.schedulePatientOut:
-            data = await HealthService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.outpatient);
+            data = await PatientService.getAllPatientOnBoarding(req.body.page, req.body.pageSize, req.body.searchKey, doctor.departmentId, Onboarding.outpatient);
             break;
           default:
             data = TableResponseNoData;
@@ -168,10 +168,10 @@ export default class HealthcareController {
         let data;
         switch(req.body.tableType) {
           case TableType.historyMedicalOfPatient:
-            data = await HealthService.getHistoryMedicalOfPatient(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+            data = await HistoriesService.getHistoryMedicalOfPatient(req.body.page, req.body.pageSize, req.body.searchKey, userId);
             break;
           case TableType.historyMedicalOfDoctor:
-            data = await HealthService.getHistoryMedicalOfDoctor(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+            data = await HistoriesService.getHistoryMedicalOfDoctor(req.body.page, req.body.pageSize, req.body.searchKey, userId);
             break;
           default:
             data = TableResponseNoData;
@@ -237,4 +237,5 @@ export default class HealthcareController {
       }
     }
 
+    
 }

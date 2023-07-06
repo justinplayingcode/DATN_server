@@ -81,6 +81,7 @@ export const schemaFields = {
   appointmentScheduleId: 'appointmentScheduleId',
   diagnosis: 'diagnosis',
   hospitalizationCount: 'hospitalizationCount',
+  summary: 'summary',
 
   //healthDiseases
   healthId: 'healthId',
@@ -121,7 +122,9 @@ export const schemaFields = {
   initialSymptom: 'initialSymptom',
   statusAppointment: 'statusAppointment',
   statusUpdateTime: 'statusUpdateTime',
-  healthIndicator: 'healthIndicator'
+  healthIndicator: 'healthIndicator',
+
+  note: 'note'
 }
 
 export const TableResponseNoData = {

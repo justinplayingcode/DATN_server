@@ -151,7 +151,7 @@ export default class appointmentScheduleService {
     } else {
       const department = departmentId.departmentCode === DepartmentType.canLamSang ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
-        .find(department ? { departmentId: departmentId._id, statusAppointment: StatusAppointment.testing } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
+        .find(department ? { departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] } } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
         .sort({ statusUpdateTime: 1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
@@ -194,7 +194,8 @@ export default class appointmentScheduleService {
         }, []) 
   
         const total = (await AppointmentSchedule
-          .find({ doctorId: { $exists: false } }, { __v: 0 })
+          // .find({ doctorId: { $exists: false } }, { __v: 0 })
+          .find(department ? { departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] } } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
           .populate({
             path: schemaFields.patientId,
             select: `-__v`,
@@ -511,8 +512,16 @@ export default class appointmentScheduleService {
     }
   }
 
-  public static changeStatusToDone = async () => {
-    
+  public static changeStatusToDone = async (id, session) => {
+    try {
+      const obj = {
+        statusAppointment: StatusAppointment.done,
+        statusUpdateTime: new Date
+      }
+      await AppointmentSchedule.findByIdAndUpdate(id, obj, {runValidators: true, session});
+    } catch (error) {
+      throw error;
+    }
   }
 
 }

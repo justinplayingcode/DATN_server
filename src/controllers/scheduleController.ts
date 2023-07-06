@@ -8,6 +8,8 @@ import validateReqBody, { ReqBody } from "../utils/requestbody";
 import Validate from "../utils/validate";
 import historiesService from "../services/historiesService";
 import testService from "../services/testService";
+import HealthService from "../services/healthService";
+import { IUpdateHealth } from "../models/Health";
 // import MomentTimezone from "../helpers/timezone";
 
 export default class ScheduleController {
@@ -339,14 +341,15 @@ export default class ScheduleController {
       const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
       const listResult: any[] = req.body.testResults;
       if(listResult.length > 0) {
-        listResult.forEach( async (result) => {
+        const listresults = listResult.map((result) => {
           let updateObj = {
             doctorId,
             detailsFileCloud: result.detailsFileCloud,
             reason: result.reason,
           }
-          await testService.updateTestResultById(result.id, updateObj, session);
+          return testService.updateTestResultById(result.id, updateObj, session);
         })
+        await Promise.all(listresults);
         await appointmentScheduleService.changeStatusToWaitAfterTesting(req.body.appointmentScheduleId, session);
         await session.commitTransaction();
         session.endSession();
@@ -369,6 +372,49 @@ export default class ScheduleController {
   }
   //PUT
   public static changeToDone = async (req, res, next) => {
-    
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      validateReqBody(req, ReqBody.changeToDone, next);
+      // update AppointmentSchedule
+      await appointmentScheduleService.changeStatusToDone(req.body.id, session);
+      // update Health
+      const updateHealth: IUpdateHealth = {
+        heartRate: req.body.heartRate,
+        temperature: req.body.temperature,
+        bloodPressureSystolic: req.body.bloodPressureSystolic,
+        bloodPressureDiastolic: req.body.bloodPressureDiastolic,
+        glucose: req.body.glucose,
+        weight: req.body.weight,
+        height: req.body.height
+      }
+      await HealthService.updateHeathByPatientId(req.body.patientId, updateHealth, session);
+      // update Histories
+      const temphistory = {
+        diagnosis: (req.body.diagnosis).toString(),
+        summary: req.body.summary,
+        healthIndicator: updateHealth
+      }
+      await historiesService.updateHistory(req.body.historyId, temphistory, session);
+      // create Boarding
+      // nếu bệnh nhân đã có bản ghi boarding, cập nhật, không thì tạo
+      const boarding = {
+        departmentId: req.body.departmentId,
+        boardingStatus: req.body.boardingStatus,
+        onboardingDate: new Date
+      }
+      
+      // create Prescription
+      const prescription = {
+        historyId: req.body.historyId,
+        note: req.body.note,
+        medicationId: (req.body.medicationId).toString(),
+      }
+      
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    }
   }
 }

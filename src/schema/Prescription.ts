@@ -8,8 +8,9 @@ const prescriptionSchema = new Schema({
     required: [true, 'hítoryId must be required']
   },
   medicationId: {
-    type: Schema.Types.ObjectId,
-    ref: collectionName.Medications,
+    type: String,
+    trim: true,
+    // đây sẽ lưu id của các loại thuốc mà bác sĩ chuẩn đoán
     required: [true, 'medicationId must be required']
   },
   note: {
