@@ -29,4 +29,23 @@ export default class historiesService {
       throw error
     }
   }
+
+  public static getHistoryMedicalOfPatient = async (page: number, pageSize: number, searchKey: string, userId) => {
+    // viet sau
+    const values = []
+    
+    return {
+      values,
+      total: 0
+    }
+  }
+  public static getHistoryMedicalOfDoctor = async (page: number, pageSize: number, searchKey: string, userId) => {
+    // viet sau
+    const values = []
+    
+    return {
+      values,
+      total: 0
+    }
+  }
 }

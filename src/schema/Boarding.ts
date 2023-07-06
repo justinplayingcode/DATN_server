@@ -21,6 +21,11 @@ const boaringSchema = new Schema({
       values: Convert.enumToArray(Onboarding),
       message: "{VALUE} is not supported"
     }
+  },
+  onBoardingDate: {
+    type: Date,
+    required: true,
+    default: new Date
   }
 })
 

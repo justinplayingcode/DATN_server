@@ -100,4 +100,14 @@ export default class PatientService {
   public static findOneById = async (id) => {
     return await Patient.findById(id).lean();
   }
+
+  public static getAllPatientOnBoarding = async (page: number, pageSize: number, searchKey: string, departmentId, boardingStatus) => {
+    // viet sau
+    const values = []
+    
+    return {
+      values,
+      total: 0
+    }
+  }
 }

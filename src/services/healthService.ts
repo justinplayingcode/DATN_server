@@ -1,6 +1,6 @@
 import { ClientSession } from "mongoose"
 import Health from "../schema/Health"
-import { ICreateHealth } from "../models/Health"
+import { ICreateHealth, IUpdateHealth } from "../models/Health"
 
 export default class HealthService {
     public static create = async (obj: ICreateHealth) => {
@@ -27,32 +27,11 @@ export default class HealthService {
     public static findOneByPatientId = async (patientId) => {
         return await Health.findOne({ patientId })
     }
-
-    public static getAllPatientOnBoarding = async (page: number, pageSize: number, searchKey: string, departmentId, boardingStatus) => {
-      // viet sau
-      const values = []
-      
-      return {
-        values,
-        total: 0
-      }
-    }
-    public static getHistoryMedicalOfPatient = async (page: number, pageSize: number, searchKey: string, userId) => {
-      // viet sau
-      const values = []
-      
-      return {
-        values,
-        total: 0
-      }
-    }
-    public static getHistoryMedicalOfDoctor = async (page: number, pageSize: number, searchKey: string, userId) => {
-      // viet sau
-      const values = []
-      
-      return {
-        values,
-        total: 0
+    public static updateHeathByPatientId = async (patientId, obj: IUpdateHealth, session: ClientSession) => {
+      try {
+        await Health.findOneAndUpdate({patientId}, obj, {runValidators: true, session});
+      } catch (error) {
+        throw error;
       }
     }
 }

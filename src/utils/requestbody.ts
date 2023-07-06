@@ -188,6 +188,25 @@ export class ReqBody {
       schemaFields.testResults
     ]
 
+    public static changeToDone = [
+      schemaFields.id, // schedule id
+      schemaFields.patientId,
+      schemaFields.historyId,
+      schemaFields.departmentId,
+      schemaFields.diagnosis, // disease
+      schemaFields.summary,
+      schemaFields.medicationId, // mang cac medicationId trong don thuoc
+      schemaFields.note,
+      schemaFields.boardingStatus,
+      schemaFields.heartRate,
+      schemaFields.temperature,
+      schemaFields.bloodPressureSystolic,
+      schemaFields.bloodPressureDiastolic,
+      schemaFields.glucose,
+      schemaFields.weight,
+      schemaFields.height,
+    ]
+
     //test
     public static createTestService = [
         schemaFields.service,

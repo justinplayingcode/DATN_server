@@ -18,9 +18,9 @@ const historySchema = new Schema({
         required: [true, 'appointmentScheduleId must be required']
     },
     diagnosis: {
-        type: Schema.Types.ObjectId,
-        ref: collectionName.Diseases,
-        // đây sẽ lưu id của bệnh mà bác sĩ chuẩn đoán
+      type: String,
+      trim: true
+        // đây sẽ lưu id của các bệnh mà bác sĩ chuẩn đoán
     },
     hospitalizationCount: {
         type: Number,

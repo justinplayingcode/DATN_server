@@ -10,3 +10,13 @@ export interface ICreateHealth {
   weight: Number,
   height: Number
 }
+
+export interface IUpdateHealth {
+  heartRate: Number,
+  temperature: Number,
+  bloodPressureSystolic: Number,
+  bloodPressureDiastolic: Number
+  glucose: Number,
+  weight: Number,
+  height: Number
+}
