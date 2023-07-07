@@ -10,6 +10,9 @@ import historiesService from "../services/historiesService";
 import testService from "../services/testService";
 import HealthService from "../services/healthService";
 import { IUpdateHealth } from "../models/Health";
+import { ICreateBoarding, IEditBoarding } from "../models/Patient";
+import boardingService from "../services/boardingService";
+import prescriptionService from "../services/prescriptionService";
 // import MomentTimezone from "../helpers/timezone";
 
 export default class ScheduleController {
@@ -398,19 +401,31 @@ export default class ScheduleController {
       await historiesService.updateHistory(req.body.historyId, temphistory, session);
       // create Boarding
       // nếu bệnh nhân đã có bản ghi boarding, cập nhật, không thì tạo
-      const boarding = {
-        departmentId: req.body.departmentId,
-        boardingStatus: req.body.boardingStatus,
-        onboardingDate: new Date
+      const existBoarding = await boardingService.findOneByKey(schemaFields.patientId, req.body.patientId);
+      if(existBoarding) {
+        const updateboarding: IEditBoarding = {
+          departmentId: req.body.departmentId,
+          boardingStatus: req.body.boardingStatus,
+          onboardingDate: new Date
+        }
+        await boardingService.updateByPatientId(req.body.patientId, updateboarding, session);
+      } else {
+        const boarding: ICreateBoarding = {
+          patientId: req.body.patientId,
+          departmentId: req.body.departmentId,
+          boardingStatus: req.body.boardingStatus,
+          onboardingDate: new Date
+        }
+        await boardingService.create(boarding, session);
       }
-      
       // create Prescription
       const prescription = {
         historyId: req.body.historyId,
         note: req.body.note,
         medicationId: (req.body.medicationId).toString(),
       }
-      
+      await prescriptionService.create(prescription, session);
+
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
