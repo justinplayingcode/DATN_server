@@ -425,7 +425,12 @@ export default class ScheduleController {
         medicationId: (req.body.medicationId).toString(),
       }
       await prescriptionService.create(prescription, session);
-
+      await session.commitTransaction();
+      session.endSession();
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        message: "Hoàn thành khám bệnh"
+      });
     } catch (error) {
       await session.abortTransaction();
       session.endSession();

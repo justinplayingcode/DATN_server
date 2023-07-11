@@ -16,7 +16,7 @@ scheduleRoute.route("/testingrequest").put(Middlewares.verifyToken, Middlewares.
 scheduleRoute.route("/alltestrequest").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.getAllTestRequestBeforeTesting);
 scheduleRoute.route("/starttesting").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.testingToProcess);
 scheduleRoute.route("/donetesting").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.testingToWait);
-scheduleRoute.route("/done").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.changeToDone);
+scheduleRoute.route("/done").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.changeToDone); //done
 
 
 export default scheduleRoute;

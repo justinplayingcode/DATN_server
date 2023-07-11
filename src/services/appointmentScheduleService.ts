@@ -145,13 +145,14 @@ export default class appointmentScheduleService {
   }
 
   public static getSchedulesParaclinical = async (page: number, pageSize: number, searchKey: string, userId) => {
-    const { departmentId } = await DoctorService.findDepartmentOfDoctor(userId) as any;
+    const { departmentId, _id: doctorId } = await DoctorService.getInforByUserId(userId) as any;
+
     if(departmentId.departmentCode === DepartmentType.tiepDon) {
       return TableResponseNoData;
     } else {
       const department = departmentId.departmentCode === DepartmentType.canLamSang ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
-        .find(department ? { departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] } } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
+        .find(department ? { doctorId: doctorId, departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] }, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
         .sort({ statusUpdateTime: 1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
