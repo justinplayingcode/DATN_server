@@ -35,10 +35,8 @@ export default class DiseasesService {
       total
     }
   }
-  public static findOne = async (id) => {
-    return await Diseases.findById(id, {
-      select: `-${schemaFields._id} -__v`
-    });
+  public static findOneById = async (id) => {
+    return await Diseases.findById(id).select(`-${schemaFields._id} -__v -${schemaFields.isActive} -_id -${schemaFields.departmentId}`).lean();
   }
   public static editOne = async (id, obj: ICreateDiseases) => {
     return await Diseases.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )

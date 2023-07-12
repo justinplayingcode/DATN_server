@@ -13,9 +13,10 @@ import { TableResponseNoData } from "../utils/constant";
 import DoctorService from "../services/doctorService";
 import HistoriesService from "../services/historiesService";
 import testService from "../services/testService";
-import axios from "axios";
-import fs from "fs";
-import path from "path";
+import historiesService from "../services/historiesService";
+// import axios from "axios";
+// import fs from "fs";
+// import path from "path";
 export default class HealthcareController {
     //POST 
     public static registerPatient = async (req, res, next) => {
@@ -188,6 +189,28 @@ export default class HealthcareController {
     }
 
     //GET
+    public static getHistoryMedicalDetails =async (req, res, next) => {
+      try {
+        const { role } = req.user;
+        let data;
+        switch(role) {
+          case Role.doctor:
+            data = await historiesService.getHistoryMedicalDetails(req.query.id, true)
+            break;
+          case Role.patient:
+            data = await historiesService.getHistoryMedicalDetails(req.query.id, false)
+            break;
+        }
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: data
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    //GET
     public static getListTestService = async (req, res, next) => {
       try {
         const tests = await testService.getListTestService();
@@ -215,29 +238,29 @@ export default class HealthcareController {
     }
 
     //GET
-    public static downloadTestResult = async (req, res, next) => {
-      try {
-        const cloudinaryURL = req.query.url;
-        const service = req.query.service;
-        const fullname = req.query.fullname;
-        const yearofbirth = req.query.yearofbirth;
-        const desktopPath = path.join(process.env.HOME || process.env.USERPROFILE, 'Desktop');
-        const response = await axios({
-          method: 'GET',
-          url: cloudinaryURL,
-          responseType: 'stream'
-        });
-        const fileName = cloudinaryURL.split('/').pop();
-        const fileExtension = fileName.split('.').pop().toLowerCase();
-        response.data.pipe(fs.createWriteStream(`${desktopPath}\\${service}-${fullname}-${yearofbirth}.${fileExtension}`));
-        res.status(ApiStatusCode.OK).json({
-          status: ApiStatus.succes,
-          data: 'successful'
-        })
-      } catch (error) {
-        next(error)
-      }
-    }
+    // public static downloadTestResult = async (req, res, next) => {
+    //   try {
+    //     const cloudinaryURL = req.query.url;
+    //     const service = req.query.service;
+    //     const fullname = req.query.fullname;
+    //     const yearofbirth = req.query.yearofbirth;
+    //     const desktopPath = path.join(process.env.HOME || process.env.USERPROFILE, 'Desktop');
+    //     const response = await axios({
+    //       method: 'GET',
+    //       url: cloudinaryURL,
+    //       responseType: 'stream'
+    //     });
+    //     const fileName = cloudinaryURL.split('/').pop();
+    //     const fileExtension = fileName.split('.').pop().toLowerCase();
+    //     response.data.pipe(fs.createWriteStream(`${desktopPath}\\${service}-${fullname}-${yearofbirth}.${fileExtension}`));
+    //     res.status(ApiStatusCode.OK).json({
+    //       status: ApiStatus.succes,
+    //       data: 'successful'
+    //     })
+    //   } catch (error) {
+    //     next(error)
+    //   }
+    // }
 
     
 }
