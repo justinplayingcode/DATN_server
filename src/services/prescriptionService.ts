@@ -9,4 +9,7 @@ export default class prescriptionService {
       throw error
     }
   }
+  public static findOneByKey = async (key, value) => {
+    return await Prescription.findOne({[key]: value}).lean();
+  }
 }

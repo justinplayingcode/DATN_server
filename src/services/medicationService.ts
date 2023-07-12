@@ -22,10 +22,8 @@ export default class MedicationService {
       total
     }
   }
-  public static findOne = async (id) => {
-    return await Medications.findById(id, {
-      select: `-${schemaFields._id} -__v`
-    });
+  public static findOneById = async (id) => {
+    return await Medications.findById(id).select(`-__v -${schemaFields.isActive} -_id`).lean();
   }
   public static editOne = async (id, obj: ICreateMedication) => {
     return await Medications.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
