@@ -29,6 +29,9 @@ export default class ScheduleController {
         case TableType.scheduleParaclinical:
           data = await appointmentScheduleService.getSchedulesParaclinical(req.body.page, req.body.pageSize, req.body.searchKey, userId);
           break;
+        case TableType.scheduleDoneParaclinical:
+          data = await appointmentScheduleService.getSchedulesDoneParaclinical(req.body.page, req.body.pageSize, req.body.searchKey, userId);
+          break;
         default:
           data = TableResponseNoData;
       }
