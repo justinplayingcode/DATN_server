@@ -222,6 +222,82 @@ export default class appointmentScheduleService {
     }
   }
 
+  public static getSchedulesDoneParaclinical = async (page: number, pageSize: number, searchKey: string, userId) => {
+    const { departmentId, _id: doctorId } = await DoctorService.getInforByUserId(userId) as any;
+
+    if(departmentId.departmentCode === DepartmentType.tiepDon || departmentId.departmentCode === DepartmentType.canLamSang) {
+      return TableResponseNoData;
+    } else {
+      const values = (await AppointmentSchedule
+        .find({ doctorId: doctorId, departmentId: departmentId._id, statusAppointment: StatusAppointment.wait, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} }, { __v: 0 })
+        .sort({ statusUpdateTime: 1 })
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .populate({
+          path: schemaFields.patientId,
+          select: `-__v`,
+          populate: {
+            path: schemaFields.userId,
+            select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`,
+            match: {
+              fullname: { $regex: new RegExp(searchKey, 'i') }
+            }
+          }
+        })
+        .populate({
+          path: schemaFields.departmentId,
+          select: `${schemaFields.departmentName} -${schemaFields._id}`
+        })
+        .select(`-${schemaFields.statusUpdateTime} -${schemaFields.approve}`)
+        .lean())?.reduce((acc, cur) => {
+          const { patientId, departmentId, appointmentDate, ...other } = cur;
+          if (departmentId && patientId) {
+            const { departmentName } = departmentId as any;
+            const { _id, userId, insurance } = patientId as any;
+            if (userId) {
+              const { _id: userid, dateOfBirth, ...infoUser } = userId as any;
+              acc.push({
+                ...other,
+                appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
+                userId: userid,
+                ...infoUser,
+                dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
+                patientId: _id,
+                insurance,
+                departmentName
+              });
+            }
+          }
+          return acc;
+        }, []) 
+  
+        const total = (await AppointmentSchedule
+          .find({ departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] } }, { __v: 0 })
+          .populate({
+            path: schemaFields.patientId,
+            select: `-__v`,
+            populate: {
+              path: schemaFields.userId,
+              match: {
+                fullname: { $regex: new RegExp(searchKey, 'i') }
+              }
+            }
+          })
+          .lean()).reduce((acc, cur) => {
+            const { userId } = cur.patientId as any;
+            if (userId) {
+              acc.push(cur);
+            }
+            return acc;
+          }, [])
+        
+      return {
+        values,
+        total: total.length,
+      }
+    }
+  }
+
   public static getAllScheduleRequest = async (page: number, pageSize: number, searchKey: string, doctorId, approve: boolean) => {
     const currentDate = new Date();
     currentDate.setHours( 0, 0, 0, 0);
