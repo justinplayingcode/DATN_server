@@ -12,7 +12,7 @@ export default class appointmentScheduleService {
       const obj: ICreateAppointmentScheduleWhenRegister = {
         patientId,
         appointmentDate: new Date,
-        approve: true,
+        approve: ScheduleRequestStatus.accpect,
         typeAppointment,
         initialSymptom,
         statusAppointment: StatusAppointment.wait,
@@ -35,7 +35,7 @@ export default class appointmentScheduleService {
         doctorId,
         patientId,
         appointmentDate,
-        approve: true,
+        approve: ScheduleRequestStatus.accpect,
         typeAppointment: TypeAppointmentSchedule.khamTheoChiDinh,
         initialSymptom,
         statusAppointment: StatusAppointment.wait,
@@ -54,7 +54,7 @@ export default class appointmentScheduleService {
         doctorId,
         patientId,
         appointmentDate,
-        approve: false,
+        approve: ScheduleRequestStatus.wait,
         typeAppointment: TypeAppointmentSchedule.khamTheoYeuCau,
         initialSymptom,
         statusAppointment: StatusAppointment.wait,
@@ -76,7 +76,7 @@ export default class appointmentScheduleService {
       const department = departmentId.departmentCode === DepartmentType.tiepDon ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
         .find(department ? { doctorId: { $exists: false }, departmentId: departmentId._id, statusAppointment: StatusAppointment.wait } : { doctorId: { $exists: false }, statusAppointment: StatusAppointment.wait }, { __v: 0 })
-        .sort({ statusUpdateTime: 1 })
+        .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .populate({
@@ -153,7 +153,7 @@ export default class appointmentScheduleService {
       const department = departmentId.departmentCode === DepartmentType.canLamSang ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
         .find(department ? { doctorId: doctorId, departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] }, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
-        .sort({ statusUpdateTime: 1 })
+        .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .populate({
@@ -230,7 +230,7 @@ export default class appointmentScheduleService {
     } else {
       const values = (await AppointmentSchedule
         .find({ doctorId: doctorId, departmentId: departmentId._id, statusAppointment: StatusAppointment.wait, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} }, { __v: 0 })
-        .sort({ statusUpdateTime: 1 })
+        .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .populate({
@@ -303,7 +303,7 @@ export default class appointmentScheduleService {
     currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
       .find( { doctorId, approve, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate } } )
-      .sort({ statusUpdateTime: 1 })
+      .sort({ statusUpdateTime: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({
@@ -381,8 +381,8 @@ export default class appointmentScheduleService {
     const currentDate = new Date();
     currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
-      .find({ patientId, appointmentDate: { $gte: currentDate } })
-      .sort({ statusUpdateTime: 1 })
+      .find({ patientId, appointmentDate: { $gte: currentDate } , statusAppointment: ScheduleRequestStatus.wait} )
+      .sort({ statusUpdateTime: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({
@@ -408,16 +408,16 @@ export default class appointmentScheduleService {
           const { _id, userId, rank, position } = doctorId as any;
           if (userId) {
             const { fullname } = userId as any;
-            let status: Number;
-            if(approve) {
-              status = ScheduleRequestStatus.accpect;
-            } else {
-              if(statusAppointment === StatusAppointment.done) {
-                status = ScheduleRequestStatus.reject
-              } else {
-                status = ScheduleRequestStatus.wait
-              }
-            }
+            // let status: Number;
+            // if(approve === TypeRequestSchedule.approve) {
+            //   status = ScheduleRequestStatus.accpect;
+            // } else {
+            //   if(statusAppointment === StatusAppointment.done) {
+            //     status = ScheduleRequestStatus.reject
+            //   } else {
+            //     status = ScheduleRequestStatus.wait
+            //   }
+            // }
             acc.push({
               ...other,
               appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
@@ -426,7 +426,7 @@ export default class appointmentScheduleService {
               doctorId: _id,
               doctorRank: rank,
               doctorPosition: position,
-              status
+              status: approve
             })
           }
         }
@@ -435,7 +435,7 @@ export default class appointmentScheduleService {
       }, [])
 
       const total = (await AppointmentSchedule
-        .find({ patientId, appointmentDate: { $gte: currentDate } })
+        .find({ patientId, appointmentDate: { $gte: currentDate }})
         .populate({
           path: schemaFields.doctorId,
           select: `-__v`,
@@ -466,8 +466,8 @@ export default class appointmentScheduleService {
     nextDate.setDate(nextDate.getDate() + 1);
 
     const values = (await AppointmentSchedule
-      .find({ doctorId, approve: true, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
-      .sort({ statusUpdateTime: 1 })
+      .find({ doctorId, approve: ScheduleRequestStatus.accpect, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
+      .sort({ statusUpdateTime: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({
@@ -503,7 +503,7 @@ export default class appointmentScheduleService {
       }, []);
 
       const total = (await AppointmentSchedule
-        .find({ doctorId, approve: true, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
+        .find({ doctorId, approve: ScheduleRequestStatus.accpect, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
         .populate({
           path: schemaFields.patientId,
           select: `-__v`,

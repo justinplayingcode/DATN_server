@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { TypeAppointmentSchedule, StatusAppointment } from '../utils/enum';
+import { TypeAppointmentSchedule, StatusAppointment, ScheduleRequestStatus } from '../utils/enum';
 import Convert from '../utils/convert';
 import { collectionName } from '../utils/constant';
 
@@ -23,8 +23,12 @@ const appointmentScheduleSchema = new Schema({
     required: [true, 'appointmentDate must be required']
   },
   approve: {
-    type: Boolean,
-    required: [true, 'approve must be required']
+    type: Number,
+    required: [true, 'approve must be required'],
+    enum: {
+      values: Convert.enumToArray(ScheduleRequestStatus),
+      message: "{VALUE} is not supported in type of approve"
+    }
   },
   typeAppointment: {
     type: Number,

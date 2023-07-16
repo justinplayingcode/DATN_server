@@ -347,6 +347,7 @@ export default class ScheduleController {
       const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
       const listResult: any[] = req.body.testResults;
       if(listResult.length > 0) {
+        await appointmentScheduleService.changeStatusToWaitAfterTesting(req.body.appointmentScheduleId, session);
         const listresults = listResult.map((result) => {
           let updateObj = {
             doctorId,
@@ -356,7 +357,6 @@ export default class ScheduleController {
           return testService.updateTestResultById(result.id, updateObj, session);
         })
         await Promise.all(listresults);
-        await appointmentScheduleService.changeStatusToWaitAfterTesting(req.body.appointmentScheduleId, session);
         await session.commitTransaction();
         session.endSession();
         res.status(ApiStatusCode.OK).json({
