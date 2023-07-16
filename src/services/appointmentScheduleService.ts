@@ -371,9 +371,9 @@ export default class appointmentScheduleService {
 
   public static approveScheduleRequest = async (id, approve, session) => {
     if(approve) {
-      return await AppointmentSchedule.findByIdAndUpdate(id, { approve: true }, { new: true, runValidators: true, session})
+      return await AppointmentSchedule.findByIdAndUpdate(id, { approve: ScheduleRequestStatus.accpect }, { new: true, runValidators: true, session})
     } else {
-      return await AppointmentSchedule.findByIdAndUpdate(id, { statusAppointment: StatusAppointment.done }, { new: true, runValidators: true, session})
+      return await AppointmentSchedule.findByIdAndUpdate(id, { approve: ScheduleRequestStatus.reject }, { new: true, runValidators: true, session})
     }
   }
 
