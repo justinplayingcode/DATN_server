@@ -10,25 +10,13 @@ export default class DiseasesService {
     return await Diseases.countDocuments({ isActive: true });
   }
   public static getAll = async (page: number, pageSize: number, searchKey: string) => {
-    const data = await Diseases.find({ isActive: true, diseasesName: { $regex: searchKey, $options: "i" } })
+    const values = await Diseases.find({ isActive: true, diseasesName: { $regex: searchKey, $options: "i" } })
     .skip((page - 1) * pageSize)
     .limit(pageSize)
     .select(`-__v -${schemaFields.isActive}`)
-    .populate({
-      path: schemaFields.departmentId,
-    })
     .lean();
 
     const total = await Diseases.find({ isActive: true, name: { $regex: searchKey, $options: "i" } }).countDocuments();
-
-    const values = data.map(e => {
-      const { departmentName, _id } = e.departmentId as any;
-      return {
-        ...e,
-        department: departmentName,
-        departmentId: _id
-      }
-    })
     
     return {
       values,
@@ -36,7 +24,7 @@ export default class DiseasesService {
     }
   }
   public static findOneById = async (id) => {
-    return await Diseases.findById(id).select(`-${schemaFields._id} -__v -${schemaFields.isActive} -_id -${schemaFields.departmentId}`).lean();
+    return await Diseases.findById(id).select(`-${schemaFields._id} -__v -${schemaFields.isActive} -_id`).lean();
   }
   public static editOne = async (id, obj: ICreateDiseases) => {
     return await Diseases.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )

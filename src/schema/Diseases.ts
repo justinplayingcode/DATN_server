@@ -28,16 +28,11 @@ const diseasesSchema = new Schema({
       trim: true,
       required: true
   },
-    departmentId: {
-        type: Schema.Types.ObjectId,
-        ref: collectionName.Department,
-        required: true
-    },
-    isActive: {
-      type: Boolean,
-      required: true,
-      default: true
-    }
+  isActive: {
+    type: Boolean,
+    required: true,
+    default: true
+  }
 })
 
 diseasesSchema.pre('remove', function(this: mongoose.Document ,next) {
