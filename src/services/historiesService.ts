@@ -3,7 +3,7 @@ import { ICreateHistory } from "../models/Histories";
 import AppointmentSchedule from "../schema/AppointmentSchedule";
 import Histories from "../schema/Histories"
 import { schemaFields } from "../utils/constant";
-import { StatusAppointment } from "../utils/enum";
+import { ScheduleRequestStatus, StatusAppointment } from "../utils/enum";
 import DiseasesService from "./diseasesService";
 import MedicationService from "./medicationService";
 import prescriptionService from "./prescriptionService";
@@ -40,20 +40,75 @@ export default class historiesService {
 
   public static getHistoryMedicalOfPatient = async (page: number, pageSize: number, searchKey: string, patientId) => {
     // viet sau
-    const values = []
+    const values = (await AppointmentSchedule.find({patientId, statusAppointment: StatusAppointment.done, approve: ScheduleRequestStatus.accpect })
+      .sort({ statusUpdateTime: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .select(`-__v -${schemaFields.statusUpdateTime} -${schemaFields.approve}`)
+      .populate({
+        path: schemaFields.doctorId,
+        populate: {
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`,
+          match: {
+            fullname: { $regex: new RegExp(searchKey, 'i') }
+          }
+        }
+      })
+      .populate({
+        path: schemaFields.departmentId,
+      }).lean())?.reduce((acc, cur) => {
+        const { doctorId: doctor, departmentId: department, appointmentDate, ...other } = cur;
+        if(cur.doctorId) {
+          const { _id: doctorId, userId: user, rank, position } = doctor as any;
+          if(user) {
+            const { _id: userId, dateOfBirth, ...info  } = user as any;
+            const { _id: departmentId, departmentName } = department as any;
+      
+            acc.push({
+              appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
+              ...other,
+              departmentId,
+              departmentName,
+              rank,
+              position,
+              doctorId,
+              userId,
+              dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
+              ...info
+            })
+          }
+        }
+        return acc;
+      }, [])
+
+      const total = (await AppointmentSchedule.find({patientId, statusAppointment: StatusAppointment.done, approve: ScheduleRequestStatus.accpect })
+        .populate({
+          path: schemaFields.doctorId,
+          populate: {
+            path: schemaFields.userId,
+            match: {
+              fullname: { $regex: new RegExp(searchKey, 'i') }
+            }
+          }
+        }).lean()).reduce((acc, cur) => {
+          if(cur.doctorId) {
+            const { userId: user } = cur.doctorId as any;
+            if(user) {
+              acc.push(cur)
+            }
+          }
+          return acc;
+        }, [])
     
     return {
       values,
-      total: 0
+      total: total.length
     }
   }
 
-  public static getHistoryMedicalOfPatientDetails = async (id) => {
-    
-  }
-
   public static getHistoryMedicalOfDoctor = async (page: number, pageSize: number, searchKey: string, doctorId) => {
-    const values = (await AppointmentSchedule.find({ doctorId, statusAppointment: StatusAppointment.done, approve: true })
+    const values = (await AppointmentSchedule.find({ doctorId, statusAppointment: StatusAppointment.done, approve: ScheduleRequestStatus.accpect })
     .sort({ statusUpdateTime: -1 })
     .skip((page - 1) * pageSize)
     .limit(pageSize)
@@ -73,27 +128,49 @@ export default class historiesService {
     })
     .lean())?.reduce((acc, cur) => {
       const { patientId: patient, departmentId: department, appointmentDate, ...other } = cur;
-      const { _id: patientId, userId: user, insurance } = patient as any;
-      const { _id: userId, dateOfBirth, ...info  } = user as any;
-      const { _id: departmentId, departmentName } = department as any;
-
-      acc.push({
-        appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
-        ...other,
-        departmentId,
-        departmentName,
-        insurance,
-        patientId,
-        userId,
-        dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
-        ...info
-      })
+      if(cur.patientId) {
+        const { _id: patientId, userId: user, insurance } = patient as any;
+        if(user) {
+          const { _id: userId, dateOfBirth, ...info  } = user as any;
+          const { _id: departmentId, departmentName } = department as any;
+          acc.push({
+            appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
+            ...other,
+            departmentId,
+            departmentName,
+            insurance,
+            patientId,
+            userId,
+            dateOfBirth: MomentTimezone.convertDDMMYYY(dateOfBirth),
+            ...info
+          })
+        }
+      }
       return acc;
     }, [])
+
+    const total = (await AppointmentSchedule.find({doctorId, statusAppointment: StatusAppointment.done, approve: ScheduleRequestStatus.accpect })
+      .populate({
+        path: schemaFields.patientId,
+        populate: {
+          path: schemaFields.userId,
+          match: {
+            fullname: { $regex: new RegExp(searchKey, 'i') }
+          }
+        }
+      }).lean()).reduce((acc, cur) => {
+        if(cur.patientId) {
+          const { userId: user } = cur.patientId as any;
+          if(user) {
+            acc.push(cur)
+          }
+        }
+        return acc;
+      }, [])
     
     return {
       values,
-      total: 0
+      total: total.length
     }
   }
 
