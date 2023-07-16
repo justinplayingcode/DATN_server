@@ -145,7 +145,6 @@ export class ReqBody {
       schemaFields.diseasesName,
       schemaFields.symptom,
       schemaFields.prevention,
-      schemaFields.departmentId
     ]
 
     public static editDisases = [
@@ -154,7 +153,6 @@ export class ReqBody {
       schemaFields.diseasesName,
       schemaFields.symptom,
       schemaFields.prevention,
-      schemaFields.departmentId
     ]
 
     // schedule
