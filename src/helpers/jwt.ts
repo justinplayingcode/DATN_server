@@ -11,7 +11,7 @@ export default class jwToken {
     public static createAccessToken = (payload: IPayLoad) => {
         return jwt.sign(payload, process.env.APP_SECRET, {
             algorithm: "HS256",
-            expiresIn: "1d",
+            expiresIn: "30m",
         })
     }
     public static createRefreshToken = (payload: IPayLoad) => {

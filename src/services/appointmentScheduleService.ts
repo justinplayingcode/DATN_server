@@ -76,7 +76,7 @@ export default class appointmentScheduleService {
       const department = departmentId.departmentCode === DepartmentType.tiepDon ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
         .find(department ? { doctorId: { $exists: false }, departmentId: departmentId._id, statusAppointment: StatusAppointment.wait } : { doctorId: { $exists: false }, statusAppointment: StatusAppointment.wait }, { __v: 0 })
-        .sort({ statusUpdateTime: 1 })
+        .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .populate({
@@ -153,7 +153,7 @@ export default class appointmentScheduleService {
       const department = departmentId.departmentCode === DepartmentType.canLamSang ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
         .find(department ? { doctorId: doctorId, departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] }, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
-        .sort({ statusUpdateTime: 1 })
+        .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .populate({
@@ -230,7 +230,7 @@ export default class appointmentScheduleService {
     } else {
       const values = (await AppointmentSchedule
         .find({ doctorId: doctorId, departmentId: departmentId._id, statusAppointment: StatusAppointment.wait, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} }, { __v: 0 })
-        .sort({ statusUpdateTime: 1 })
+        .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .populate({
@@ -303,7 +303,7 @@ export default class appointmentScheduleService {
     currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
       .find( { doctorId, approve, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate } } )
-      .sort({ statusUpdateTime: 1 })
+      .sort({ statusUpdateTime: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({
@@ -382,7 +382,7 @@ export default class appointmentScheduleService {
     currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
       .find({ patientId, appointmentDate: { $gte: currentDate } })
-      .sort({ statusUpdateTime: 1 })
+      .sort({ statusUpdateTime: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({
@@ -467,7 +467,7 @@ export default class appointmentScheduleService {
 
     const values = (await AppointmentSchedule
       .find({ doctorId, approve: true, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
-      .sort({ statusUpdateTime: 1 })
+      .sort({ statusUpdateTime: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate({

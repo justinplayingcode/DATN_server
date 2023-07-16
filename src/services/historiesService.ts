@@ -54,7 +54,7 @@ export default class historiesService {
 
   public static getHistoryMedicalOfDoctor = async (page: number, pageSize: number, searchKey: string, doctorId) => {
     const values = (await AppointmentSchedule.find({ doctorId, statusAppointment: StatusAppointment.done, approve: true })
-    .sort({ statusUpdateTime: 1 })
+    .sort({ statusUpdateTime: -1 })
     .skip((page - 1) * pageSize)
     .limit(pageSize)
     .select(`-__v -${schemaFields.statusUpdateTime} -${schemaFields.approve}`)
