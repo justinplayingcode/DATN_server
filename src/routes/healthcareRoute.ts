@@ -15,4 +15,5 @@ healthcareRoute.route("/gethistorymedicaldetails").get(Middlewares.verifyToken, 
 // healthcareRoute.route("/createtestservice").post(Middlewares.verifyToken, Middlewares.permission([Role.admin]), HealthcareController.createTestService);
 healthcareRoute.route("/alltestservice").get(Middlewares.verifyToken, HealthcareController.getListTestService);
 // healthcareRoute.route("/downloadresult").get(Middlewares.verifyToken, HealthcareController.downloadTestResult);
+healthcareRoute.route("/gethistorymedical").get(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), HealthcareController.getDetailsPatientWithHistory);
 export default healthcareRoute;

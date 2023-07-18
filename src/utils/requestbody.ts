@@ -205,10 +205,17 @@ export class ReqBody {
       schemaFields.height,
     ]
 
+    public static doctorRequestSchedule = [
+      schemaFields.patientId,
+      schemaFields.initialSymptom,
+      schemaFields.departmentId,
+      schemaFields.appointmentDate,/*  */
+    ]
+
     //test
     public static createTestService = [
-        schemaFields.service,
-        schemaFields.price
+      schemaFields.service,
+      schemaFields.price
     ]
 
     

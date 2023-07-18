@@ -143,4 +143,22 @@ export default class PatientService {
       total: totals
     }
   }
+
+  public static getInfoById = async (id) => {
+    const { _id, userId, ...info} = await Patient.findOne({ _id: id })
+      .populate({
+        path: schemaFields.userId,
+        select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification} -${schemaFields._id}`
+      })
+      .select(`-__v`)
+      .lean();
+
+    const respone = {
+      patientId: _id,
+      ...userId,
+      ...info
+    }
+
+    return respone;
+  }
 }
