@@ -11,13 +11,13 @@ export default class jwToken {
     public static createAccessToken = (payload: IPayLoad) => {
         return jwt.sign(payload, process.env.APP_SECRET, {
             algorithm: "HS256",
-            expiresIn: "30m",
+            expiresIn: "5m",
         })
     }
     public static createRefreshToken = (payload: IPayLoad) => {
         return jwt.sign(payload, process.env.APP_REFRESH, {
             algorithm: "HS512",
-            expiresIn: "7d",
+            expiresIn: "1d",
         })
     }
     public static getPayloadInRefreshToken = (token) => {

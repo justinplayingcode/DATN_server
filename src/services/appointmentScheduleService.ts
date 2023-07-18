@@ -408,16 +408,6 @@ export default class appointmentScheduleService {
           const { _id, userId, rank, position } = doctorId as any;
           if (userId) {
             const { fullname } = userId as any;
-            // let status: Number;
-            // if(approve === TypeRequestSchedule.approve) {
-            //   status = ScheduleRequestStatus.accpect;
-            // } else {
-            //   if(statusAppointment === StatusAppointment.done) {
-            //     status = ScheduleRequestStatus.reject
-            //   } else {
-            //     status = ScheduleRequestStatus.wait
-            //   }
-            // }
             acc.push({
               ...other,
               appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
@@ -599,6 +589,24 @@ export default class appointmentScheduleService {
     } catch (error) {
       throw error;
     }
+  }
+
+  public static getScheduleNearestOfPatient = async (patientId) => {
+    const schedule = (await AppointmentSchedule
+      .find({patientId, statusAppointment: StatusAppointment.done, approve: ScheduleRequestStatus.accpect})
+      .sort({ statusUpdateTime: -1 })
+      .limit(5)
+      .select(`-__v -${schemaFields.statusUpdateTime} -${schemaFields.approve}`)
+      .lean())?.reduce((acc, cur) => {
+        const { appointmentDate, _id, typeAppointment } = cur;
+        acc.push({
+          appointmentDate: MomentTimezone.convertDDMMYYY(appointmentDate),
+          id: _id,
+          typeAppointment
+        })
+        return acc;
+      }, [])
+      return schedule
   }
 
 }

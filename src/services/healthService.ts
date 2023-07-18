@@ -25,7 +25,7 @@ export default class HealthService {
       }
     }
     public static findOneByPatientId = async (patientId) => {
-        return await Health.findOne({ patientId })
+        return await Health.findOne({ patientId }).lean()
     }
     public static updateHeathByPatientId = async (patientId, obj: IUpdateHealth, session: ClientSession) => {
       try {

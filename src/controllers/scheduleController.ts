@@ -440,4 +440,28 @@ export default class ScheduleController {
       next(error)
     }
   }
+
+  //POST
+  public static doctorRequestScheduleForPatientIn = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const { userId } = req.user;
+      validateReqBody(req, ReqBody.doctorRequestSchedule, next);
+      const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
+      if(doctorId) {
+        await appointmentScheduleService.createWhenRegisterPatientIn(req.body.patientId, doctorId, req.body.initialSymptom, req.body.departmentId, new Date(req.body.appointmentDate), session);
+      } else {
+        const err: any = new Error("Hẹn lịch không thành công, vui lòng liên hệ bộ phận hỗ trợ");
+        err.statusCode = ApiStatusCode.BadRequest;
+        await session.abortTransaction();
+        session.endSession();
+        return next(err)
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
+    }
+  }
 }

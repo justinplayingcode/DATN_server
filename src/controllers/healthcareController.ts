@@ -238,6 +238,30 @@ export default class HealthcareController {
     }
 
     //GET
+    public static getDetailsPatientWithHistory = async (req, res, next) => {
+      try {
+        const patientId = req.query.id;
+        const infoUser = PatientService.getInfoById(patientId);
+        const healthIndicator = HealthService.findOneByPatientId(patientId);
+        const schedules = appointmentScheduleService.getScheduleNearestOfPatient(patientId);
+        
+        let data;
+        const result = await Promise.all([infoUser, healthIndicator, schedules]);
+        data = {
+          ...result[0],
+          ...result[1],
+          schedules: result[2]
+        }
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data: data
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
+
+    //GET
     // public static downloadTestResult = async (req, res, next) => {
     //   try {
     //     const cloudinaryURL = req.query.url;
