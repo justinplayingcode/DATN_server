@@ -451,6 +451,12 @@ export default class ScheduleController {
       const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
       if(doctorId) {
         await appointmentScheduleService.createWhenRegisterPatientIn(req.body.patientId, doctorId, req.body.initialSymptom, req.body.departmentId, new Date(req.body.appointmentDate), session);
+        await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "Thành công"
+        });
       } else {
         const err: any = new Error("Hẹn lịch không thành công, vui lòng liên hệ bộ phận hỗ trợ");
         err.statusCode = ApiStatusCode.BadRequest;
