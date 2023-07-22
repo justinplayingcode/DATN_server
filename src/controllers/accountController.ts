@@ -8,9 +8,10 @@ import validateReqBody, { ReqBody } from "../utils/requestbody";
 import Validate from "../utils/validate";
 import { ApiStatus, ApiStatusCode, Role, TableType } from "../utils/enum";
 import PatientService from "../services/patientService";
-import { TableResponseNoData, schemaFields } from "../utils/constant";
+import { TableResponseNoData, defaultAvatar, schemaFields } from "../utils/constant";
 import MomentTimezone from "../helpers/timezone";
 import HealthService from "../services/healthService";
+import { removeInCloudinary } from "../helpers/cloudinary";
 
 export default class AccountController {
   //POST 
@@ -187,13 +188,65 @@ export default class AccountController {
 
   //upload avatar
   public static uploadAvatar = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const fileAvatar = req.file;
     try {
-      // const filePath = req.file.path;
-
-
-      
+      const { userId } = req.user;
+      const user = await UserService.findById(userId);
+      if(user) {
+        await UserService.updateAvatar(userId, fileAvatar?.path, session)
+        await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "Success"
+        })
+      } else {
+        if(fileAvatar) {
+          removeInCloudinary(fileAvatar);
+        }
+        const err: any = new Error("Bad request");
+        err.statusCode = ApiStatusCode.BadRequest;
+        await session.abortTransaction();
+        session.endSession();
+        return next(err)
+      }
     } catch (error) {
+      if(fileAvatar) {
+        removeInCloudinary(fileAvatar);
+      }
+      await session.abortTransaction();
+      session.endSession();
       next(error);
+    }
+  }
+
+  public static setAvatarToDefault = async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const { userId } = req.user;
+      const user = await UserService.findById(userId);
+      if(user) {
+        await UserService.updateAvatar(userId, defaultAvatar, session);
+        await session.commitTransaction();
+        session.endSession();
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          message: "Success"
+        })
+      } else {
+        await session.abortTransaction();
+        session.endSession();
+        const err: any = new Error("Bad request");
+        err.statusCode = ApiStatusCode.BadRequest;
+        return next(err)
+      }
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      next(error)
     }
   }
 }

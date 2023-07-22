@@ -41,4 +41,7 @@ export default class UserService {
       const { identification } = await User.findById(id).lean();
       return identification;
     }
+    public static updateAvatar = async (id, avatar: string, session) => {
+      return await User.findByIdAndUpdate( id, {avatar}, { new: true, runValidators: true, session})
+    }
 }
