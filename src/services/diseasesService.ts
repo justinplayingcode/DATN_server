@@ -14,13 +14,12 @@ export default class DiseasesService {
     .skip((page - 1) * pageSize)
     .limit(pageSize)
     .select(`-__v -${schemaFields.isActive}`)
-    .lean();
-
-    const total = await Diseases.find({ isActive: true, name: { $regex: searchKey, $options: "i" } }).countDocuments();
-    
+    .lean()
+    // .lean();
+    // const total = await Diseases.find({ isActive: true, name: { $regex: searchKey, $options: "i" } }).countDocuments();
     return {
       values,
-      total
+      total: values.length
     }
   }
   public static findOneById = async (id) => {
@@ -30,6 +29,9 @@ export default class DiseasesService {
     return await Diseases.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
   public static fineOneByName = async (searchKey) => {
-    return await Diseases.find({ diseasesName: { $regex: new RegExp(searchKey, 'i') } })
+    return await Diseases.find({ isActive: true, diseasesName: { $regex: new RegExp(searchKey, 'i') } })
   }
+  public static fineOneAndDelete = async (id) => {
+    return await Diseases.findByIdAndUpdate( id, {isActive: false}, { new: true, runValidators: true} )
+  } 
 }

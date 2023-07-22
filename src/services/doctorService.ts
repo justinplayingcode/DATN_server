@@ -83,7 +83,7 @@ export default class DoctorService {
 
     public static getAllDoctorsInDepartment = async (page: number, pageSize: number, searchKey: string, departmentId) => {
       const values = (await Doctor
-          .find(departmentId ? {departmentId} : {})
+          .find(departmentId ? {departmentId, isActive: true} : {isActive: true})
           .skip((page - 1) * pageSize)
           .limit(pageSize)
           .select(`-__v -${schemaFields.isActive}`)
@@ -115,7 +115,7 @@ export default class DoctorService {
           }, []);
 
         const total = (await Doctor
-          .find(departmentId ? {departmentId} : {})
+          .find(departmentId ? {departmentId, isActive: true} : {isActive: true})
           .populate({
             path: schemaFields.userId,
             match: {
@@ -149,5 +149,9 @@ export default class DoctorService {
 
     public static changeInfoByAdmin = async (id, updateObj: IChangeInfoByAdmin) => {
       return await Doctor.findByIdAndUpdate( id, updateObj, {runValidators: true});
+    }
+
+    public static deleteByAdmin = async (id) => {
+      return await Doctor.findByIdAndUpdate( id, { isActive: false }, {runValidators: true});
     }
 }

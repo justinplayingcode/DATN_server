@@ -72,4 +72,18 @@ export default class DiseasesController {
       next(error)
     }
   }
+
+  //PUT
+  public static deleteDisease = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.id], next);
+      await DiseasesService.fineOneAndDelete(req.body.id);
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        message: "success"
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
 }

@@ -9,6 +9,6 @@ accountRoute.route('/registerdoctor').post(Middlewares.verifyToken, Middlewares.
 accountRoute.route('/getall').post(Middlewares.verifyToken, Middlewares.permission([Role.admin]), AccountController.getAll); // done
 accountRoute.route('/changeinfodoctor').put(Middlewares.verifyToken, Middlewares.permission([Role.admin]), AccountController.changeInfoDoctor); // done
 accountRoute.route('/detail').get(Middlewares.verifyToken, AccountController.getInfoByUserId); // done
-
+accountRoute.route('/deletedoctor').put(Middlewares.verifyToken, Middlewares.permission([Role.admin]), AccountController.deleteDoctorByAdmin); // done
 
 export default accountRoute;

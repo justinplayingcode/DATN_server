@@ -172,6 +172,19 @@ export default class AccountController {
     }
   }
 
+  public static deleteDoctorByAdmin = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.id], next);
+      await DoctorService.deleteByAdmin(req.body.id);
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        message: "success"
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
   //upload avatar
   public static uploadAvatar = async (req, res, next) => {
     try {

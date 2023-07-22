@@ -6,7 +6,6 @@ const medicationsSchema = new Schema({
         type: String,
         trim: true,
         required: true,
-        unique: true
     },
     designation: {
         type: String,

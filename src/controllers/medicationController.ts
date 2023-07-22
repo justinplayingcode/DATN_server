@@ -72,4 +72,17 @@ export default class MedicationController {
       next(error)
     }
   }
+
+  public static deleteMedication = async (req, res, next) => {
+    try {
+      validateReqBody(req, [schemaFields.id], next);
+      await MedicationService.findOneAndDelete(req.body.id);
+      res.status(ApiStatusCode.OK).json({
+        status: ApiStatus.succes,
+        message: "success"
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
