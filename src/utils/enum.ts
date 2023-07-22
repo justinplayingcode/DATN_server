@@ -13,6 +13,11 @@ export enum ApiStatusCode {
   ServerError = 500,
 }
 
+export enum IsUploadFor {
+  avatar,
+  testResult
+}
+
 export enum Role {
   doctor,
   patient,

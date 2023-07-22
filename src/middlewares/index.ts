@@ -1,5 +1,6 @@
+import { uploadAvatar, uploadTestResult } from "../helpers/cloudinary";
 import jwToken from "../helpers/jwt";
-import { ApiStatus, ApiStatusCode, Role } from "../utils/enum";
+import { ApiStatus, ApiStatusCode, IsUploadFor, Role } from "../utils/enum";
 import Message from "../utils/message";
 
 export default class Middlewares {
@@ -74,5 +75,14 @@ export default class Middlewares {
             status: ApiStatus.fail,
             message: err.message
         })
+    }
+
+    public static upload = (isFor: IsUploadFor, key: string) => {
+      switch(isFor) {
+        case IsUploadFor.avatar:
+          return uploadAvatar.single(key);
+        case IsUploadFor.testResult:
+          return uploadTestResult.single(key);
+      }
     }
 }
