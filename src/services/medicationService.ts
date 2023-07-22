@@ -14,12 +14,9 @@ export default class MedicationService {
       .select(`-${schemaFields.isActive}`)
       .lean();
 
-    const total = await Medications
-    .find({ isActive: true, name: { $regex: searchKey, $options: "i" } }, { __v: 0 }).countDocuments();
-
     return {
       values,
-      total
+      total: values.length
     }
   }
   public static findOneById = async (id) => {
@@ -29,6 +26,9 @@ export default class MedicationService {
     return await Medications.findByIdAndUpdate( id, obj, { new: true, runValidators: true} )
   }
   public static findOneByName = async (searchKey) => {
-    return await Medications.find({ name: { $regex: new RegExp(searchKey, 'i') } })
+    return await Medications.find({ isActive: true, name: { $regex: new RegExp(searchKey, 'i') } }).select(`-${schemaFields.isActive}`)
+  }
+  public static findOneAndDelete = async (id) => {
+    return await Medications.findByIdAndUpdate( id, { isActive: false }, { new: true, runValidators: true} )
   }
 }

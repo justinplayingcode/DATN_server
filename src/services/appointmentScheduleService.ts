@@ -152,7 +152,7 @@ export default class appointmentScheduleService {
     } else {
       const department = departmentId.departmentCode === DepartmentType.canLamSang ? undefined : departmentId.departmentCode;
       const values = (await AppointmentSchedule
-        .find(department ? { doctorId: doctorId, departmentId: departmentId._id, statusAppointment: { $in: [StatusAppointment.testing, StatusAppointment.wait] }, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
+        .find(department ? { doctorId: doctorId, departmentId: departmentId._id, statusAppointment: StatusAppointment.testing, typeAppointment: { $in: [TypeAppointmentSchedule.khamTheoBHYT, TypeAppointmentSchedule.khamThuong]} } : { statusAppointment: StatusAppointment.testing }, { __v: 0 })
         .sort({ statusUpdateTime: -1 })
         .skip((page - 1) * pageSize)
         .limit(pageSize)

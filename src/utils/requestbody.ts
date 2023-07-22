@@ -141,7 +141,6 @@ export class ReqBody {
 
     //díeases
     public static createDisases = [
-      schemaFields.diseasesCode,
       schemaFields.diseasesName,
       schemaFields.symptom,
       schemaFields.prevention,
@@ -149,7 +148,6 @@ export class ReqBody {
 
     public static editDisases = [
       schemaFields.id,
-      schemaFields.diseasesCode,
       schemaFields.diseasesName,
       schemaFields.symptom,
       schemaFields.prevention,

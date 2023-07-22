@@ -9,5 +9,6 @@ diseasesRoute.route('/getall').post(Middlewares.verifyToken, DiseasesController.
 diseasesRoute.route('/creatediseases').post(Middlewares.verifyToken, Middlewares.permission([Role.admin]), DiseasesController.createDiseases); //done
 diseasesRoute.route('/editdiseases').put(Middlewares.verifyToken, Middlewares.permission([Role.admin]), DiseasesController.editDiseases); //done
 diseasesRoute.route('/picker').post(Middlewares.verifyToken, DiseasesController.pickerDisease) //done
+diseasesRoute.route('/delete').put(Middlewares.verifyToken,Middlewares.permission([Role.admin]), DiseasesController.deleteDisease) //done
 
 export default diseasesRoute;
