@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Role } from '../utils/enum';
+import { IsUploadFor, Role } from '../utils/enum';
 import Middlewares from '../middlewares';
 import ScheduleController from '../controllers/scheduleController';
 
@@ -15,7 +15,7 @@ scheduleRoute.route("/startschedulenormal").put(Middlewares.verifyToken, Middlew
 scheduleRoute.route("/testingrequest").put(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.changeToTesting);
 scheduleRoute.route("/alltestrequest").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.getAllTestRequestBeforeTesting);
 scheduleRoute.route("/starttesting").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.testingToProcess);
-scheduleRoute.route("/donetesting").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.testingToWait);
+scheduleRoute.route("/donetesting").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), Middlewares.upload(IsUploadFor.testResult, 'detailsFileClouds'), ScheduleController.testingToWait); 
 scheduleRoute.route("/done").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.changeToDone); //done
 scheduleRoute.route("/doctorrequestschedule").post(Middlewares.verifyToken, Middlewares.permission([Role.doctor]), ScheduleController.doctorRequestScheduleForPatientIn); //done
 
