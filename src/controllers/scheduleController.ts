@@ -13,6 +13,7 @@ import { IUpdateHealth } from "../models/Health";
 import { ICreateBoarding, IEditBoarding } from "../models/Patient";
 import boardingService from "../services/boardingService";
 import prescriptionService from "../services/prescriptionService";
+import { removeInCloudinary } from "../helpers/cloudinary";
 // import MomentTimezone from "../helpers/timezone";
 
 export default class ScheduleController {
@@ -341,36 +342,45 @@ export default class ScheduleController {
     // update test result
     const session = await mongoose.startSession();
     session.startTransaction();
+    const filesCLoud: any[] = req.files;
     try {
       const { userId } = req.user;
-      validateReqBody(req, ReqBody.testingToProcess, next);
+      const { id: scheduleId } = req.query;
       const { _id: doctorId } = await DoctorService.getInforByUserId(userId);
-      const listResult: any[] = req.body.testResults;
-      if(listResult.length > 0) {
-        await appointmentScheduleService.changeStatusToWaitAfterTesting(req.body.appointmentScheduleId, session);
-        const listresults = listResult.map((result) => {
+      const filesCloud = filesCLoud.map(e => e.path);
+      if(req.body.testResultIds.length > 0) {
+        await appointmentScheduleService.changeStatusToWaitAfterTesting(scheduleId, session);
+        const listresults = req.body.testResultIds.map((id, index) => {
           let updateObj = {
             doctorId,
-            detailsFileCloud: result.detailsFileCloud,
-            reason: result.reason,
+            reason: req.body?.reasons[index],
+            detailsFileCloud: !!req.body?.nameFiles[index] ? filesCloud.shift() : "",
           }
-          return testService.updateTestResultById(result.id, updateObj, session);
+          return testService.updateTestResultById(id, updateObj, session);
         })
         await Promise.all(listresults);
         await session.commitTransaction();
         session.endSession();
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,
-          message: "Successful"
+          message: "Successful",
+          listresults,
+          file: req.body?.detailsFileClouds
         })
       } else {
-        const err: any = new Error("Test Result không được trống");
+        const err: any = new Error("testResultIds không được trống");
         err.statusCode = ApiStatusCode.BadRequest;
+        if(filesCLoud.length > 0) {
+          filesCLoud.forEach(item => removeInCloudinary(item))
+        }
         await session.abortTransaction();
         session.endSession();
         return next(err)
       }
     } catch (error) {
+      if(filesCLoud.length > 0) {
+        filesCLoud.forEach(item => removeInCloudinary(item))
+      }
       await session.abortTransaction();
       session.endSession();
       next(error)

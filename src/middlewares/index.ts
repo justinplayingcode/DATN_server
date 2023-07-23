@@ -82,7 +82,7 @@ export default class Middlewares {
         case IsUploadFor.avatar:
           return uploadAvatar.single(key);
         case IsUploadFor.testResult:
-          return uploadTestResult.single(key);
+          return uploadTestResult.any(key);
       }
     }
 }
