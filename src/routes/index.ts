@@ -6,6 +6,8 @@ import healthcareRoute from './healthcareRoute';
 import medicationRoute from './medicationRoute';
 import diseasesRoute from './diseasesRoute';
 import scheduleRoute from './scheduleRoute';
+import statistcRoute from './statisticRoute';
+import postsRoute from './postRoute';
 
 const routes = Router();
 
@@ -16,5 +18,7 @@ routes.use('/healthcare', healthcareRoute);
 routes.use('/medication', medicationRoute);
 routes.use('/diseases', diseasesRoute);
 routes.use('/schedule', scheduleRoute);
+routes.use('/statistic', statistcRoute);
+routes.use('/posts', postsRoute);
 
 export default routes;

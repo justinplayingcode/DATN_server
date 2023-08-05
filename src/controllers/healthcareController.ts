@@ -14,9 +14,6 @@ import DoctorService from "../services/doctorService";
 import HistoriesService from "../services/historiesService";
 import testService from "../services/testService";
 import historiesService from "../services/historiesService";
-// import axios from "axios";
-// import fs from "fs";
-// import path from "path";
 export default class HealthcareController {
     //POST 
     public static registerPatient = async (req, res, next) => {
