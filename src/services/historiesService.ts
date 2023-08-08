@@ -1,8 +1,10 @@
 import MomentTimezone from "../helpers/timezone";
 import { ICreateHistory } from "../models/Histories";
+import { MappingGender, MappingTypeAppointmentSchedule } from "../models/common";
 import AppointmentSchedule from "../schema/AppointmentSchedule";
 import Histories from "../schema/Histories"
 import { schemaFields } from "../utils/constant";
+import Convert from "../utils/convert";
 import { ScheduleRequestStatus, StatusAppointment } from "../utils/enum";
 import DiseasesService from "./diseasesService";
 import MedicationService from "./medicationService";
@@ -237,5 +239,46 @@ export default class historiesService {
       note
     }
     return data;
+  }
+
+  public static getHistoryMedicalOfDoctorCsv = async (doctorId) => {
+    const values = (await AppointmentSchedule
+      .find({ doctorId, statusAppointment: StatusAppointment.done, approve: ScheduleRequestStatus.accpect })
+      .sort({ statusUpdateTime: -1 })
+      .select(`-__v -${schemaFields.statusUpdateTime} -${schemaFields.approve}`)
+      .populate({
+        path: schemaFields.patientId,
+        populate: {
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`
+        }
+      })
+      .populate({
+        path: schemaFields.departmentId,
+      })
+      .lean())?.reduce((acc, cur) => {
+        const { patientId: patient, departmentId: department, appointmentDate, typeAppointment, initialSymptom } = cur;
+        if(cur.patientId) {
+          const { userId: user, insurance } = patient as any;
+          if(user) {
+            const { dateOfBirth, fullname, phonenumber, address, gender, email } = user as any;
+            acc.push({
+              Loai_Kham: MappingTypeAppointmentSchedule[typeAppointment],
+              Ngay_Kham: MomentTimezone.convertDDMMYYY(appointmentDate),
+              Trieu_Chung: initialSymptom,
+              Ten_Khoa: Convert.vietnameseUnsigned((department as any).departmentName),
+              Ten_Benh_Nhan: Convert.vietnameseUnsigned(fullname),
+              Gioi_Tinh: MappingGender[gender],
+              Ngay_Sinh: MomentTimezone.convertDDMMYYY(dateOfBirth),
+              So_BHYT: insurance,
+              So_Dien_Thoai: phonenumber,
+              Dia_Chi: Convert.vietnameseUnsigned(address),
+              Email: email
+            })
+          }
+        }
+        return acc;
+      }, [])
+    return values;
   }
 }

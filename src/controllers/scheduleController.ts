@@ -3,7 +3,7 @@ import appointmentScheduleService from "../services/appointmentScheduleService";
 import DoctorService from "../services/doctorService";
 import PatientService from "../services/patientService";
 import { TableResponseNoData, schemaFields } from "../utils/constant";
-import { ApiStatus, ApiStatusCode, TableType, StatusAppointment } from "../utils/enum";
+import { ApiStatus, ApiStatusCode, TableType, StatusAppointment, ScheduleRequestStatus } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
 import Validate from "../utils/validate";
 import historiesService from "../services/historiesService";
@@ -107,10 +107,10 @@ export default class ScheduleController {
       let data;
       switch(req.body.tableType) {
         case TableType.scheduleRequestWaitApprove:
-          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id, false);
+          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id, ScheduleRequestStatus.wait);
           break;
         case TableType.scheduleRequestApproved:
-          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id, true);
+          data = await appointmentScheduleService.getAllScheduleRequest(req.body.page, req.body.pageSize, req.body.searchKey, doctor._id, ScheduleRequestStatus.accpect);
           break;
         default:
           data = TableResponseNoData;

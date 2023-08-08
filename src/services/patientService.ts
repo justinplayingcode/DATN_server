@@ -4,6 +4,8 @@ import Patient from "../schema/Patient"
 import { schemaFields } from "../utils/constant";
 import MomentTimezone from "../helpers/timezone";
 import Boarding from "../schema/Boarding";
+import Convert from "../utils/convert";
+import { MappingGender } from "../models/common";
 
 export default class PatientService {
   public static totalCount = async () => {
@@ -160,5 +162,63 @@ export default class PatientService {
     }
 
     return respone;
+  }
+
+  public static getAllCsv = async () => {
+    const doctors = await Patient.find({})
+        .select(`-__v -${schemaFields.isActive}`)
+        .populate({
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`,
+        })
+        .lean();
+      const response = doctors.reduce((acc, curr) => {
+        if(curr.userId) {
+          const { dateOfBirth, fullname, phonenumber, address, gender, email } = curr.userId as any;
+          acc.push({
+            Ho_Va_Ten: Convert.vietnameseUnsigned(fullname),
+            Ngay_Sinh: MomentTimezone.convertDDMMYYY(dateOfBirth),
+            Gioi_Tinh: MappingGender[gender],
+            So_BHYT: `${curr.insurance}`,
+            Email: email,
+            So_Dien_Thoai: `${phonenumber}`,
+            Dia_Chi: Convert.vietnameseUnsigned(address),
+          })
+        }
+        return acc;
+      }, []);
+      return response;
+  }
+
+  public static getAllPatientOnBoardingCsv = async (departmentId, boardingStatus) => {
+    const patients = (await Boarding
+      .find({ departmentId, boardingStatus: boardingStatus })
+      .select(`-__v`)
+      .populate({
+        path: schemaFields.patientId,
+        populate: ({
+          path: schemaFields.userId,
+          select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`
+        })
+      })
+      .populate({ path: schemaFields.departmentId, select: `${schemaFields.departmentName}` })
+      .lean()).reduce((acc, cur) => {
+        const { departmentName} = cur.departmentId as any;
+        const { userId: userIdOfPatient, insurance } = cur.patientId as any;
+        const { dateOfBirth, fullname, phonenumber, address, gender, email } = userIdOfPatient as any;
+        acc.push({
+          Khoa: Convert.vietnameseUnsigned(departmentName),
+          Ngay_Nhap_Vien: MomentTimezone.convertDDMMYYY(cur.onBoardingDate),
+          Ten_Benh_Nhan: Convert.vietnameseUnsigned(fullname),
+          Gioi_Tinh: MappingGender[gender],
+          Ngay_Sinh: MomentTimezone.convertDDMMYYY(dateOfBirth),
+          So_BHYT: insurance,
+          So_Dien_Thoai: phonenumber,
+          Dia_Chi: Convert.vietnameseUnsigned(address),
+          Email: email
+        })
+        return acc
+      }, [])
+    return patients;
   }
 }

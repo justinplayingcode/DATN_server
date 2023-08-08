@@ -3,6 +3,8 @@ import Doctor from "../schema/Doctor"
 import { schemaFields } from "../utils/constant";
 import { IChangeInfoByAdmin, ICreateDoctor } from "../models/Doctor";
 import MomentTimezone from "../helpers/timezone";
+import Convert from "../utils/convert";
+import { MappingGender, MappingRank, mappingDoctorPosition } from "../models/common";
 
 export default class DoctorService {
     public static totalCount = async () => {
@@ -153,5 +155,35 @@ export default class DoctorService {
 
     public static deleteByAdmin = async (id) => {
       return await Doctor.findByIdAndUpdate( id, { isActive: false }, {runValidators: true});
+    }
+
+    public static getAllCsv = async () => {
+      const doctors = await Doctor.find({ isActive: true })
+          .select(`-__v -${schemaFields.isActive}`)
+          .populate({
+            path: schemaFields.userId,
+            select: `${schemaFields.fullname} ${schemaFields.email} ${schemaFields.phonenumber} ${schemaFields.address} ${schemaFields.dateOfBirth} ${schemaFields.gender} ${schemaFields._id} ${schemaFields.identification}`,
+          })
+          .populate({ path: schemaFields.departmentId, select: `${schemaFields.departmentName}` })
+          .lean();
+        const response = doctors.reduce((acc, curr) => {
+          if(curr.userId) {
+            const { dateOfBirth, fullname, phonenumber, address, gender, email } = curr.userId as any;
+            const { departmentName } = curr.departmentId as any;
+            acc.push({
+              Khoa: Convert.vietnameseUnsigned(departmentName),
+              Ho_Va_Ten: Convert.vietnameseUnsigned(fullname),
+              Ngay_Sinh: MomentTimezone.convertDDMMYYY(dateOfBirth),
+              Gioi_Tinh: MappingGender[gender],
+              Chuc_Vu: mappingDoctorPosition[curr.position],
+              Trinh_Do: MappingRank[curr.rank],
+              Email: email,
+              So_Dien_Thoai: `${phonenumber}`,
+              Dia_Chi: Convert.vietnameseUnsigned(address),
+            })
+          }
+          return acc;
+        }, []);
+        return response;
     }
 }
