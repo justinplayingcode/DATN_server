@@ -124,7 +124,9 @@ export const schemaFields = {
   statusUpdateTime: 'statusUpdateTime',
   healthIndicator: 'healthIndicator',
 
-  note: 'note'
+  note: 'note',
+  // chart
+  dataSource: 'dataSource',
 }
 
 export const TableResponseNoData = {

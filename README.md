@@ -1,4 +1,4 @@
-# General Hospital Managements
-## by justin
+# General Hospital Managements Server
+by Phạm Duy Thắng _ 20193107
 
 

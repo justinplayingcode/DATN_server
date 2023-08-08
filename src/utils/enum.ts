@@ -124,3 +124,14 @@ export enum ScheduleRequestStatus {
   accpect,
   reject
 }
+
+export enum exportCsvType {
+  doctorAccount,
+  patientAccount,
+  patientIn,
+  patientOut,
+  historiesMedical,
+  manageMedication,
+  manageDisease,
+  
+}

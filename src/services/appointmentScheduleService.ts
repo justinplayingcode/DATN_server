@@ -1,4 +1,4 @@
-import { ClientSession } from "mongoose";
+import mongoose, { ClientSession } from "mongoose";
 import AppointmentSchedule from "../schema/AppointmentSchedule";
 import { DepartmentType, ScheduleRequestStatus, StatusAppointment, TypeAppointmentSchedule } from "../utils/enum";
 import { ICreateAppointmentSchedule, ICreateAppointmentScheduleWhenRegister } from "../models/AppointmentSchedule";
@@ -298,7 +298,7 @@ export default class appointmentScheduleService {
     }
   }
 
-  public static getAllScheduleRequest = async (page: number, pageSize: number, searchKey: string, doctorId, approve: boolean) => {
+  public static getAllScheduleRequest = async (page: number, pageSize: number, searchKey: string, doctorId, approve: ScheduleRequestStatus) => {
     const currentDate = new Date();
     currentDate.setHours( 0, 0, 0, 0);
     const values = (await AppointmentSchedule
@@ -345,7 +345,7 @@ export default class appointmentScheduleService {
       }, []);
 
       const total = (await AppointmentSchedule
-        .find( { doctorId, approve, statusAppointment: StatusAppointment.wait } )
+        .find( { doctorId, approve, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate } } )
         .populate({
           path: schemaFields.patientId,
           select: `-__v`,
@@ -607,6 +607,155 @@ export default class appointmentScheduleService {
         return acc;
       }, [])
       return schedule
+  }
+
+  public static getCountInLast7Day = async () => {
+    try {
+      const today = new Date();
+      const lastSevenDays = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const result = await AppointmentSchedule.aggregate([
+        {
+          $match: {
+            appointmentDate: { $gte: lastSevenDays, $lte: today },
+            approve: ScheduleRequestStatus.accpect,
+            statusAppointment: StatusAppointment.done
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$appointmentDate' },
+              month: { $month: '$appointmentDate' },
+              day: { $dayOfMonth: '$appointmentDate' },
+            },
+            appointmentCount: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: {
+                  $dateFromParts: {
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    day: '$_id.day',
+                  },
+                },
+              },
+            },
+            appointmentCount: 1,
+          },
+        },
+      ])
+      const dates = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+        dates.push(date.toISOString().slice(0, 10));
+      }
+      const results = dates.map((date) => {
+        const stat = result.find((item) => item.date === date);
+        return {
+          date: date,
+          appointmentCount: stat ? stat.appointmentCount : 0,
+        };
+      });
+      return results;
+    } catch (error) {
+      throw error
+    }
+  }
+
+  public static getCountInLast7DayForDoctor = async (departmentId) => {
+    try {
+      const today = new Date();
+      const lastSevenDays = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const result = await AppointmentSchedule.aggregate([
+        {
+          $match: {
+            appointmentDate: { $gte: lastSevenDays, $lte: today },
+            approve: ScheduleRequestStatus.accpect,
+            statusAppointment: StatusAppointment.done,
+            departmentId: new mongoose.Types.ObjectId(departmentId)
+          }
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: '$appointmentDate' },
+              month: { $month: '$appointmentDate' },
+              day: { $dayOfMonth: '$appointmentDate' },
+            },
+            appointmentCount: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            date: {
+              $dateToString: {
+                format: '%Y-%m-%d',
+                date: {
+                  $dateFromParts: {
+                    year: '$_id.year',
+                    month: '$_id.month',
+                    day: '$_id.day',
+                  },
+                },
+              },
+            },
+            appointmentCount: 1,
+          },
+        },
+      ])
+      const dates = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+        dates.push(date.toISOString().slice(0, 10));
+      }
+      const results = dates.map((date) => {
+        const stat = result.find((item) => item.date === date);
+        return {
+          date: date,
+          appointmentCount: stat ? stat.appointmentCount : 0,
+        };
+      });
+      return results;
+    } catch (error) {
+      throw error
+    }
+  }
+
+  public static getDataNotificationForDoctor = async (doctorId) => {
+    const currentDate = new Date();
+    currentDate.setHours( 0, 0, 0, 0);
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const requestCount = await AppointmentSchedule
+      .find({doctorId, approve: ScheduleRequestStatus.wait, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate }})
+      .lean().count();
+    const scheduleCount = await AppointmentSchedule
+      .find({ doctorId, approve: ScheduleRequestStatus.accpect, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
+      .lean().count();
+    return {
+      requestCount,
+      scheduleCount
+    }
+  }
+
+  public static getDataNotificationForPatient = async (patientId) => {
+    const currentDate = new Date();
+    currentDate.setHours( 0, 0, 0, 0);
+    const nextDate = new Date(currentDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const scheduleCount = await AppointmentSchedule
+      .find({ patientId, approve: ScheduleRequestStatus.accpect, statusAppointment: StatusAppointment.wait, appointmentDate: { $gte: currentDate, $lt: nextDate } })
+      .lean().count();
+    return {
+      scheduleCount
+    }
   }
 
 }
