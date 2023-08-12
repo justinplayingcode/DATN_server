@@ -213,7 +213,10 @@ export default class StatisticController {
         }
       })
       res.attachment(fileName)
-      res.status(ApiStatusCode.OK).send(csv);
+      res.status(ApiStatusCode.OK).send({
+        csv,
+        fileName
+      });
     } catch (error) {
       next(error)
     }
