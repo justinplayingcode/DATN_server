@@ -611,7 +611,7 @@ export default class appointmentScheduleService {
 
   public static getCountInLast7Day = async () => {
     try {
-      const today = new Date();
+      const today = MomentTimezone.convertDate(new Date());
       const lastSevenDays = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
       const result = await AppointmentSchedule.aggregate([
         {
@@ -649,6 +649,9 @@ export default class appointmentScheduleService {
             appointmentCount: 1,
           },
         },
+        {
+          $sort: { date: -1 } 
+        }
       ])
       const dates = [];
       for (let i = 0; i < 7; i++) {
