@@ -14,9 +14,13 @@ export default class MedicationService {
       .select(`-${schemaFields.isActive}`)
       .lean();
 
+    const totals = await Medications
+    .find({ isActive: true, name: { $regex: searchKey, $options: "i" } }, { __v: 0 })
+    .lean();
+
     return {
       values,
-      total: values.length
+      total: totals.length
     }
   }
   public static findOneById = async (id) => {

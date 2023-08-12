@@ -15,11 +15,14 @@ export default class DiseasesService {
     .limit(pageSize)
     .select(`-__v -${schemaFields.isActive}`)
     .lean()
-    // .lean();
-    // const total = await Diseases.find({ isActive: true, name: { $regex: searchKey, $options: "i" } }).countDocuments();
+
+    const totals = await Diseases.find({ isActive: true, diseasesName: { $regex: searchKey, $options: "i" } })
+    .select(`-__v -${schemaFields.isActive}`)
+    .lean()
+
     return {
       values,
-      total: values.length
+      total: totals.length
     }
   }
   public static findOneById = async (id) => {

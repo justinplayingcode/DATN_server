@@ -263,9 +263,9 @@ export default class historiesService {
           if(user) {
             const { dateOfBirth, fullname, phonenumber, address, gender, email } = user as any;
             acc.push({
-              Loai_Kham: MappingTypeAppointmentSchedule[typeAppointment],
+              Loai_Kham: Convert.vietnameseUnsigned(MappingTypeAppointmentSchedule[typeAppointment]),
               Ngay_Kham: MomentTimezone.convertDDMMYYY(appointmentDate),
-              Trieu_Chung: initialSymptom,
+              Trieu_Chung: Convert.vietnameseUnsigned(initialSymptom),
               Ten_Khoa: Convert.vietnameseUnsigned((department as any).departmentName),
               Ten_Benh_Nhan: Convert.vietnameseUnsigned(fullname),
               Gioi_Tinh: MappingGender[gender],
