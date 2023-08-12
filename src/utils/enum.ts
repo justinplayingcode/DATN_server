@@ -116,7 +116,9 @@ export enum TableType {
   approveRequestMedical,
   historyMedicalOfPatient, //
   historyMedicalOfDoctor, //
-  scheduleDoneParaclinical
+  scheduleDoneParaclinical,
+  postsWait,
+  postsApproved,
 }
 
 export enum ScheduleRequestStatus {
