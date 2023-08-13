@@ -6,6 +6,7 @@ import PostsController from "../controllers/postsController";
 const postsRoute = Router();
 
 postsRoute.route('/').post(Middlewares.verifyToken, Middlewares.permission([Role.admin, Role.doctor]), PostsController.createPost);
+postsRoute.route('/getall').post(Middlewares.verifyToken, PostsController.getAllPost);
 // postsRoute.route('/').put(Middlewares.verifyToken, Middlewares.permission([Role.admin, Role.doctor]), PostsController.editPost);
 postsRoute.route('/approve').put(Middlewares.verifyToken, Middlewares.permission([Role.admin]), PostsController.approve);
 postsRoute.route('/delete').put(Middlewares.verifyToken, Middlewares.permission([Role.admin]), PostsController.delete);
