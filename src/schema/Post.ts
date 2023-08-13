@@ -35,7 +35,7 @@ const postSchema = new Schema({
         },
         required: [true, 'template must be required']
     }
-})
+}, {timestamps: true})
 
 const Post = mongoose.model(collectionName.Post, postSchema);
 
