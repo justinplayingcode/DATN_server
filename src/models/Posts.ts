@@ -1,8 +1,19 @@
 export interface resPosts {
-  id: string;
   title: string;
   image: string;
-  subcontent: string;
-  authorName: string;
+  content: string;
+  author: any;
   date: Date;
+  approve: boolean;
+  template: number;
+}
+
+export interface ICreatePost {
+  title: string;
+  image: string;
+  content: string;
+  author: any;
+  date: Date;
+  approve: boolean;
+  template: number;
 }

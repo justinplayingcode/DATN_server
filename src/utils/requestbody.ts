@@ -216,5 +216,10 @@ export class ReqBody {
       schemaFields.price
     ]
 
-    
+    //post
+    public static createPostService = [
+      schemaFields.title,
+      schemaFields.content,
+      schemaFields.image,
+    ]
 }
