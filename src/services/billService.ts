@@ -15,7 +15,7 @@ export default class billService {
   }
 
   public static findByHistoryId = async (historyId) => {
-    return await Bill.find({ historyId }).select("-__v").lean();
+    return await Bill.findOne({ historyId }).select("-__v").lean();
   }
 
 }
