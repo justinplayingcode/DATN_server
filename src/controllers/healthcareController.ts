@@ -9,7 +9,7 @@ import SecurityService from "../services/securityService";
 import UserService from "../services/userService";
 import HealthService from "../services/healthService";
 import appointmentScheduleService from "../services/appointmentScheduleService";
-import { TableResponseNoData } from "../utils/constant";
+import { TableResponseNoData, schemaFields } from "../utils/constant";
 import DoctorService from "../services/doctorService";
 import HistoriesService from "../services/historiesService";
 import testService from "../services/testService";
@@ -262,7 +262,8 @@ export default class HealthcareController {
     //GET
     public static getPill = async (req, res, next) => {
       try {
-        const bill = await billService.findByHistoryId(req.query.id);
+        const history = await historiesService.findOneByKey(schemaFields.appointmentScheduleId, req.query.id);
+        const bill = await billService.findByHistoryId(history._id);
         res.status(ApiStatusCode.OK).json({
           status: ApiStatus.succes,
           data : bill
