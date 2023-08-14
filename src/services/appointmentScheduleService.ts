@@ -585,7 +585,7 @@ export default class appointmentScheduleService {
         statusAppointment: StatusAppointment.done,
         statusUpdateTime: new Date
       }
-      await AppointmentSchedule.findByIdAndUpdate(id, obj, {runValidators: true, session});
+      return await AppointmentSchedule.findByIdAndUpdate(id, obj, {new: true, runValidators: true, session});
     } catch (error) {
       throw error;
     }

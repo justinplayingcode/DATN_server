@@ -3,7 +3,7 @@ import appointmentScheduleService from "../services/appointmentScheduleService";
 import DoctorService from "../services/doctorService";
 import PatientService from "../services/patientService";
 import { TableResponseNoData, schemaFields } from "../utils/constant";
-import { ApiStatus, ApiStatusCode, TableType, StatusAppointment, ScheduleRequestStatus } from "../utils/enum";
+import { ApiStatus, ApiStatusCode, TableType, StatusAppointment, ScheduleRequestStatus, TypeAppointmentSchedule } from "../utils/enum";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
 import Validate from "../utils/validate";
 import historiesService from "../services/historiesService";
@@ -14,7 +14,10 @@ import { ICreateBoarding, IEditBoarding } from "../models/Patient";
 import boardingService from "../services/boardingService";
 import prescriptionService from "../services/prescriptionService";
 import { removeInCloudinary } from "../helpers/cloudinary";
-// import MomentTimezone from "../helpers/timezone";
+import { MappingTypeAppointmentSchedule, MappingTypeAppointmentSchedulePrice, TestList } from "../models/common";
+import MedicationService from "../services/medicationService";
+import billService from "../services/billService";
+import { ICreateBill } from "../models/Bill";
 
 export default class ScheduleController {
   //POST
@@ -393,7 +396,7 @@ export default class ScheduleController {
     try {
       validateReqBody(req, ReqBody.changeToDone, next);
       // update AppointmentSchedule
-      await appointmentScheduleService.changeStatusToDone(req.body.id, session);
+      const appointment = await appointmentScheduleService.changeStatusToDone(req.body.id, session);
       // update Health
       const updateHealth: IUpdateHealth = {
         heartRate: req.body.heartRate,
@@ -438,6 +441,54 @@ export default class ScheduleController {
         medicationId: (req.body.medicationId).toString(),
       }
       await prescriptionService.create(prescription, session);
+      // create bill
+      const typeAppointmentString = MappingTypeAppointmentSchedule[appointment.typeAppointment];
+      const typeAppointmentPrice = MappingTypeAppointmentSchedulePrice[appointment.typeAppointment];
+      let _prescription = [];
+      const medications = Array.from(req.body.medicationId).map((e) => {
+        return MedicationService.findOneById(e);
+      });
+      await Promise.all(medications).then(data => {
+        _prescription = data.map(e => {
+          return {
+            name: e.name,
+            price: e.price
+          }
+        })
+      })
+      const prescriptionTotal = _prescription.reduce((acc, cur) => {
+        return acc + cur.price;
+      }, 0)
+      const testservices = await testService.getAllTestServiceInHistoryWithPrice(req.body.historyId);
+        const services = testservices.map(e => {
+          return {
+            service: TestList[e.service],
+            price: e.price
+          }
+        })
+        const totalService = services.reduce((acc, cur) => {
+          return acc + cur.price
+        }, 0);
+        let discount = 1;
+        if(appointment.typeAppointment === TypeAppointmentSchedule.khamTheoBHYT) {
+          discount = 0.2;
+        }
+        const totalBill = Number(typeAppointmentPrice) + Number(prescriptionTotal) + Number(totalService);
+        const detailBill = {
+          typeAppointment: typeAppointmentString,
+          price: typeAppointmentPrice,
+          prescription: _prescription,
+          services,
+          total: totalBill * discount,
+          discount: `${((1 - discount) * 100)}%`
+        }
+        const newBill: ICreateBill = {
+          historyId: req.body.historyId,
+          detail: JSON.stringify(detailBill),
+          totalCost: totalBill * discount
+        }
+        await billService.create(newBill, session);
+      //
       await session.commitTransaction();
       session.endSession();
       res.status(ApiStatusCode.OK).json({
