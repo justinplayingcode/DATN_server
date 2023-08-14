@@ -1,7 +1,7 @@
 import MomentTimezone from "../helpers/timezone";
 import PatientService from "../services/patientService";
 import validateReqBody, { ReqBody } from "../utils/requestbody";
-import { ApiStatus, ApiStatusCode, Onboarding, Role, TableType} from "../utils/enum";
+import { ApiStatus, ApiStatusCode, Onboarding, Role, TableType } from "../utils/enum";
 import mongoose from "mongoose";
 import Validate from "../utils/validate";
 import Convert from "../utils/convert";
@@ -14,6 +14,7 @@ import DoctorService from "../services/doctorService";
 import HistoriesService from "../services/historiesService";
 import testService from "../services/testService";
 import historiesService from "../services/historiesService";
+import billService from "../services/billService";
 export default class HealthcareController {
     //POST 
     public static registerPatient = async (req, res, next) => {
@@ -259,29 +260,17 @@ export default class HealthcareController {
     }
 
     //GET
-    // public static downloadTestResult = async (req, res, next) => {
-    //   try {
-    //     const cloudinaryURL = req.query.url;
-    //     const service = req.query.service;
-    //     const fullname = req.query.fullname;
-    //     const yearofbirth = req.query.yearofbirth;
-    //     const desktopPath = path.join(process.env.HOME || process.env.USERPROFILE, 'Desktop');
-    //     const response = await axios({
-    //       method: 'GET',
-    //       url: cloudinaryURL,
-    //       responseType: 'stream'
-    //     });
-    //     const fileName = cloudinaryURL.split('/').pop();
-    //     const fileExtension = fileName.split('.').pop().toLowerCase();
-    //     response.data.pipe(fs.createWriteStream(`${desktopPath}\\${service}-${fullname}-${yearofbirth}.${fileExtension}`));
-    //     res.status(ApiStatusCode.OK).json({
-    //       status: ApiStatus.succes,
-    //       data: 'successful'
-    //     })
-    //   } catch (error) {
-    //     next(error)
-    //   }
-    // }
+    public static getPill = async (req, res, next) => {
+      try {
+        const bill = await billService.findByHistoryId(req.query.id);
+        res.status(ApiStatusCode.OK).json({
+          status: ApiStatus.succes,
+          data : bill
+        });
+      } catch (error) {
+        next(error)
+      }
+    }
 
     
 }

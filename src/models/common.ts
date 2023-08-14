@@ -7,6 +7,13 @@ export const MappingTypeAppointmentSchedule = {
   [TypeAppointmentSchedule.khamTheoChiDinh]: 'Khám theo chỉ định',
 }
 
+export const MappingTypeAppointmentSchedulePrice = {
+  [TypeAppointmentSchedule.khamTheoYeuCau]: '200000',
+  [TypeAppointmentSchedule.khamThuong]: '150000',
+  [TypeAppointmentSchedule.khamTheoBHYT]: '80000',
+  [TypeAppointmentSchedule.khamTheoChiDinh]: '150000',
+}
+
 export const MappingGender = {
   [Gender.male]: 'Nam',
   [Gender.female]: 'Nu',

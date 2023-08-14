@@ -37,6 +37,25 @@ export default class testService {
       return values;
   }
 
+  public static getAllTestServiceInHistoryWithPrice = async (historyId) => {
+    const values = (await TestResult
+      .find({ historyId })
+      .select(`-__v`)
+      .populate({
+        path: schemaFields.serviceId,
+      })
+      .lean())?.reduce((acc, cur) => {
+        const { _id, service, price } = cur.serviceId as any;
+        acc.push({
+          serviceId: _id,
+          service,
+          price
+        })
+        return acc;
+      }, [])
+      return values;
+  }
+
   public static getListTestService = async () => {
     return await TestService.find()
       .select(`${schemaFields.service}`)
