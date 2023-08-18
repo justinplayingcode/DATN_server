@@ -14,7 +14,8 @@ export const collectionName = {
   HealthDiseases: 'HealthDiseases',
   TestService: 'TestService',
   TestResult: 'TestResult',
-  Prescription: 'Prescription'
+  Prescription: 'Prescription',
+  Bill: 'Bill',
 }
 
 export const schemaFields = {
